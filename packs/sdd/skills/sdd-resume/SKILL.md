@@ -1,6 +1,6 @@
 ---
 name: sdd-resume
-description: Retoma un cambio SDD en una sesión nueva. Lee specs/changes/<id>/ y dice en qué etapa está, qué tasks están hechas y cuál es el siguiente paso. Úsala para "retomamos", "¿dónde quedamos?" o "continuar el cambio".
+description: 'Retoma un cambio SDD en una sesión nueva. Lee specs/changes/<id>/ y dice en qué etapa está, qué tasks están hechas y cuál es el siguiente paso. Úsala para "retomamos", "¿dónde quedamos?" o "continuar el cambio".'
 ---
 
 # sdd-resume — Retomar un cambio

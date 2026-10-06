@@ -1,6 +1,6 @@
 ---
 name: sdd-legacy-review
-description: Marca y revisa código muerto con la convención @legacy: solo con evidencia confirmada (grep o análisis), nunca por sospecha, y revisión periódica antes de borrar. Úsala para "código muerto", "¿esto se usa?", "marcar legacy" o la revisión mensual de tags @legacy.
+description: 'Marca y revisa código muerto con la convención @legacy: solo con evidencia confirmada (grep o análisis), nunca por sospecha, y revisión periódica antes de borrar. Úsala para "código muerto", "¿esto se usa?", "marcar legacy" o la revisión mensual de tags @legacy.'
 ---
 
 # sdd-legacy-review — Código muerto con `@legacy`

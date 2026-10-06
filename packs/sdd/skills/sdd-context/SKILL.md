@@ -1,6 +1,6 @@
 ---
 name: sdd-context
-description: Etapa 1 de SDD: antes de especificar o planificar, lee la constitución, las capabilities y los baselines afectados (y el vault de conocimiento si existe) y resume qué existe hoy con archivo:línea, qué reglas aplican y qué no se sabe. Úsala al empezar un cambio ya triado o al entrar a un código desconocido.
+description: 'Etapa 1 de SDD: antes de especificar o planificar, lee la constitución, las capabilities y los baselines afectados (y el vault de conocimiento si existe) y resume qué existe hoy con archivo:línea, qué reglas aplican y qué no se sabe. Úsala al empezar un cambio ya triado o al entrar a un código desconocido.'
 ---
 
 # sdd-context — Etapa 1: contexto

@@ -1,6 +1,6 @@
 ---
 name: sdd-tests
-description: Etapa 4.5 de SDD (TDD): escribe los tests de los requisitos RF-n de un spec antes de implementar, al menos uno por RF e incluidos los casos límite, y comprueba con la salida que le pasa el usuario que fallan por la razón correcta. Úsala para "tests primero", "TDD" o antes de sdd-implement.
+description: 'Etapa 4.5 de SDD (TDD): escribe los tests de los requisitos RF-n de un spec antes de implementar, al menos uno por RF e incluidos los casos límite, y comprueba con la salida que le pasa el usuario que fallan por la razón correcta. Úsala para "tests primero", "TDD" o antes de sdd-implement.'
 ---
 
 # sdd-tests — Etapa 4.5: tests primero

@@ -1,6 +1,6 @@
 ---
 name: sdd-archive
-description: Etapa 7 de SDD: cierra un cambio aprobado. Lo mueve a specs/archive/<id>/, integra lo vigente en specs/capabilities/, actualiza el baseline, registra lo que quedó a medias en specs/half-wired.md y, si el usuario tiene vault de conocimiento, propone (sin escribir) qué aprendizaje reutilizable promover. Úsala para "archivar", "cerrar el cambio" o tras la aprobación de sdd-verify.
+description: 'Etapa 7 de SDD: cierra un cambio aprobado. Lo mueve a specs/archive/<id>/, integra lo vigente en specs/capabilities/, actualiza el baseline, registra lo que quedó a medias en specs/half-wired.md y, si el usuario tiene vault de conocimiento, propone (sin escribir) qué aprendizaje reutilizable promover. Úsala para "archivar", "cerrar el cambio" o tras la aprobación de sdd-verify.'
 ---
 
 # sdd-archive — Etapa 7: archivar

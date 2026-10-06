@@ -1,6 +1,6 @@
 ---
 name: sdd-reviewer
-description: Revisor independiente de solo lectura para SDD (QA del top 1%). Revisa un spec antes del plan (ambigüedades, contradicciones, casos límite, conflictos con la constitución) o un cambio terminado contra su spec y la constitución, y lista hallazgos con archivo:línea sin modificar nada. Úsalo en clarificación, verificación y revisión independiente.
+description: 'Revisor independiente de solo lectura para SDD (QA del top 1%). Revisa un spec antes del plan (ambigüedades, contradicciones, casos límite, conflictos con la constitución) o un cambio terminado contra su spec y la constitución, y lista hallazgos con archivo:línea sin modificar nada. Úsalo en clarificación, verificación y revisión independiente.'
 readonly: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: sdd-plan
-description: Etapa 3 de SDD: escribe el plan técnico (el CÓMO) de un spec aprobado y clarificado. plan.md con contexto actual (archivo:línea), qué RF cubre cada capa, modelo de datos, contratos, pseudocódigo de algoritmos no triviales, decisiones con su alternativa descartada, estrategia de tests y validación contra la constitución. Úsala para "planificar", "diseño técnico" o "plan.md".
+description: 'Etapa 3 de SDD: escribe el plan técnico (el CÓMO) de un spec aprobado y clarificado. plan.md con contexto actual (archivo:línea), qué RF cubre cada capa, modelo de datos, contratos, pseudocódigo de algoritmos no triviales, decisiones con su alternativa descartada, estrategia de tests y validación contra la constitución. Úsala para "planificar", "diseño técnico" o "plan.md".'
 ---
 
 # sdd-plan — Etapa 3: plan

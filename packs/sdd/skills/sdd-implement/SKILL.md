@@ -1,6 +1,6 @@
 ---
 name: sdd-implement
-description: Etapa 5 de SDD: implementa UNA sola task de tasks.md siguiendo el plan y la constitución, sin tocar los tests, y para. Da los comandos de verificación y el mensaje de commit, y no hace commit hasta el OK del usuario. Úsala para "implementa la task Tn", "siguiente task" o un bugfix ya triado.
+description: 'Etapa 5 de SDD: implementa UNA sola task de tasks.md siguiendo el plan y la constitución, sin tocar los tests, y para. Da los comandos de verificación y el mensaje de commit, y no hace commit hasta el OK del usuario. Úsala para "implementa la task Tn", "siguiente task" o un bugfix ya triado.'
 ---
 
 # sdd-implement — Etapa 5: implementar

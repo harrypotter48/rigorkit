@@ -1,6 +1,6 @@
 ---
 name: sdd-spec
-description: Etapa 2 de SDD: redacta el spec de un cambio (QUÉ y POR QUÉ) a partir de una entrevista. Hace al menos 5 preguntas de una en una y escribe specs/changes/<id>/spec.md con requisitos RF-n en notación EARS, casos límite, fuera de alcance y criterios de finalización, sin stack ni archivos. Úsala para "escribir/redactar una spec", "especificar una feature" o "definir requisitos".
+description: 'Etapa 2 de SDD: redacta el spec de un cambio (QUÉ y POR QUÉ) a partir de una entrevista. Hace al menos 5 preguntas de una en una y escribe specs/changes/<id>/spec.md con requisitos RF-n en notación EARS, casos límite, fuera de alcance y criterios de finalización, sin stack ni archivos. Úsala para "escribir/redactar una spec", "especificar una feature" o "definir requisitos".'
 ---
 
 # sdd-spec — Etapa 2: spec

@@ -1,6 +1,6 @@
 ---
 name: sdd-verify
-description: Etapa 6 de SDD: valida un cambio terminado. Arma la tabla de validación RF por RF (requisito, test que lo cubre, resultado), revisa los criterios de finalización, el checklist cross-layer y, si el cambio es crítico, el Definition of Done reforzado (smoke real y regresión del camino crítico), y da un veredicto sin cerrarlo. Úsala para "validar", "verificar" o "¿está terminado?".
+description: 'Etapa 6 de SDD: valida un cambio terminado. Arma la tabla de validación RF por RF (requisito, test que lo cubre, resultado), revisa los criterios de finalización, el checklist cross-layer y, si el cambio es crítico, el Definition of Done reforzado (smoke real y regresión del camino crítico), y da un veredicto sin cerrarlo. Úsala para "validar", "verificar" o "¿está terminado?".'
 ---
 
 # sdd-verify — Etapa 6: verificar

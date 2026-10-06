@@ -1,6 +1,6 @@
 ---
 name: sdd-adopt
-description: Adopta SDD en un proyecto que ya tiene código (etapa −1). Propone la constitución a partir de lo que el código ya cumple, las rutas críticas y la lista de módulos, y escribe un baseline por módulo con el contrato real (entity ↔ DTO ↔ migración ↔ consumidores), los mismatches y las features a medias. Úsala para "adoptar SDD", "documentar cómo está hoy" o "baseline de un módulo". Requiere specs/ (sdd-init).
+description: 'Adopta SDD en un proyecto que ya tiene código (etapa −1). Propone la constitución a partir de lo que el código ya cumple, las rutas críticas y la lista de módulos, y escribe un baseline por módulo con el contrato real (entity ↔ DTO ↔ migración ↔ consumidores), los mismatches y las features a medias. Úsala para "adoptar SDD", "documentar cómo está hoy" o "baseline de un módulo". Requiere specs/ (sdd-init).'
 ---
 
 # sdd-adopt — Etapa −1: adopción en un proyecto existente

@@ -1,6 +1,6 @@
 ---
 name: sdd-tasks
-description: Etapa 4 de SDD: divide un plan aprobado en tasks.md: tareas de 20-30 minutos como máximo, ordenadas por dependencia, cada una con sus RF, su capa y repo, y una línea "Hecho cuando:" verificable; las tasks de tests van primero. Úsala para "dividir en tareas" o "tasks.md".
+description: 'Etapa 4 de SDD: divide un plan aprobado en tasks.md: tareas de 20-30 minutos como máximo, ordenadas por dependencia, cada una con sus RF, su capa y repo, y una línea "Hecho cuando:" verificable; las tasks de tests van primero. Úsala para "dividir en tareas" o "tasks.md".'
 ---
 
 # sdd-tasks — Etapa 4: tasks

@@ -1,6 +1,6 @@
 ---
 name: sdd-triage
-description: Etapa 0 de SDD: clasifica un pedido antes de escribir nada. Decide el tamaño (bugfix, feature chica, arquitectura, multi-repo), el repo dueño, los repos afectados, propone un id NNN-nombre-kebab y el nivel de Definition of Done (normal o crítico). Úsala al recibir una feature, un cambio o un bug nuevo ("quiero…", "nueva feature", "triage").
+description: 'Etapa 0 de SDD: clasifica un pedido antes de escribir nada. Decide el tamaño (bugfix, feature chica, arquitectura, multi-repo), el repo dueño, los repos afectados, propone un id NNN-nombre-kebab y el nivel de Definition of Done (normal o crítico). Úsala al recibir una feature, un cambio o un bug nuevo ("quiero…", "nueva feature", "triage").'
 ---
 
 # sdd-triage — Etapa 0: triage

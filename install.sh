@@ -69,9 +69,12 @@ write_file() { # dst (content on stdin)
 }
 
 # --- neutral agent parsing -----------------------------------------------------
-fm()   { awk -v k="$2" 'NR==1&&/^---$/{f=1;next} f&&/^---$/{exit} f&&index($0,k": ")==1{sub("^"k": ","");print;exit}' "$1"; }
+# Frontmatter value (one line); strips YAML single quotes and unescapes ''.
+fm()   { awk -v k="$2" 'NR==1&&/^---$/{f=1;next} f&&/^---$/{exit} f&&index($0,k": ")==1{sub("^"k": ","");print;exit}' "$1" \
+           | sed -e "s/^'\(.*\)'$/\1/" -e "s/''/'/g"; }
 body() { awk 'NR==1&&/^---$/{f=1;next} f==1&&/^---$/{f=2;next} f==2{print}' "$1" | sed '1{/^$/d;}'; }
 toml_str() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
+yaml_str() { printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"; }
 
 install_agent() { # neutral agent file
   local f="$1" name desc ro b
@@ -79,13 +82,13 @@ install_agent() { # neutral agent file
   [ -n "$name" ] && [ -n "$desc" ] || die "agent without name/description: $f"
 
   if has_agent claude; then
-    { echo "---"; echo "name: $name"; echo "description: $desc"
+    { echo "---"; echo "name: $name"; echo "description: $(yaml_str "$desc")"
       [ "$ro" = "true" ] && echo "tools: Read, Grep, Glob"
       echo "---"; echo; echo "$b"; } | write_file "$BASE/.claude/agents/$name.md"
   fi
   # Cursor also reads .claude/agents: only write its own copy when Claude is not selected.
   if has_agent cursor && ! has_agent claude; then
-    { echo "---"; echo "name: $name"; echo "description: $desc"
+    { echo "---"; echo "name: $name"; echo "description: $(yaml_str "$desc")"
       [ "$ro" = "true" ] && echo "readonly: true"
       echo "---"; echo; echo "$b"; } | write_file "$BASE/.cursor/agents/$name.md"
   fi
@@ -96,7 +99,7 @@ install_agent() { # neutral agent file
   fi
   if has_agent opencode; then
     local od="$BASE/.opencode/agents"; [ "$SCOPE" = "global" ] && od="$HOME/.config/opencode/agents"
-    { echo "---"; echo "description: $desc"; echo "mode: subagent"
+    { echo "---"; echo "description: $(yaml_str "$desc")"; echo "mode: subagent"
       [ "$ro" = "true" ] && printf 'permission:\n  edit: deny\n  bash: deny\n'
       echo "---"; echo; echo "$b"; } | write_file "$od/$name.md"
   fi

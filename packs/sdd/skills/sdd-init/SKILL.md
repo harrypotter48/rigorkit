@@ -1,6 +1,6 @@
 ---
 name: sdd-init
-description: Prepara un repo para Spec-Driven Development con rigorkit. Crea la estructura fija specs/ (constitution, baselines, capabilities, changes, archive, half-wired, templates), copia las plantillas y propone la sección SDD del AGENTS.md. Úsala cuando el usuario quiera empezar a usar SDD en un repo, "inicializar specs" o "setup sdd". Si el proyecto ya tiene código, después sigue sdd-adopt.
+description: 'Prepara un repo para Spec-Driven Development con rigorkit. Crea la estructura fija specs/ (constitution, baselines, capabilities, changes, archive, half-wired, templates), copia las plantillas y propone la sección SDD del AGENTS.md. Úsala cuando el usuario quiera empezar a usar SDD en un repo, "inicializar specs" o "setup sdd". Si el proyecto ya tiene código, después sigue sdd-adopt.'
 ---
 
 # sdd-init — Preparar el repo para SDD

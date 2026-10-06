@@ -1,6 +1,6 @@
 ---
 name: sdd-change
-description: Gestiona un cambio de requisitos en un cambio SDD en curso: primero actualiza el spec (RF nuevo en EARS, casos límite y efecto sobre los RF existentes), después plan y tasks si aplica, muestra el diff y no toca código. Úsala cuando aparezca un "nuevo requisito", "cambia esto" o un test que tendría que cambiar.
+description: 'Gestiona un cambio de requisitos en un cambio SDD en curso: primero actualiza el spec (RF nuevo en EARS, casos límite y efecto sobre los RF existentes), después plan y tasks si aplica, muestra el diff y no toca código. Úsala cuando aparezca un "nuevo requisito", "cambia esto" o un test que tendría que cambiar.'
 ---
 
 # sdd-change — Cambio de requisitos

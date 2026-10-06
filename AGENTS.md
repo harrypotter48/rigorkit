@@ -16,6 +16,7 @@ install.sh
 - Formato Agent Skills: `skills/<nombre>/SKILL.md` con frontmatter `name` y `description`.
 - `name`: minúsculas, números y guiones, ≤64 caracteres, **igual al nombre de la carpeta**. Con prefijo del pack (`sdd-…`).
 - `description`: ≤1024 caracteres. Dice qué hace **y cuándo usarla** (frases con las que la pediría un usuario).
+- `description` siempre **entre comillas simples** (`description: '…'`, con `''` para un apóstrofo): un `: ` sin comillas rompe el YAML y los parsers estrictos (OpenCode) descartan la skill.
 - Cada skill declara su **rol del top 1%** y termina en un punto de parada que espera la aprobación del usuario.
 - Cada skill es autocontenida: los archivos que usa viven en su carpeta. No referencies archivos de otra skill.
 - Contenido en español; identificadores y nombres de archivo en inglés.

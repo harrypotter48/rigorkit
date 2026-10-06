@@ -1,6 +1,6 @@
 ---
 name: sdd-clarify
-description: Etapa 2.5 de SDD: revisa un spec como un QA del top 1% antes de planificar. Lista ambigüedades, contradicciones entre requisitos, casos límite no cubiertos y conflictos con la constitución, sin proponer soluciones. Úsala para "revisar/clarificar la spec" o justo después de sdd-spec.
+description: 'Etapa 2.5 de SDD: revisa un spec como un QA del top 1% antes de planificar. Lista ambigüedades, contradicciones entre requisitos, casos límite no cubiertos y conflictos con la constitución, sin proponer soluciones. Úsala para "revisar/clarificar la spec" o justo después de sdd-spec.'
 ---
 
 # sdd-clarify — Etapa 2.5: clarificación
