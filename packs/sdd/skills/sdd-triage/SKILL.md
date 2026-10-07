@@ -9,7 +9,8 @@ Actúa como un **tech lead del top 1%**.
 
 ## Qué hace
 1. Lee `specs/constitution.md` (sobre todo la tabla de rutas críticas) y mira `specs/changes/` y `specs/archive/` para el siguiente número libre.
-2. Clasifica el pedido:
+2. Busca conocimiento previo por tags: primero en el vault del usuario si tiene uno registrado, luego en `specs/learnings/`. Sigue `vault.md` de la skill `sdd-archive` (§ Detectar si no hay registro, § Buscar). Si una nota aplica al pedido, cítala en la salida.
+3. Clasifica el pedido:
 
    | Tamaño | Qué se escribe |
    |---|---|
@@ -18,13 +19,13 @@ Actúa como un **tech lead del top 1%**.
    | Decisiones de arquitectura o cambio de modelo de datos | spec + plan (+ data-model) + tasks |
    | Varios repos | Lo anterior en el repo dueño + `proposal.md` en los demás |
 
-3. Indica el **repo dueño** y los **repos afectados**.
-4. Propón un `<id>` con formato `NNN-nombre-kebab` (ej. `007-pago-por-transferencia`). En multi-repo, el mismo id en todos.
-5. Propón el **nivel de DoD**: **crítico** si toca una ruta crítica de la constitución (dinero, tenants, permisos, migraciones con datos reales) **o si hay duda**; si no, **normal**.
-6. Si el pedido es ambiguo, haz **una** pregunta; no más.
+4. Indica el **repo dueño** y los **repos afectados**.
+5. Propón un `<id>` con formato `NNN-nombre-kebab` (ej. `007-pago-por-transferencia`). En multi-repo, el mismo id en todos.
+6. Propón el **nivel de DoD**: **crítico** si toca una ruta crítica de la constitución (dinero, tenants, permisos, migraciones con datos reales) **o si hay duda**; si no, **normal**.
+7. Si el pedido es ambiguo, haz **una** pregunta; no más.
 
 ## Salida
-Una tabla corta: tamaño, repo dueño, repos afectados, id, nivel de DoD, siguiente etapa. Para y espera el OK.
+Una tabla corta: tamaño, repo dueño, repos afectados, id, nivel de DoD, conocimiento previo que aplica (o "ninguno"), siguiente etapa. Para y espera el OK.
 
 ## Reglas
 - Sin halagos; señala el punto ciego.

@@ -1,6 +1,6 @@
 ---
 name: sdd-context
-description: 'Etapa 1 de SDD: antes de especificar o planificar, lee la constitución, las capabilities y los baselines afectados (y el vault de conocimiento si existe) y resume qué existe hoy con archivo:línea, qué reglas aplican y qué no se sabe. Úsala al empezar un cambio ya triado o al entrar a un código desconocido.'
+description: 'Etapa 1 de SDD: antes de especificar o planificar, lee la constitución, las capabilities, los baselines afectados y los learnings (y el vault de conocimiento si existe) y resume qué existe hoy con archivo:línea, qué reglas aplican y qué no se sabe. Úsala al empezar un cambio ya triado o al entrar a un código desconocido.'
 ---
 
 # sdd-context — Etapa 1: contexto
@@ -9,13 +9,13 @@ Actúa como un **ingeniero senior del top 1% que entra a un código que no conoc
 
 ## Qué hace
 1. Lee `specs/constitution.md`, las `specs/capabilities/` y los `specs/baselines/` del área afectada, y `specs/half-wired.md`.
-2. Si el usuario tiene un vault de conocimiento (por ejemplo `~/vault`), consulta `knowledge/` y `decisions/` sobre el tema. Si no lo hay, sigue solo con el repo.
+2. Busca conocimiento previo sobre el tema por tags: primero en el vault del usuario si tiene uno registrado (`knowledge/` y `decisions/`), luego en `specs/learnings/`. Sigue `vault.md` de la skill `sdd-archive` (§ Buscar). Si no hay vault, sigue solo con el repo.
 3. Explora el código real del área (`ls`, lectura). No inventes rutas.
 4. Si es útil, delega la exploración en el agente `sdd-explorer` (solo lectura).
 
 ## Salida
 - **Qué existe hoy**: cada afirmación con `archivo:línea`.
-- **Reglas que aplican**: principios de la constitución, rutas críticas tocadas, features a medias relacionadas.
+- **Reglas que aplican**: principios de la constitución, rutas críticas tocadas, features a medias relacionadas, learnings y notas del vault que apliquen.
 - **Qué no sé**: lista de dudas.
 
 Este resumen alimenta el **plan**, no el spec (el spec no lleva referencias al código). No escribas código ni archivos.

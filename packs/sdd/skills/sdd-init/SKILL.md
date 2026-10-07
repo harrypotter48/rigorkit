@@ -1,6 +1,6 @@
 ---
 name: sdd-init
-description: 'Prepara un repo para Spec-Driven Development con rigorkit. Crea la estructura fija specs/ (constitution, baselines, capabilities, changes, archive, half-wired, templates), copia las plantillas y propone la sección SDD del AGENTS.md. Úsala cuando el usuario quiera empezar a usar SDD en un repo, "inicializar specs" o "setup sdd". Si el proyecto ya tiene código, después sigue sdd-adopt.'
+description: 'Prepara un repo para Spec-Driven Development con rigorkit. Crea la estructura fija specs/ (constitution, baselines, capabilities, changes, archive, half-wired, learnings, templates), copia las plantillas y propone la sección SDD del AGENTS.md. Úsala cuando el usuario quiera empezar a usar SDD en un repo, "inicializar specs" o "setup sdd". Si el proyecto ya tiene código, después sigue sdd-adopt.'
 ---
 
 # sdd-init — Preparar el repo para SDD
@@ -18,6 +18,7 @@ Actúa como un **tech lead del top 1%** que deja montado el marco de trabajo de 
      changes/                     cambios en curso: changes/<NNN-nombre-kebab>/
      archive/                     cambios terminados
      half-wired.md                registro de features a medias
+     learnings/                   conocimiento reutilizable y genérico, compartido por el equipo
      templates/                   plantillas (copia de templates/ de esta skill)
    ```
 3. Con el OK: crea las carpetas (con un `.gitkeep` si quedan vacías), copia todos los archivos de `templates/` (junto a este SKILL.md) a `specs/templates/`, y crea `specs/half-wired.md` desde su plantilla.

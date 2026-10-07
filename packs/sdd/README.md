@@ -19,6 +19,7 @@ specs/
                                o proposal.md si el repo no es el dueño del cambio
   archive/<id>/                cambios terminados
   half-wired.md                registro de features a medias
+  learnings/<id>-<slug>.md     conocimiento reutilizable y genérico (lo escribe sdd-archive)
   templates/                   plantillas (las copia sdd-init)
 ```
 `<id>` = `NNN-nombre-kebab` (ej. `007-pago-por-transferencia`). La metodología (estas skills) vive en rigorkit; el repo guarda solo lo suyo.
@@ -37,7 +38,7 @@ specs/
 | 4.5 | Tests primero | `sdd-tests` | Ingeniero de testing | ≥1 test por RF que falla por la razón correcta | ✅ |
 | 5 | Implementar | `sdd-implement` | Desarrollador senior | Una task por vez · tests en verde sin tocarlos · commit con OK | ✅ cada commit |
 | 6 | Verificar | `sdd-verify` | QA | Tabla RF → test → resultado · cross-layer · DoD crítico si aplica · veredicto | ✅ lo cierra el usuario |
-| 7 | Archivar | `sdd-archive` | Ingeniero que documenta | `archive/`, `capabilities/` y baseline al día · half-wired registrado | ✅ |
+| 7 | Archivar | `sdd-archive` | Ingeniero que documenta | `archive/`, `capabilities/` y baseline al día · half-wired registrado · learnings propuestos | ✅ |
 
 **Soporte:** `sdd-resume` (retomar en una sesión nueva), `sdd-change` (cambia un requisito: primero el spec), `sdd-legacy-review` (código muerto con `@legacy`).
 
@@ -63,4 +64,12 @@ Mismo `<id>` en todos los repos. El repo dueño tiene spec, plan y tasks complet
 Los RF del spec se convierten en tests antes de implementar (etapa 4.5). Excepción: la UI puramente visual se cubre con la verificación en vivo.
 
 ## Con o sin vault de conocimiento
-Funciona solo con el repo. Si el usuario tiene un vault (notas de buenas prácticas y decisiones), `sdd-context` lo consulta y `sdd-archive` propone qué promover a él.
+Funciona solo con el repo. El conocimiento compartido del equipo vive en `specs/learnings/`: solo lo global y reutilizable, sin nada específico del repo. Llega a todos con git.
+
+El vault es opcional y personal: cada persona puede tener uno o ninguno.
+- `sdd-triage` y `sdd-context` buscan por tags, primero en el vault y luego en `specs/learnings/`.
+- `sdd-archive` escribe los learnings del cambio. Si el usuario tiene vault, le propone promover los que le falten, también los de compañeros.
+- Si el vault no está registrado, se pregunta una vez y la respuesta se guarda en las instrucciones locales del usuario.
+- Toda nota promovida queda enlazada desde la nota de entrada del vault: nada de notas aisladas.
+
+Detalle en `skills/sdd-archive/vault.md`.
