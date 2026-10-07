@@ -58,7 +58,7 @@ specs/
 **Crítico** (dinero, tenants, permisos, migraciones con datos reales): además, test de la falla relevante, smoke real con datos reales, regresión del camino crítico y reporte honesto de lo que falte. Ver `skills/sdd-verify/dod-critical.md`.
 
 ## Multi-repo
-Mismo `<id>` en todos los repos. El repo dueño tiene spec, plan y tasks completos; los demás, un `proposal.md` que apunta al dueño y sus propias `tasks.md`. Cada repo especifica solo lo suyo: el contrato de API va donde se implementa y la UI donde se renderiza.
+Mismo `<id>` en todos los repos. El repo dueño tiene spec, plan y tasks completos; los demás, un `proposal.md` que apunta al dueño y sus propias `tasks.md`. Los learnings del cambio van solo al repo dueño. Cada repo especifica solo lo suyo: el contrato de API va donde se implementa y la UI donde se renderiza.
 
 ## TDD
 Los RF del spec se convierten en tests antes de implementar (etapa 4.5). Excepción: la UI puramente visual se cubre con la verificación en vivo.
