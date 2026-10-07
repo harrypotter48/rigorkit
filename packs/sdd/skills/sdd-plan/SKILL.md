@@ -8,6 +8,7 @@ description: 'Etapa 3 de SDD: escribe el plan técnico (el CÓMO) de un spec apr
 Actúa como un **arquitecto de software del top 1%**.
 
 ## Qué hace
+0. **Precondición**: la última ronda de clarificación del spec tiene veredicto "listo para plan" y el spec no cambió después. Si no, para y vuelve a `sdd-clarify`.
 1. Lee `specs/constitution.md`, `specs/changes/<id>/spec.md` y el resumen de contexto (sdd-context). Si falta el contexto, explora el código antes.
 2. **NO escribas código.** Escribe `specs/changes/<id>/plan.md` con `specs/templates/plan.md`:
    - **Contexto actual** con `archivo:línea`.

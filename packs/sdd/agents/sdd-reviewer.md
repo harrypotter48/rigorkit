@@ -27,3 +27,5 @@ Lee el spec, el plan, las tasks y el diff. Lista hallazgos con `archivo:línea`:
 
 ## Salida
 Hallazgos numerados, cada uno con severidad (alta / media / baja) y evidencia. Sin soluciones salvo que te las pidan. Sin halagos.
+
+Si revisas un spec, la última línea es el veredicto: "Veredicto: listo para plan" solo con cero hallazgos altos y cero medios; si no, "Veredicto: no listo". En una ronda posterior, comprueba primero que los cierres de la ronda anterior son reales.

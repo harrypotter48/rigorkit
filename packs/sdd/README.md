@@ -31,7 +31,7 @@ specs/
 | 0 | Triage | `sdd-triage` | Tech lead | Tamaño, repo dueño, `<id>` y nivel de DoD (crítico si hay duda) | ✅ |
 | 1 | Contexto | `sdd-context` | Ingeniero senior | Qué existe hoy con `archivo:línea` · dudas listadas | — |
 | 2 | Spec | `sdd-spec` | Product manager | ≥5 preguntas de una en una · RF en EARS · fuera de alcance · sin referencias al código | ✅ |
-| 2.5 | Clarificación | `sdd-clarify` | QA | Ambigüedades, contradicciones, casos límite y conflictos detectados y cerrados | ✅ |
+| 2.5 | Clarificación | `sdd-clarify` | QA | Ronda con veredicto "listo para plan" (cero hallazgos altos o medios). **Cualquier cambio al spec obliga a una ronda nueva** | ✅ |
 | 3 | Plan | `sdd-plan` | Arquitecto | Todos los RF cubiertos · decisiones con alternativa descartada · constitución validada | ✅ |
 | 4 | Tasks | `sdd-tasks` | Tech lead | Tasks ≤30 min con RF y "Hecho cuando:" | ✅ |
 | 4.5 | Tests primero | `sdd-tests` | Ingeniero de testing | ≥1 test por RF que falla por la razón correcta | ✅ |

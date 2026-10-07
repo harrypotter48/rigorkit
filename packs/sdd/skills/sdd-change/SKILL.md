@@ -13,7 +13,8 @@ Actúa como un **product manager del top 1%**. Regla: **primero el spec, luego e
 3. Si el cambio es ambiguo, pregunta **de una en una**: casos límite del cambio y su efecto sobre lo existente.
 4. Actualiza `spec.md`: RF nuevo o modificado en **EARS**, sus casos límite, y el **efecto sobre los RF que ya existen** (cuáles cambian, cuáles quedan obsoletos). Actualiza "Fuera de alcance" si corresponde.
 5. Si aplica, actualiza `plan.md` y `tasks.md` (tasks nuevas sin marcar; tasks hechas que quedan invalidadas, señaladas).
-6. Muestra el **diff** y espera la aprobación. Después se sigue con clarificación o tests según el tamaño del cambio.
+6. Muestra el **diff** y espera la aprobación.
+7. **El spec cambió, así que vuelve a `sdd-clarify`**: una ronda nueva de clarificación es obligatoria y el flujo sigue desde ahí (plan, tasks y tests se revisan contra el spec nuevo). No se salta la clarificación aunque el cambio parezca chico.
 
 ## Reglas
 - Sin halagos; señala el punto ciego.

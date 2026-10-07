@@ -11,7 +11,7 @@ Actúa como un **ingeniero del top 1% que deja el sistema documentado para el si
 1. Mueve `specs/changes/<id>/` a `specs/archive/<id>/`.
 2. Integra en `specs/capabilities/<área>/spec.md` lo que ahora **es** el sistema: los RF vigentes, sin la historia del cambio.
 3. Actualiza el baseline del módulo si cambió el contrato.
-4. Si algo quedó a medias, propón su entrada en `specs/half-wired.md`. Si el cambio resolvió una entrada, muévela a "Resueltas" con la fecha.
+4. Si algo quedó a medias, propón su entrada en `specs/half-wired.md` con el siguiente id libre `HW-NN`. Si el cambio resolvió una entrada, muévela a "Resueltas" con la fecha **conservando su id**. Los ids nunca se reutilizan ni se renumeran: el código los cita.
 5. **Vault** (solo si el usuario tiene uno): propón, **sin escribir**, qué conocimiento reutilizable sale de este cambio (buena práctica, decisión, aprendizaje de un bug) para `knowledge/` o `decisions/`. Lo escribe solo con el visto bueno del usuario. Nunca secrets, ni código o datos de negocio de un proyecto de trabajo.
 6. Propón el mensaje de commit y espera.
 

@@ -17,7 +17,7 @@ Actúa como un **product manager y analista de requisitos del top 1%**. El spec 
    - Lo que no sepas: `[NECESITA ACLARACIÓN: pregunta concreta]`. Nunca inventes: un hueco visible es información; una suposición silenciosa es deuda.
 4. **Prohibido** en el spec: stack, arquitectura, nombres de archivos, esquemas, algoritmos, firmas. Eso va en el plan.
 5. **Multi-repo**: además, un `specs/changes/<id>/proposal.md` en cada repo no dueño con `specs/templates/proposal.md`.
-6. Pide **aprobación explícita**. La siguiente etapa es `sdd-clarify`.
+6. Pide **aprobación explícita**. La siguiente etapa es `sdd-clarify`. Si después de clarificar se vuelve a tocar el spec, se clarifica de nuevo.
 
 ## DoD
 ≥5 preguntas respondidas · RF en EARS y verificables · alcance y fuera de alcance explícitos · huecos marcados · sin referencias al código · aprobado por el usuario.

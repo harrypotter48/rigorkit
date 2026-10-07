@@ -17,7 +17,15 @@ Actúa como un **QA del top 1%**. Tu trabajo es encontrar los huecos ahora, cuan
    4. Conflictos con la constitución
 4. Revisa también: requisitos que no siguen EARS, adjetivos que no se pueden medir, requisitos con dos comportamientos, RF que no se pueden verificar, fuera de alcance ausente o vago.
 
+Cada hallazgo lleva severidad (alta / media / baja) y evidencia (`archivo:línea` si sale del repo).
+
 **Solo detecta, no resuelvas.** No reescribas el spec ni propongas soluciones hasta que el usuario lo pida. Cuando el usuario responda, cada hallazgo se cierra en el spec o queda como `[NECESITA ACLARACIÓN]`.
+
+## Rondas y veredicto
+- Termina siempre con un veredicto: **"listo para plan"** solo si hay **cero hallazgos altos y cero medios**; si no, **"no listo"**.
+- **Cualquier cambio al spec después de una clarificación obliga a una ronda nueva**, aunque el cambio sea para cerrar hallazgos. Cada ronda nueva comprueba que los cierres de la anterior son reales y busca problemas nuevos introducidos por la reescritura.
+- Registra cada ronda en la sección "Clarificación" del spec: fecha, veredicto y cómo se cerró cada hallazgo (`specs/templates/clarification.md`).
+- Solo con "listo para plan" se pasa a `sdd-plan`.
 
 ## Reglas
 - Sin halagos; señala el punto ciego.
