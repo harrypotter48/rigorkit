@@ -18,7 +18,8 @@ Actúa como un **ingeniero del top 1% que deja el sistema documentado para el si
    - Antes de proponer, busca por tags (ver `vault.md` § Buscar) en `specs/learnings/` y en el vault si lo hay, para no duplicar. Si ya existe, propón actualizarlo.
    - Con el OK, escribe un archivo por learning en `specs/learnings/<id>-<slug>.md` con `specs/templates/learning.md`, con tags del vocabulario (ver `vault.md` § Tags). Entra en el commit del archive. Si el repo es anterior a esta convención y no tiene `specs/learnings/` ni la plantilla, créalos (la plantilla está en `templates/learning.md` de la skill `sdd-init`).
 6. **Vault** (opcional, cada persona tiene el suyo o ninguno): sigue `vault.md` (junto a este SKILL.md). Detecta si el usuario tiene vault y, si lo tiene, propón promover los learnings de `specs/learnings/` que aún no estén en él, incluidos los de compañeros. Escribe en el vault solo con el visto bueno.
-7. Propón el mensaje de commit y espera.
+7. **Explicación** (opcional): si el cambio lo amerita según los criterios de `sdd-explain` (arquitectura, multi-repo, flujo nuevo o varias capas), propón generarla con esa skill. Si no lo amerita, no preguntes. Si se genera, entra en el mismo commit.
+8. Propón el mensaje de commit y espera.
 
 ## Reglas
 - Sin halagos; señala el punto ciego.

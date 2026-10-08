@@ -40,7 +40,7 @@ specs/
 | 6 | Verificar | `sdd-verify` | QA | Tabla RF → test → resultado · cross-layer · DoD crítico si aplica · veredicto | ✅ lo cierra el usuario |
 | 7 | Archivar | `sdd-archive` | Ingeniero que documenta | `archive/`, `capabilities/` y baseline al día · half-wired registrado · learnings propuestos | ✅ |
 
-**Soporte:** `sdd-resume` (retomar en una sesión nueva), `sdd-change` (cambia un requisito: primero el spec), `sdd-legacy-review` (código muerto con `@legacy`).
+**Soporte:** `sdd-resume` (retomar en una sesión nueva), `sdd-change` (cambia un requisito: primero el spec), `sdd-legacy-review` (código muerto con `@legacy`), `sdd-explain` (explicación visual del cambio en `explain.md`: resumen, diagramas Mermaid, recorrido con `archivo:línea`; la propone `sdd-archive` si el cambio lo amerita).
 
 **Subagentes (solo lectura):** `sdd-explorer` (contexto y baselines) y `sdd-reviewer` (clarificación, verificación y revisión independiente).
 
