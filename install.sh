@@ -127,4 +127,7 @@ done
 if has_agent claude && { has_agent cursor || has_agent opencode; }; then
   say "note: Cursor and OpenCode also read .claude/skills; with both folders present they may list each skill twice."
 fi
-say "done. Next, in your repo: ask your agent to run the sdd-init skill."
+case ",$PACKS," in
+  *",sdd,"*) say "done. Next, in your repo: ask your agent to run the sdd-init skill." ;;
+  *) say "done." ;;
+esac

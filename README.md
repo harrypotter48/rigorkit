@@ -17,6 +17,7 @@ cd rigorkit
 ./install.sh --list
 ./install.sh --pack sdd --agent claude,cursor --project ~/code/mi-repo
 ./install.sh --pack sdd --agent claude,codex,cursor,opencode --global
+./install.sh --pack all --agent claude,cursor --project ~/code/mi-repo --force
 ```
 
 | Opción | Qué hace |
@@ -28,7 +29,7 @@ cd rigorkit
 | `--force` | Sobrescribe lo que ya exista |
 | `--dry-run` | Muestra qué haría sin escribir nada |
 
-Para actualizar: `git pull` y volver a instalar con `--force`.
+Para actualizar: `git pull` y volver a instalar con `--force`. Con `--pack all --force` se sobrescribe lo que ya tenías (por ejemplo, `sdd`) y se instalan los packs nuevos.
 
 ### Dónde instala
 | | Skills | Agentes |
@@ -46,6 +47,14 @@ En `--global` las rutas cuelgan de `~`. Las skills se **copian**, no se enlazan,
 3. Para cada cambio: `sdd-triage` → `sdd-spec` → `sdd-clarify` → `sdd-plan` → `sdd-tasks` → `sdd-tests` → `sdd-implement` (una task por vez) → `sdd-verify` → `sdd-archive`.
 
 El detalle está en [packs/sdd/README.md](packs/sdd/README.md).
+
+## Cómo se combinan los packs
+- **Skills de proceso**, como las de `sdd`: tienen rol y punto de parada.
+- **Skills de referencia**, como `arch-boundaries` o `frontend-structure`: son conocimiento que aplica otra skill o el usuario, sin parada propia.
+- **Revisores**, como `arch-reviewer` o `frontend-reviewer`: agentes de solo lectura con dos modos, uno que revisa un diff y otro que audita una carpeta para medir la deuda.
+- **Dependencia blanda**: un pack usa skills o agentes de otro **por nombre** si están instalados; si no, lo dice y sigue. Por ejemplo, con `architecture` y `frontend` instalados, `sdd-implement` (al terminar cada task) y `sdd-verify` les pasan el diff a sus revisores.
+
+Para auditar la deuda de un repo, pídele al agente "audita la arquitectura de `src/`" o "audita la estructura del front".
 
 ## Contribuir
 Las reglas para agregar skills, agentes o packs están en [AGENTS.md](AGENTS.md).

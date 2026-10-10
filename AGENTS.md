@@ -14,7 +14,7 @@ install.sh
 
 ## Reglas para skills
 - Formato Agent Skills: `skills/<nombre>/SKILL.md` con frontmatter `name` y `description`.
-- `name`: minúsculas, números y guiones, ≤64 caracteres, **igual al nombre de la carpeta**. Con prefijo del pack (`sdd-…`).
+- `name`: minúsculas, números y guiones, ≤64 caracteres, **igual al nombre de la carpeta**. Con prefijo del pack (`sdd-…`, `arch-…`, `frontend-…`). Los agentes también llevan el prefijo del pack.
 - `description`: ≤1024 caracteres. Dice qué hace **y cuándo usarla** (frases con las que la pediría un usuario).
 - `description` siempre **entre comillas simples** (`description: '…'`, con `''` para un apóstrofo): un `: ` sin comillas rompe el YAML y los parsers estrictos (OpenCode) descartan la skill.
 - Cada skill declara su **rol del top 1%** y termina en un punto de parada que espera la aprobación del usuario.
@@ -32,7 +32,9 @@ readonly: true            # opcional: el instalador le quita permisos de escritu
 ---
 <instrucciones>
 ```
-Una sola línea por campo de frontmatter. Si un agente necesita algo que el formato neutro no cubre, se amplía `install.sh`, no se escriben versiones por herramienta a mano.
+- Todo agente declara su **rol del top 1%**.
+- Los revisores son `readonly`. Como en ese modo no pueden correr `git`, el diff se lo pasa quien los invoca. Tienen modo revisión (diff: hallazgos introducidos vs preexistentes, severidad y veredicto) y modo auditoría (carpeta: deuda por regla).
+- Una sola línea por campo de frontmatter. Si un agente necesita algo que el formato neutro no cubre, se amplía `install.sh`, no se escriben versiones por herramienta a mano.
 
 ## Reglas generales
 - Nada de código, nombres internos ni datos de negocio de ningún trabajo: todo genérico.
