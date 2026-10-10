@@ -15,7 +15,8 @@ Actúa como un **desarrollador senior del top 1%**.
    - marca `<Tn>` como `[x]` en `tasks.md` e indica qué RF cubre;
    - da los **comandos** para verificarla (acotados al paquete);
    - propón el **mensaje de commit**: `<mensaje> (<id> <Tn>)`.
-5. **PÁRATE.** No empieces la siguiente task ni hagas commit hasta el OK del usuario.
+5. **Revisión** con los revisores de otros packs que estén disponibles (si falta alguno, dilo en una línea y sigue): `arch-reviewer` siempre, y `frontend-reviewer` solo si la task toca el frontend (`.tsx`, `.jsx` o `app/`). Pásales los archivos de la task y su diff (`git diff` más los archivos nuevos). Arregla **solo los hallazgos altos que introdujo la task**, sin salir de ella, y vuelve a revisar **una vez**; si el arreglo se sale de la task, para y avisa. Los medios, los bajos y los preexistentes se listan, no se tocan. Incluye los hallazgos en tu resumen.
+6. **PÁRATE.** No empieces la siguiente task ni hagas commit hasta el OK del usuario.
 
 ## Cuando el usuario pega la salida
 Arregla **solo los errores nuevos** que introdujiste. Los que ya existían se listan, no se tocan.

@@ -15,6 +15,7 @@ Actúa como un **QA del top 1%**. Prefieres subestimar el progreso antes que sob
 5. Da al usuario los **pasos concretos** para verificar en vivo (browser, Storybook, app).
 6. Lista lo que falta o quedó a medias (candidato a `specs/half-wired.md`).
 7. Para una revisión independiente, delega en el agente `sdd-reviewer`.
+8. Con los revisores de otros packs que estén disponibles (si falta alguno, dilo en una línea y sigue): `arch-reviewer` siempre, y `frontend-reviewer` solo si el cambio toca el frontend (`.tsx`, `.jsx` o `app/`). Pásales los archivos y el diff completo del cambio contra la rama base (`git diff <base>...HEAD` más lo no commiteado). Un hallazgo alto introducido impide el veredicto "spec cumplido".
 
 ## Salida
 Tabla de validación + checklist + pasos en vivo + **veredicto**: "spec cumplido" o "falta <…>". **No lo des por terminado**: lo cierra el usuario.

@@ -18,7 +18,9 @@ install.sh
 - `description`: ≤1024 caracteres. Dice qué hace **y cuándo usarla** (frases con las que la pediría un usuario).
 - `description` siempre **entre comillas simples** (`description: '…'`, con `''` para un apóstrofo): un `: ` sin comillas rompe el YAML y los parsers estrictos (OpenCode) descartan la skill.
 - Cada skill declara su **rol del top 1%** y termina en un punto de parada que espera la aprobación del usuario.
+- Excepción: las skills de **referencia** (conocimiento que aplica otra skill, ej. `arch-boundaries`) lo dicen al inicio (`**Tipo: referencia.**`) y no tienen rol ni punto de parada propio: manda el de quien la carga.
 - Cada skill es autocontenida: los archivos que usa viven en su carpeta. No referencies archivos de otra skill.
+- **Entre packs, dependencia blanda**: una skill invoca skills o agentes de otro pack **por nombre**, nunca por ruta, y si no están disponibles lo dice en una línea y sigue. Ningún pack deja de funcionar porque falte otro.
 - Contenido en español; identificadores y nombres de archivo en inglés.
 
 ## Reglas para agentes (formato neutro)

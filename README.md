@@ -7,6 +7,8 @@ Está organizado en **packs por tema**. Cada persona instala los que quiera.
 | Pack | Qué trae |
 |---|---|
 | [`sdd`](packs/sdd/README.md) | Spec-Driven Development por etapas: una skill por etapa, plantillas (spec en EARS, plan, tasks, baseline…), checklists y dos subagentes de solo lectura |
+| [`architecture`](packs/architecture/README.md) | Referencias de capas/hexagonal y registry de plugins, y `arch-reviewer`, que revisa límites y dependencias; `sdd-implement` y `sdd-verify` lo usan si está instalado |
+| [`frontend`](packs/frontend/README.md) | Estructura y nombres en React/Next.js (páginas, componentes, sufijos, barriles) y `frontend-reviewer`, que la revisa o audita la deuda; `sdd-implement` y `sdd-verify` lo usan si el diff toca el front |
 
 ## Instalar
 ```bash
@@ -19,7 +21,7 @@ cd rigorkit
 
 | Opción | Qué hace |
 |---|---|
-| `--pack sdd[,otro]` | Packs a instalar |
+| `--pack sdd[,otro]` | Packs a instalar. `all` instala todos (no se combina con otros nombres) |
 | `--agent claude,codex,cursor,opencode` | Agentes destino |
 | `--project DIR` | Instala en un repo (por defecto, el directorio actual) |
 | `--global` | Instala para tu usuario, en todos los repos |

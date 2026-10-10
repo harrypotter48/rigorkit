@@ -44,6 +44,8 @@ specs/
 
 **Subagentes (solo lectura):** `sdd-explorer` (contexto y baselines) y `sdd-reviewer` (clarificación, verificación y revisión independiente).
 
+**Con los packs [`architecture`](../architecture/README.md) y [`frontend`](../frontend/README.md):** `sdd-implement` (al terminar cada task) y `sdd-verify` delegan en `arch-reviewer` y, si el diff toca el frontend, en `frontend-reviewer`. Si falta un pack, se salta su revisor y se avisa.
+
 ## Cuánto escribir
 | Cambio | Qué se escribe |
 |---|---|

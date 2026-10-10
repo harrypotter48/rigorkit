@@ -2,6 +2,7 @@
 # rigorkit installer — copies packs (skills + agents) to each coding agent's folders.
 #
 #   ./install.sh --pack sdd --agent claude,codex,cursor,opencode [--project DIR | --global] [--force] [--dry-run]
+#   ./install.sh --pack all --agent claude --force    (every pack; --force overwrites what exists)
 #   ./install.sh --list
 #
 # Skills use the Agent Skills format (<name>/SKILL.md) and are COPIED, not symlinked
@@ -12,7 +13,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 PACKS=""; AGENTS=""; SCOPE="project"; DEST="$PWD"; FORCE=0; DRY=0
 
-usage() { sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 die() { echo "error: $*" >&2; exit 1; }
 say() { echo "$*"; }
 
@@ -25,6 +26,7 @@ while [ $# -gt 0 ]; do
     --force) FORCE=1; shift ;;
     --dry-run) DRY=1; shift ;;
     --list)
+      echo "all  (every pack below)"
       for p in "$ROOT"/packs/*/; do
         p="$(basename "$p")"; echo "$p"
         for s in "$ROOT/packs/$p"/skills/*/; do [ -d "$s" ] && echo "  skill  $(basename "$s")"; done
@@ -36,6 +38,10 @@ while [ $# -gt 0 ]; do
 done
 
 [ -n "$PACKS" ] || usage 1
+case ",$PACKS," in
+  ",all,") PACKS="$(for p in "$ROOT"/packs/*/; do basename "$p"; done | paste -sd, -)" ;;
+  *",all,"*) die "--pack all cannot be combined with other packs" ;;
+esac
 [ -n "$AGENTS" ] || die "--agent is required (claude,codex,cursor,opencode)"
 [ "$SCOPE" = "global" ] || [ -d "$DEST" ] || die "project dir not found: $DEST"
 [ "$SCOPE" = "global" ] && BASE="$HOME" || BASE="$(cd "$DEST" && pwd)"
