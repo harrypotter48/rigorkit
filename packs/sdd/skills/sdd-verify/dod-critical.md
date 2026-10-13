@@ -6,7 +6,7 @@ Ese tipo de bug no aparece en el typecheck: aparece en producción, cuando ya ha
 
 ## Los 4 requisitos, en orden
 1. **El typecheck es el punto de partida**, no el final. En cada capa tocada (ver `checklist-cross-layer.md`).
-2. **Test de comportamiento**: el camino feliz **y** la falla relevante (idempotencia, condición de carrera, error que se debe relanzar, acceso de otro tenant, rol sin permiso).
+2. **Test de comportamiento**: todos los escenarios del spec en verde, y en particular la falla relevante (idempotencia, condición de carrera, error que se debe relanzar) y la seguridad (acceso de otro tenant, rol sin permiso). En un cambio crítico, seguridad no puede ser `n/a` si el RF toca tenants o permisos.
 3. **Smoke real** (local, con datos reales, no solo mocks) antes de decir "listo". Un test prueba lo que se te ocurrió probar; el smoke encuentra lo que no.
 4. **Regresión del camino crítico existente**: el flujo fijo que declara la constitución para esa ruta, corrido después del cambio. No sirve que lo nuevo funcione si se rompió lo que ya andaba.
 

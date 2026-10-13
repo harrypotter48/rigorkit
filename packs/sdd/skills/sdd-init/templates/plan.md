@@ -24,7 +24,7 @@
 <Principios que aplican. Violaciones con su justificación, o "ninguna".>
 
 ## Estrategia de tests
-<Qué se testea, a qué nivel y cómo (ej. inyectar la fecha en vez de mockear el reloj).>
+<A qué nivel se prueba cada escenario del spec (unitario, integración, contrato o manual) y cómo (ej. inyectar la fecha en vez de mockear el reloj).>
 
 ## Riesgos y cross-layer
 <Productores y consumidores del dato, seeds, rutas críticas tocadas.>

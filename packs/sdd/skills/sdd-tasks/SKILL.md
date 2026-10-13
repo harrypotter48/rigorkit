@@ -17,7 +17,7 @@ Escribe `specs/changes/<id>/tasks.md` con `specs/templates/tasks.md`, a partir d
 
 - Tareas de **20-30 minutos como máximo**, ordenadas por **dependencia**.
 - Cada una con sus **RF**, su **capa y repo** y un **"Hecho cuando:"** que se pueda comprobar.
-- **Las tasks de tests van primero** (etapa 4.5: un test por RF como mínimo).
+- **Las tasks de tests van primero** (etapa 4.5: un test por escenario de prueba del spec).
 - Todos los RF tienen que aparecer en alguna task.
 - Multi-repo: cada repo tiene su `tasks.md`, con el mismo `<id>`.
 - Un bugfix sin cambio observable no necesita tasks.

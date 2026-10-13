@@ -1,6 +1,6 @@
 ---
 name: sdd-spec
-description: 'Etapa 2 de SDD: redacta el spec de un cambio (QUÉ y POR QUÉ) a partir de una entrevista. Hace al menos 5 preguntas de una en una y escribe specs/changes/<id>/spec.md con requisitos RF-n en notación EARS, casos límite, fuera de alcance y criterios de finalización, sin stack ni archivos. Úsala para "escribir/redactar una spec", "especificar una feature" o "definir requisitos".'
+description: 'Etapa 2 de SDD: redacta el spec de un cambio (QUÉ y POR QUÉ) a partir de una entrevista. Hace al menos 5 preguntas de una en una y escribe specs/changes/<id>/spec.md con requisitos RF-n en notación EARS, escenarios de prueba por RF (happy, borde, falla, seguridad), fuera de alcance y criterios de finalización, sin stack ni archivos. Úsala para "escribir/redactar una spec", "especificar una feature" o "definir requisitos".'
 ---
 
 # sdd-spec — Etapa 2: spec
@@ -12,6 +12,7 @@ Actúa como un **product manager y analista de requisitos del top 1%**. El spec 
 2. **Entrevista**: preguntas **DE UNA EN UNA**, **mínimo 5**, esperando cada respuesta antes de la siguiente. Prioriza las que cambian lo que hay que construir: casos límite, comportamiento ante errores y qué queda **fuera**. Descarta las que tienen una respuesta obvia por defecto. Si el usuario pregunta "¿cómo lo harías?", vuelve al QUÉ.
 3. **Redacta** `specs/changes/<id>/spec.md` con `specs/templates/spec.md`, sin saltarte secciones:
    - Requisitos `RF-n` en **EARS** (ver `specs/templates/ears.md`): un requisito por frase, sin adjetivos que no se puedan medir, todos verificables.
+   - **Escenarios de prueba** de cada RF, con `specs/templates/scenarios.md`: los 4 tipos (happy, borde, falla, seguridad), cada uno con su ID y en dado / cuando / entonces. Un tipo que no aplica va con `n/a — <motivo>`, nunca se omite en silencio. Recorre el checklist de bordes y fallas de esa plantilla; lo que no sepas resolver, pregúntalo en la entrevista. Esta tabla es el plan de pruebas y lo que el usuario revisa en vez del código.
    - **Fuera de alcance** siempre: es lo que evita que la feature crezca sola.
    - **Preguntas y respuestas** de la entrevista.
    - Lo que no sepas: `[NECESITA ACLARACIÓN: pregunta concreta]`. Nunca inventes: un hueco visible es información; una suposición silenciosa es deuda.
@@ -20,7 +21,7 @@ Actúa como un **product manager y analista de requisitos del top 1%**. El spec 
 6. Pide **aprobación explícita**. La siguiente etapa es `sdd-clarify`. Si después de clarificar se vuelve a tocar el spec, se clarifica de nuevo.
 
 ## DoD
-≥5 preguntas respondidas · RF en EARS y verificables · alcance y fuera de alcance explícitos · huecos marcados · sin referencias al código · aprobado por el usuario.
+≥5 preguntas respondidas · RF en EARS y verificables · cada RF con escenarios de los 4 tipos o `n/a` con motivo · alcance y fuera de alcance explícitos · huecos marcados · sin referencias al código · aprobado por el usuario.
 
 ## Reglas
 - Sin halagos; señala el punto ciego.

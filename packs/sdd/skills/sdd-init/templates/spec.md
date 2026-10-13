@@ -21,14 +21,22 @@
 ## Requisitos no funcionales
 <Solo los que apliquen, con umbral: rendimiento, seguridad, plataformas, idioma…>
 
-## Casos límite
-- <Caso> → RF-n
+## Escenarios de prueba
+<!-- Cada RF con los 4 tipos: happy (H), borde (E), falla (F) y seguridad (S).
+     Un tipo que no aplica va como fila `RF-n.<tipo>` con `n/a — <motivo>`. Ver `specs/templates/scenarios.md`. -->
+### RF-1
+| ID | Tipo | Dado | Cuando | Entonces |
+|---|---|---|---|---|
+| RF-1.H1 | happy | <estado inicial> | <acción> | <resultado observable> |
+| RF-1.E1 | borde | <valor en el límite> | <acción> | <resultado> |
+| RF-1.F1 | falla | <input inválido o error> | <acción> | <cómo responde y qué no cambia> |
+| RF-1.S1 | seguridad | <usuario sin permiso / otro tenant> | <acción> | <se rechaza> |
 
 ## Fuera de alcance
 <Lo que explícitamente NO se hace en esta iteración.>
 
 ## Criterios de finalización
-- Todos los RF cubiertos por al menos un test, en verde.
+- Cada escenario de prueba cubierto por su test, en verde (`check-scenarios` sin faltantes).
 - <Demo manual del flujo principal.>
 - <Si es crítico: smoke real + regresión del camino crítico.>
 

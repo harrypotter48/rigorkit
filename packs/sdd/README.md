@@ -21,6 +21,7 @@ specs/
   half-wired.md                registro de features a medias
   learnings/<id>-<slug>.md     conocimiento reutilizable y genérico (lo escribe sdd-archive)
   templates/                   plantillas (las copia sdd-init)
+  scripts/check-scenarios.mjs  chequeo estático: escenarios completos y con test (lo copia sdd-init)
 ```
 `<id>` = `NNN-nombre-kebab` (ej. `007-pago-por-transferencia`). La metodología (estas skills) vive en rigorkit; el repo guarda solo lo suyo.
 
@@ -31,13 +32,13 @@ specs/
 | −1 | Adopción (proyecto con código, obligatoria) | `sdd-adopt` | Arquitecto | Constitución con rutas críticas · un baseline por módulo con `archivo:línea` · features a medias registradas | ✅ |
 | 0 | Triage | `sdd-triage` | Tech lead | Tamaño, repo dueño, `<id>` y nivel de DoD (crítico si hay duda) | ✅ |
 | 1 | Contexto | `sdd-context` | Ingeniero senior | Qué existe hoy con `archivo:línea` · dudas listadas | — |
-| 2 | Spec | `sdd-spec` | Product manager | ≥5 preguntas de una en una · RF en EARS · fuera de alcance · sin referencias al código | ✅ |
-| 2.5 | Clarificación | `sdd-clarify` | QA | Ronda con veredicto "listo para plan" (cero hallazgos altos o medios). **Cualquier cambio al spec obliga a una ronda nueva** | ✅ |
+| 2 | Spec | `sdd-spec` | Product manager | ≥5 preguntas de una en una · RF en EARS · escenarios de prueba por RF (4 tipos o `n/a` con motivo) · fuera de alcance · sin referencias al código | ✅ |
+| 2.5 | Clarificación | `sdd-clarify` | QA | Ronda con veredicto "listo para plan" (cero hallazgos altos o medios, escenarios auditados). **Cualquier cambio al spec obliga a una ronda nueva** | ✅ |
 | 3 | Plan | `sdd-plan` | Arquitecto | Todos los RF cubiertos · decisiones con alternativa descartada · constitución validada | ✅ |
 | 4 | Tasks | `sdd-tasks` | Tech lead | Tasks ≤30 min con RF y "Hecho cuando:" | ✅ |
-| 4.5 | Tests primero | `sdd-tests` | Ingeniero de testing | ≥1 test por RF que falla por la razón correcta | ✅ |
+| 4.5 | Tests primero | `sdd-tests` | Ingeniero de testing | Un test por escenario, con su ID en el título, que falla por la razón correcta · `check-scenarios` sin faltantes | ✅ |
 | 5 | Implementar | `sdd-implement` | Desarrollador senior | Una task por vez · tests en verde sin tocarlos · commit con OK | ✅ cada commit |
-| 6 | Verificar | `sdd-verify` | QA | Tabla RF → test → resultado · cross-layer · DoD crítico si aplica · veredicto | ✅ lo cierra el usuario |
+| 6 | Verificar | `sdd-verify` | QA | Tabla escenario → test → resultado · cross-layer · DoD crítico si aplica · veredicto | ✅ lo cierra el usuario |
 | 7 | Archivar | `sdd-archive` | Ingeniero que documenta | `archive/`, `capabilities/` y baseline al día · half-wired registrado · learnings propuestos | ✅ |
 
 **Soporte:** `sdd-resume` (retomar en una sesión nueva), `sdd-change` (cambia un requisito: primero el spec), `sdd-legacy-review` (código muerto con `@legacy`), `sdd-explain` (explicación visual del cambio en `explain.md`: resumen, diagramas Mermaid, recorrido con `archivo:línea`; la propone `sdd-archive` si el cambio lo amerita).
@@ -55,15 +56,25 @@ specs/
 | Varios repos | Lo anterior en el repo dueño + `proposal.md` en los demás |
 
 ## Definition of Done
-**Normal:** todos los RF cubiertos y en verde · capas coherentes (DB → API → DTO → front) · verificado en vivo · multi-repo cerrado con el mismo `<id>` · archivado · lo que quedó a medias en `half-wired.md` · aprobado por el responsable.
+**Normal:** todos los escenarios de prueba cubiertos y en verde · capas coherentes (DB → API → DTO → front) · verificado en vivo · multi-repo cerrado con el mismo `<id>` · archivado · lo que quedó a medias en `half-wired.md` · aprobado por el responsable.
 
 **Crítico** (dinero, tenants, permisos, migraciones con datos reales): además, test de la falla relevante, smoke real con datos reales, regresión del camino crítico y reporte honesto de lo que falte. Ver `skills/sdd-verify/dod-critical.md`.
 
 ## Multi-repo
 Mismo `<id>` en todos los repos. El repo dueño tiene spec, plan y tasks completos; los demás, un `proposal.md` que apunta al dueño y sus propias `tasks.md`. Los learnings del cambio van solo al repo dueño. Cada repo especifica solo lo suyo: el contrato de API va donde se implementa y la UI donde se renderiza.
 
-## TDD
-Los RF del spec se convierten en tests antes de implementar (etapa 4.5). Excepción: la UI puramente visual se cubre con la verificación en vivo.
+## Plan de pruebas y TDD
+El plan de pruebas está en el spec: cada RF tiene escenarios de **los 4 tipos** (happy, borde, falla, seguridad), o una fila `n/a — <motivo>` si un tipo no aplica. El nivel del cambio (normal o crítico) no cambia qué se prueba, sino cuánta evidencia extra se pide. Detalle y checklist de bordes en `skills/sdd-init/templates/scenarios.md`.
+
+| Quién | Qué hace |
+|---|---|
+| `sdd-spec` | Escribe los escenarios |
+| `sdd-clarify` / `sdd-reviewer` | Los audita: un tipo faltante es un hallazgo alto y bloquea el plan |
+| Usuario | Aprueba la tabla de escenarios: es lo que revisa en vez del código |
+| `sdd-tests` | Un test por escenario, antes de implementar (etapa 4.5), con el ID en el título |
+| `check-scenarios.mjs` | Comprueba en `pre-push` o CI que ningún escenario quedó sin test |
+
+Excepción: la UI puramente visual lleva `[manual]` y se cubre con la verificación en vivo.
 
 ## Con o sin vault de conocimiento
 Funciona solo con el repo. El conocimiento compartido del equipo vive en `specs/learnings/`: solo lo global y reutilizable, sin nada específico del repo. Llega a todos con git.

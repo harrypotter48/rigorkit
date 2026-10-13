@@ -1,6 +1,6 @@
 ---
 name: sdd-verify
-description: 'Etapa 6 de SDD: valida un cambio terminado. Arma la tabla de validación RF por RF (requisito, test que lo cubre, resultado), revisa los criterios de finalización, el checklist cross-layer y, si el cambio es crítico, el Definition of Done reforzado (smoke real y regresión del camino crítico), y da un veredicto sin cerrarlo. Úsala para "validar", "verificar" o "¿está terminado?".'
+description: 'Etapa 6 de SDD: valida un cambio terminado. Arma la tabla de validación por escenario de prueba (escenario, test que lo cubre, resultado), revisa los criterios de finalización, el checklist cross-layer y, si el cambio es crítico, el Definition of Done reforzado (smoke real y regresión del camino crítico), y da un veredicto sin cerrarlo. Úsala para "validar", "verificar" o "¿está terminado?".'
 ---
 
 # sdd-verify — Etapa 6: verificar
@@ -8,7 +8,7 @@ description: 'Etapa 6 de SDD: valida un cambio terminado. Arma la tabla de valid
 Actúa como un **QA del top 1%**. Prefieres subestimar el progreso antes que sobreestimarlo.
 
 ## Qué hace
-1. Recorre `spec.md` **RF por RF** y arma la tabla de validación con `specs/templates/validation.md`: RF → test que lo cubre → resultado (según la salida que te pasó el usuario; si no la tienes, pide los comandos a correr). Si algún RF no está cubierto o falla, **dilo claramente**.
+1. Recorre los **escenarios de prueba** de `spec.md` y arma la tabla de validación con `specs/templates/validation.md`: escenario → test que lo cubre → resultado (según la salida que te pasó el usuario; si no la tienes, pide los comandos a correr, incluido `node specs/scripts/check-scenarios.mjs specs/changes/<id>/spec.md`). Las filas `n/a` van con su motivo y las `[manual]` pasan a los pasos en vivo. Si algún escenario no está cubierto o falla, **dilo claramente**: un RF con solo el happy path cubierto no está cumplido.
 2. Comprueba los **criterios de finalización** del spec.
 3. Si el cambio toca más de una capa, aplica `checklist-cross-layer.md` (junto a este SKILL.md).
 4. Si el nivel de DoD es **crítico**, aplica `dod-critical.md` (junto a este SKILL.md): smoke real con datos reales y regresión del camino crítico de la constitución.
