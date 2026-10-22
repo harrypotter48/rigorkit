@@ -8,15 +8,22 @@ description: 'Etapa 4 de SDD: divide un plan aprobado en tasks.md: tareas de 20-
 Actúa como un **tech lead del top 1%**.
 
 ## Qué hace
-Escribe `specs/changes/<id>/tasks.md` con `specs/templates/tasks.md`, a partir de `spec.md` y `plan.md`:
+Escribe `specs/changes/<id>/tasks.md` con `specs/templates/tasks.md`, a partir de `spec.md` y `plan.md` si el tamaño lo requiere:
 
 ```
 - [ ] T1. <Acción concreta>. (RF-1, RF-2) [<capa> · <repo>]
       Hecho cuando: <comprobación verificable>.
+      Depende de: <IDs o ninguna>.
+      Leer: <secciones de RF/escenarios, decisiones/contratos y rutas iniciales de código>.
+      Conservar: <referencias a reglas y contratos/consumidores afectados>.
+      Verificar: <escenarios, regresiones e integración/arquitectura según impacto>.
 ```
 
 - Tareas de **20-30 minutos como máximo**, ordenadas por **dependencia**.
 - Cada una con sus **RF**, su **capa y repo** y un **"Hecho cuando:"** que se pueda comprobar.
+- Las referencias deben permitir empezar por la task sin cargar todo el cambio: no copies requisitos ni decisiones. Sin plan, referencia el spec y las reglas del repo. Las rutas iniciales no limitan la exploración de dependencias reales.
+- Incluye pruebas de integración/contrato y comprobaciones de dependencias donde el riesgo lo exija, reutilizando las existentes. No añadas tests que solo reflejen la implementación.
+- Añade un estado breve en `tasks.md`: etapa, aprobaciones verificables, task actual, pendientes y siguiente paso, con referencias; no transcribas la conversación ni inventes aprobaciones.
 - **Las tasks de tests van primero** (etapa 4.5: un test por escenario de prueba del spec).
 - Todos los RF tienen que aparecer en alguna task.
 - Multi-repo: cada repo tiene su `tasks.md`, con el mismo `<id>`.

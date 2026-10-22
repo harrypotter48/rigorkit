@@ -25,6 +25,17 @@ specs/
 ```
 `<id>` = `NNN-nombre-kebab` (ej. `007-pago-por-transferencia`). La metodología (estas skills) vive en rigorkit; el repo guarda solo lo suyo.
 
+## Contexto por task sin perder la arquitectura
+
+- **Siempre:** instrucciones aplicables y constitución completas. Carga solo la skill de la etapa necesaria.
+- **Al implementar:** empieza por la task y sus referencias precisas a RF, escenarios, decisiones y contratos; no cargues todo el cambio. Comprueba dependencias, productores y consumidores en el código actual antes de editar, también fuera de las rutas iniciales.
+- **Amplía cuando haga falta:** consulta capabilities, baselines y secciones adicionales, hasta spec/plan completos si hay dudas o impacto adicional. Si cambia lo aprobado, vuelve al gate correspondiente antes de implementar.
+- **Verifica según impacto:** reutiliza tests; integración/contrato para interacciones y revisión/reglas de dependencias para arquitectura. Más tests unitarios por sí solos no cubren esos riesgos. Mantén el DoD crítico cuando aplique.
+- **Al retomar:** usa el estado breve de `tasks.md` y contrástalo con archivos/evidencia actuales; no deduzcas aprobaciones ni tests verdes de una casilla o commit.
+- **Al cerrar:** spec/plan completos y diff acumulado, revisión global de arquitectura, contratos, efectos entre tasks, regresiones y prueba en vivo. Los revisores disponibles ayudan; si faltan, el agente realiza el control.
+
+Las tasks referencian, no copian el spec/plan. Las antiguas sin referencias requieren reconstruir el contexto pertinente. Marca `[x]` solo tras verificar; reporta cambios, evidencia y pendientes sin repetir documentos. La política se aplica a las skills actualizadas; las copias instaladas requieren reinstalar y las plantillas existentes se actualizan con revisión, sin sobrescribir reglas propias.
+
 ## Etapas
 | # | Etapa | Skill | Rol (top 1%) | DoD (gate) | Aprobación |
 |---|---|---|---|---|---|
@@ -35,17 +46,17 @@ specs/
 | 2 | Spec | `sdd-spec` | Product manager | ≥5 preguntas de una en una · RF en EARS · escenarios de prueba por RF (4 tipos o `n/a` con motivo) · fuera de alcance · sin referencias al código | ✅ |
 | 2.5 | Clarificación | `sdd-clarify` | QA | Ronda con veredicto "listo para plan" (cero hallazgos altos o medios, escenarios auditados). **Cualquier cambio al spec obliga a una ronda nueva** | ✅ |
 | 3 | Plan | `sdd-plan` | Arquitecto | Todos los RF cubiertos · decisiones con alternativa descartada · constitución validada | ✅ |
-| 4 | Tasks | `sdd-tasks` | Tech lead | Tasks ≤30 min con RF y "Hecho cuando:" | ✅ |
+| 4 | Tasks | `sdd-tasks` | Tech lead | Tasks ≤30 min con RF, criterio verificable, dependencias y referencias a contexto/restricciones | ✅ |
 | 4.5 | Tests primero | `sdd-tests` | Ingeniero de testing | Un test por escenario, con su ID en el título, que falla por la razón correcta · `check-scenarios` sin faltantes | ✅ |
-| 5 | Implementar | `sdd-implement` | Desarrollador senior | Una task por vez · tests en verde sin tocarlos · commit con OK | ✅ cada commit |
-| 6 | Verificar | `sdd-verify` | QA | Tabla escenario → test → resultado · cross-layer · DoD crítico si aplica · veredicto | ✅ lo cierra el usuario |
+| 5 | Implementar | `sdd-implement` | Desarrollador senior | Una task por vez · impacto comprobado · arquitectura/contratos revisados · verificaciones en verde antes de `[x]` · commit con OK | ✅ cada commit |
+| 6 | Verificar | `sdd-verify` | QA | Tabla escenario → test → resultado · revisión global del diff y contratos · cross-layer · DoD crítico si aplica · veredicto | ✅ lo cierra el usuario |
 | 7 | Archivar | `sdd-archive` | Ingeniero que documenta | `archive/`, `capabilities/` y baseline al día · half-wired registrado · learnings propuestos | ✅ |
 
 **Soporte:** `sdd-resume` (retomar en una sesión nueva), `sdd-change` (cambia un requisito: primero el spec), `sdd-legacy-review` (código muerto con `@legacy`), `sdd-explain` (explicación visual del cambio en `explain.md`: resumen, diagramas Mermaid, recorrido con `archivo:línea`; la propone `sdd-archive` si el cambio lo amerita).
 
 **Subagentes (solo lectura):** `sdd-explorer` (contexto y baselines) y `sdd-reviewer` (clarificación, verificación y revisión independiente).
 
-**Con los packs [`architecture`](../architecture/README.md) y [`frontend`](../frontend/README.md):** `sdd-implement` (al terminar cada task) y `sdd-verify` delegan en `arch-reviewer` y, si el diff toca el frontend, en `frontend-reviewer`. Si falta un pack, se salta su revisor y se avisa.
+**Con los packs [`architecture`](../architecture/README.md) y [`frontend`](../frontend/README.md):** `sdd-implement` (al terminar cada task) y `sdd-verify` delegan en `arch-reviewer` y, si el diff toca el frontend, en `frontend-reviewer`, con el diff y las restricciones pertinentes. Si falta un pack, se avisa y el agente realiza el control; no se elimina la revisión.
 
 ## Cuánto escribir
 | Cambio | Qué se escribe |
@@ -80,7 +91,7 @@ Excepción: la UI puramente visual lleva `[manual]` y se cubre con la verificaci
 Funciona solo con el repo. El conocimiento compartido del equipo vive en `specs/learnings/`: solo lo global y reutilizable, sin nada específico del repo. Llega a todos con git.
 
 El vault es opcional y personal: cada persona puede tener uno o ninguno.
-- `sdd-triage` y `sdd-context` buscan por tags, primero en el vault y luego en `specs/learnings/`.
+- `sdd-triage`, `sdd-context`, `sdd-plan` y `sdd-implement` consultan por tags cuando una decisión o duda lo requiere: vocabulario, líneas `tags:` y solo notas pertinentes. Reutilizan contexto vigente; no recargan el vault por cada task. El repo manda.
 - `sdd-archive` escribe los learnings del cambio. Si el usuario tiene vault, le propone promover los que le falten, también los de compañeros.
 - Si el vault no está registrado, se pregunta una vez y la respuesta se guarda en las instrucciones locales del usuario.
 - Toda nota promovida queda enlazada desde la nota de entrada del vault: nada de notas aisladas.

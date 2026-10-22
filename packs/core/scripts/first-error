@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# first-error <cmd...>   — runs a command and prints only its first error, with context.
+# <cmd> | first-error    — same, reading from stdin.
+# FIRST_ERROR_LINES sets how many lines to print after the error (default 15).
+set -uo pipefail
+after="${FIRST_ERROR_LINES:-15}"
+log="${TMPDIR:-/tmp}/rigorkit-first-error.log"
+
+code=0
+if [ $# -gt 0 ]; then "$@" >"$log" 2>&1; code=$?; else cat >"$log"; fi
+sed -i.tmp -E 's/\x1b\[[0-9;]*m//g' "$log" && rm -f "$log.tmp"
+
+n="$(grep -n -i -m1 -E '(^|[^a-z])(error|fail(ed|ure)?|exception|traceback|panic)([^a-z]|$)|ERR!' "$log" | cut -d: -f1)"
+if [ -z "$n" ]; then
+  echo "no error found · exit $code · full log: $log"
+else
+  start=$(( n > 2 ? n - 2 : 1 ))
+  sed -n "${start},$(( n + after ))p" "$log"
+  echo "--- first error at line $n · exit $code · full log: $log ($(wc -l <"$log" | tr -d ' ') lines)"
+fi
+exit "$code"

@@ -6,4 +6,9 @@
 
 `check-scenarios`: sin faltantes | faltan <…>
 
+Revisión global: <spec/plan completos y diff acumulado contra constitución, decisiones y límites; archivo:línea>.
+Contratos e integración: <productores/consumidores, regresiones y resultados verificados>.
+Prueba en vivo: <flujo y resultado>.
+Pendientes: <evidencia faltante o ninguno>.
+
 Veredicto: spec cumplido | falta <…>

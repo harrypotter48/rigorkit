@@ -9,7 +9,7 @@ Actúa como un **arquitecto de software del top 1%**.
 
 ## Qué hace
 0. **Precondición**: la última ronda de clarificación del spec tiene veredicto "listo para plan" y el spec no cambió después. Si no, para y vuelve a `sdd-clarify`.
-1. Lee `specs/constitution.md`, `specs/changes/<id>/spec.md` y el resumen de contexto (sdd-context). Si falta el contexto, explora el código antes.
+1. Lee instrucciones aplicables, `specs/constitution.md`, `specs/changes/<id>/spec.md` y el resumen de contexto (sdd-context). Si falta el contexto, explora el código antes. Antes de proponer una decisión transversal, consulta learnings y, si hay vault registrado, sus reglas y `Tags.md`: busca en líneas `tags:` de `knowledge/` y `decisions/`, abre solo notas pertinentes. Reutiliza lo ya consultado mientras siga vigente; el repo manda.
 2. **NO escribas código.** Escribe `specs/changes/<id>/plan.md` con `specs/templates/plan.md`:
    - **Contexto actual** con `archivo:línea`.
    - **Qué RF cubre cada capa o módulo**. Todos los RF tienen que quedar cubiertos.
@@ -17,8 +17,8 @@ Actúa como un **arquitecto de software del top 1%**.
    - **Contratos** (endpoints, eventos, payloads; si es grande, `contracts/`).
    - **Pseudocódigo** de cualquier algoritmo que no sea trivial.
    - **Decisiones**: cada una con **la alternativa descartada** y el porqué.
-   - **Estrategia de tests**: qué, a qué nivel y cómo hacerlo testeable (por ejemplo, inyectar la fecha en vez de mockear el reloj).
-   - **Riesgos y cross-layer**: productores y consumidores del dato, seeds, rutas críticas tocadas.
+   - **Estrategia de tests**: qué, a qué nivel y cómo hacerlo testeable (por ejemplo, inyectar la fecha en vez de mockear el reloj). Reutiliza verificaciones existentes; asigna integración/contrato a riesgos entre componentes y comprobaciones de dependencias a límites arquitectónicos. Los tests unitarios locales no acreditan por sí solos compatibilidad ni arquitectura.
+   - **Riesgos y cross-layer**: productores y consumidores verificados del dato, seeds, rutas críticas tocadas, contratos compartidos y límites entre capas que deben conservarse; cada riesgo con su verificación. Deja referencias precisas para las futuras tasks sin copiar el spec.
 3. Reusa lo que ya existe antes de crear abstracciones nuevas; cita el precedente.
 4. Valida contra la constitución y lista cada violación con su justificación (o "ninguna").
 

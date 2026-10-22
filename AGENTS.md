@@ -9,6 +9,8 @@ packs/<tema>/
   README.md            qué trae el pack y cómo se usa
   skills/<nombre>/     SKILL.md (+ plantillas, checklists, referencias)
   agents/<nombre>.md   agentes en formato neutro (install.sh los convierte)
+  rules.md             opcional: reglas globales (solo --global, entre marcadores)
+  scripts/<nombre>     opcional: scripts que las reglas nombran (~/.local/share/rigorkit/scripts/)
 install.sh
 ```
 
@@ -29,9 +31,11 @@ install.sh
 name: <nombre>
 description: <qué hace y cuándo usarlo>
 readonly: true            # opcional: el instalador le quita permisos de escritura
+tier: barato | fuerte     # opcional: nivel de modelo, nunca un modelo concreto
 ---
 <instrucciones>
 ```
+- `tier` no nombra modelos: cada usuario los mapea por herramienta en `~/.config/rigorkit/models`. Sin mapeo, el agente usa el modelo de la sesión. Exploradores `barato`, revisores `fuerte`.
 - Todo agente declara su **rol del top 1%**.
 - Los revisores son `readonly`. Como en ese modo no pueden correr `git`, el diff se lo pasa quien los invoca. Tienen modo revisión (diff: hallazgos introducidos vs preexistentes, severidad y veredicto) y modo auditoría (carpeta: deuda por regla).
 - Una sola línea por campo de frontmatter. Si un agente necesita algo que el formato neutro no cubre, se amplía `install.sh`, no se escriben versiones por herramienta a mano.
@@ -42,3 +46,5 @@ readonly: true            # opcional: el instalador le quita permisos de escritu
 - Las skills de terceros no se copian: se referencian desde el README del pack.
 - Algo entra al kit cuando es un procedimiento que un agente debe ejecutar o se repite en varios proyectos.
 - Al cambiar `install.sh`, prueba con `--dry-run` en `--project` y en `--global`.
+- `install.sh` nunca reemplaza un archivo de instrucciones del usuario: solo escribe entre `<!-- rigorkit:<pack>:start/end -->` y guarda `.bak`.
+- Las reglas globales (`rules.md`) se pagan en cada turno: cortas, unos 300 tokens.

@@ -6,6 +6,7 @@ Está organizado en **packs por tema**. Cada persona instala los que quiera.
 
 | Pack | Qué trae |
 |---|---|
+| [`core`](packs/core/README.md) | Economía de tokens: reglas globales para que el agente diga y lea menos, y scripts que resumen la salida de tests, errores y JSON. Solo `--global` |
 | [`sdd`](packs/sdd/README.md) | Spec-Driven Development por etapas: una skill por etapa, plantillas (spec en EARS, plan, tasks, baseline…), checklists y dos subagentes de solo lectura |
 | [`architecture`](packs/architecture/README.md) | Referencias de capas/hexagonal y registry de plugins, y `arch-reviewer`, que revisa límites y dependencias; `sdd-implement` y `sdd-verify` lo usan si está instalado |
 | [`frontend`](packs/frontend/README.md) | Estructura y nombres en React/Next.js (páginas, componentes, sufijos, barriles) y `frontend-reviewer`, que la revisa o audita la deuda; `sdd-implement` y `sdd-verify` lo usan si el diff toca el front |
@@ -18,6 +19,7 @@ cd rigorkit
 ./install.sh --pack sdd --agent claude,cursor --project ~/code/mi-repo
 ./install.sh --pack sdd --agent claude,codex,cursor,opencode --global
 ./install.sh --pack all --agent claude,cursor --project ~/code/mi-repo --force
+./install.sh --pack core --agent claude,codex,opencode --global --dry-run
 ```
 
 | Opción | Qué hace |
@@ -27,7 +29,8 @@ cd rigorkit
 | `--project DIR` | Instala en un repo (por defecto, el directorio actual) |
 | `--global` | Instala para tu usuario, en todos los repos |
 | `--force` | Sobrescribe lo que ya exista |
-| `--dry-run` | Muestra qué haría sin escribir nada |
+| `--dry-run` | Muestra qué haría sin escribir nada (con reglas, el diff) |
+| `--uninstall-rules` | Quita solo los bloques de reglas de rigorkit de los archivos globales |
 
 Para actualizar: `git pull` y volver a instalar con `--force`. Con `--pack all --force` se sobrescribe lo que ya tenías (por ejemplo, `sdd`) y se instalan los packs nuevos.
 
@@ -40,6 +43,17 @@ Para actualizar: `git pull` y volver a instalar con `--force`. Con `--pack all -
 | OpenCode | `.agents/skills/` | `.opencode/agents/*.md` (global: `~/.config/opencode/agents/`) |
 
 En `--global` las rutas cuelgan de `~`. Las skills se **copian**, no se enlazan, porque los symlinks no son fiables en Cursor ni en Codex. Cada skill instalada lleva un archivo `.rigorkit` que indica su origen.
+
+Las reglas globales (pack `core`) van entre marcadores en `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` y `~/.config/opencode/AGENTS.md`, sin tocar el resto del archivo. Detalle en [packs/core/README.md](packs/core/README.md).
+
+### Modelo por agente (opcional)
+Los agentes declaran un nivel (`tier: barato` o `fuerte`), no un modelo. Si quieres un modelo distinto por nivel, créalo en `~/.config/rigorkit/models` y reinstala con `--force`:
+```
+claude.barato=haiku
+claude.fuerte=opus
+opencode.barato=<proveedor/modelo>
+```
+Sin ese archivo, o sin la línea de una herramienta, los agentes usan el modelo de la sesión. Con un solo modelo (por ejemplo, uno free en OpenCode) no hace falta nada. Otra ruta: `RIGORKIT_MODELS=/ruta/archivo`.
 
 ## Empezar a usar SDD
 1. Instala el pack `sdd`.

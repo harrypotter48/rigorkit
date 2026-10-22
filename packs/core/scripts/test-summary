@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# test-summary <cmd...> — runs a test command and prints only failures and the summary.
+# The full log is kept so the agent can read more only if it needs to.
+set -uo pipefail
+[ $# -gt 0 ] || { echo "usage: test-summary <cmd...>" >&2; exit 2; }
+
+log="${TMPDIR:-/tmp}/rigorkit-test-summary.log"
+"$@" >"$log" 2>&1
+code=$?
+
+# Failure and summary lines across common runners (Jest, Vitest, Mocha, pytest, go test, cargo).
+grep -E -i '(✕|✗|×|FAIL|failed|failing|error:|AssertionError|expected|panic:|^--- FAIL|Tests?:|Test Suites:|passed|passing|^ok |^test result:)' "$log" \
+  | sed -E 's/\x1b\[[0-9;]*m//g' | awk '!seen[$0]++' | head -40
+echo "--- last lines"
+sed -E 's/\x1b\[[0-9;]*m//g' "$log" | grep -v '^[[:space:]]*$' | tail -5
+echo "--- exit $code · full log: $log ($(wc -l <"$log" | tr -d ' ') lines)"
+exit "$code"

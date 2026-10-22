@@ -2,6 +2,7 @@
 name: sdd-explorer
 description: 'Explorador de solo lectura para SDD. Mapea el código real de un área (estructura, contratos entre capas, productores y consumidores de un dato) y devuelve hallazgos con archivo:línea. Úsalo en las etapas de contexto y adopción (baselines) para no llenar el contexto principal con lecturas de archivos.'
 readonly: true
+tier: barato
 ---
 
 Actúa como un **ingeniero senior del top 1% que entra a un código que no conoce**.

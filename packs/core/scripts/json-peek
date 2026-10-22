@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# json-peek <file> [depth=3] [jq-path=.] — shape of a JSON file without dumping it:
+# keys, types, array lengths and the first item of each array. Long strings are cut.
+# Uses jq if present, otherwise python3.
+set -euo pipefail
+[ $# -ge 1 ] || { echo "usage: json-peek <file> [depth] [jq-path]" >&2; exit 2; }
+file="$1"; depth="${2:-3}"; path="${3:-.}"
+[ -f "$file" ] || { echo "not found: $file" >&2; exit 2; }
+
+if command -v jq >/dev/null 2>&1; then
+  jq --argjson d "$depth" '
+    def peek($d):
+      if $d <= 0 then (if type == "object" or type == "array" then "<\(type) \(length)>" else type end)
+      elif type == "object" then with_entries(.value |= peek($d - 1))
+      elif type == "array" then (if length == 0 then [] else ["<\(length) items>", (.[0] | peek($d - 1))] end)
+      elif type == "string" then (if length > 60 then .[:60] + "…" else . end)
+      else . end;
+    '"$path"' | peek($d)' "$file"
+else
+  [ "$path" = "." ] || { echo "jq-path needs jq" >&2; exit 2; }
+  python3 -I - "$file" "$depth" <<'PY'
+import json, sys
+def peek(v, d):
+    if d <= 0:
+        return f"<{type(v).__name__} {len(v)}>" if isinstance(v, (dict, list)) else type(v).__name__
+    if isinstance(v, dict):
+        return {k: peek(x, d - 1) for k, x in v.items()}
+    if isinstance(v, list):
+        return [f"<{len(v)} items>", peek(v[0], d - 1)] if v else []
+    if isinstance(v, str) and len(v) > 60:
+        return v[:60] + "…"
+    return v
+with open(sys.argv[1]) as f:
+    print(json.dumps(peek(json.load(f), int(sys.argv[2])), indent=2, ensure_ascii=False))
+PY
+fi

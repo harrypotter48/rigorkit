@@ -9,7 +9,7 @@ Actúa como un **tech lead del top 1%**.
 
 ## Qué hace
 1. Lee `specs/constitution.md` (sobre todo la tabla de rutas críticas) y mira `specs/changes/` y `specs/archive/` para el siguiente número libre.
-2. Busca conocimiento previo por tags: primero en el vault del usuario si tiene uno registrado, luego en `specs/learnings/`. Sigue `vault.md` de la skill `sdd-archive` (§ Detectar si no hay registro, § Buscar). Si una nota aplica al pedido, cítala en la salida.
+2. Si la clasificación o una duda transversal requiere conocimiento previo, consulta el vault registrado y `specs/learnings/` por tema: respeta las reglas del vault, usa `Tags.md` si existe, busca solo líneas `tags:` en `knowledge/`, `decisions/` y learnings y abre notas pertinentes; sin coincidencias, busca por nombre. Reutiliza resultados vigentes; sin vault, sigue con el repo. No descubras ni configures un vault para un triage que no lo necesita. Si una nota aplica, cítala en la salida; el repo manda.
 3. Clasifica el pedido:
 
    | Tamaño | Qué se escribe |

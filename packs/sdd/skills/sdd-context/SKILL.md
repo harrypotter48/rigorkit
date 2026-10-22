@@ -1,6 +1,6 @@
 ---
 name: sdd-context
-description: 'Etapa 1 de SDD: antes de especificar o planificar, lee la constitución, las capabilities, los baselines afectados y los learnings (y el vault de conocimiento si existe) y resume qué existe hoy con archivo:línea, qué reglas aplican y qué no se sabe. Úsala al empezar un cambio ya triado o al entrar a un código desconocido.'
+description: 'Etapa 1 de SDD: resume el área afectada con archivo:línea, contratos, consumidores y límites arquitectónicos. Lee contexto pertinente y consulta learnings y vault por tema cuando hacen falta. Úsala al empezar un cambio ya triado o al entrar a un código desconocido.'
 ---
 
 # sdd-context — Etapa 1: contexto
@@ -8,9 +8,9 @@ description: 'Etapa 1 de SDD: antes de especificar o planificar, lee la constitu
 Actúa como un **ingeniero senior del top 1% que entra a un código que no conoce**.
 
 ## Qué hace
-1. Lee `specs/constitution.md`, las `specs/capabilities/` y los `specs/baselines/` del área afectada, y `specs/half-wired.md`.
-2. Busca conocimiento previo sobre el tema por tags: primero en el vault del usuario si tiene uno registrado (`knowledge/` y `decisions/`), luego en `specs/learnings/`. Sigue `vault.md` de la skill `sdd-archive` (§ Buscar). Si no hay vault, sigue solo con el repo.
-3. Explora el código real del área (`ls`, lectura). No inventes rutas.
+1. Lee instrucciones aplicables y `specs/constitution.md` completas; localiza y lee las secciones pertinentes de capabilities, baselines y `specs/half-wired.md`. No cargues módulos ajenos al impacto.
+2. Cuando una decisión o duda requiera conocimiento previo, busca por tags en el vault registrado y `specs/learnings/`. Respeta las instrucciones del vault; traduce el tema con `Tags.md` si existe, busca solo líneas `tags:` en `knowledge/`, `decisions/` y learnings y abre las coincidencias pertinentes. Sin coincidencias, busca por nombre de archivo; sin vault, usa el repo. Reutiliza resultados vigentes ya leídos; el repo manda.
+3. Explora el código real: contratos, productores, consumidores y límites entre capas, también fuera del área inicial cuando haya dependencias. Amplía la lectura si el impacto no está claro; registra lo que no puedas confirmar. No inventes rutas.
 4. Si es útil, delega la exploración en el agente `sdd-explorer` (solo lectura).
 
 ## Salida

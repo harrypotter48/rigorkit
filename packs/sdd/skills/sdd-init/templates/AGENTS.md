@@ -12,7 +12,9 @@
 <Versión del lenguaje, nombres, idioma del código y de los mensajes.>
 
 ## Reglas
-- Antes de tocar código, lee `specs/constitution.md`, la capability afectada y el cambio activo en `specs/changes/`.
+- Antes de tocar código, lee instrucciones aplicables y `specs/constitution.md` completas. En cada task, lee sus referencias a RF, escenarios, decisiones y contratos; consulta capabilities/baselines según impacto, sin cargar todo el cambio por defecto.
+- Comprueba consumidores y límites entre capas antes de editar. Amplía contexto ante dudas o impacto adicional; si cambia lo aprobado, vuelve al gate correspondiente antes de implementar.
+- Consulta learnings y vault registrado por tema cuando una decisión o duda transversal lo requiera; reutiliza contexto vigente. El repo manda. Carga solo la skill de la etapa necesaria.
 - Actúa siempre como el top 1% del rol que pide cada etapa (arquitecto, QA, product manager…). Sin halagos; señala el punto ciego.
 - Sigue el proceso SDD por etapas. Para al final de cada etapa y espera aprobación.
 - No corras comandos: dame los comandos y espera mi salida. Solo lecturas (`grep`, `ls`, `git status`, `git diff`).
@@ -21,4 +23,5 @@
 
 ## Al terminar cualquier task
 - Dame los comandos de verificación y el mensaje de commit `<mensaje> (<id> Tn)`.
-- Reporta qué hiciste, qué falta y qué verifico a mano. No la des por cerrada.
+- Revisa arquitectura y contratos del diff; reporta cambios, evidencia y pendientes sin repetir spec/plan. Marca `[x]` solo con verificación suficiente y actualiza el estado breve de `tasks.md`. No cierres el cambio.
+- Al verificar el cambio completo, lee spec/plan completos y revisa diff acumulado, arquitectura, contratos, integración, regresiones y prueba en vivo.

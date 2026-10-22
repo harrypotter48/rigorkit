@@ -27,4 +27,4 @@
 <A qué nivel se prueba cada escenario del spec (unitario, integración, contrato o manual) y cómo (ej. inyectar la fecha en vez de mockear el reloj).>
 
 ## Riesgos y cross-layer
-<Productores y consumidores del dato, seeds, rutas críticas tocadas.>
+<Productores y consumidores verificados, seeds, rutas críticas, contratos compartidos y límites entre capas que deben conservarse, con archivo:línea. Para cada riesgo: verificación existente o nueva según impacto (regresión, integración/contrato o dependencias). Referencias precisas para las tasks, sin copiar el spec.>
