@@ -1,6 +1,6 @@
 # Spec 001 — English and compact content
 
-> Status: draft (clarified: round 8, ready for plan) · DoD: critical (touches `install.sh` and `packs/*/rules.md`) · Owner repo: rigorkit · Affected repos: none
+> Status: approved by user on 2026-10-23 (clarified: round 8, ready for plan) · DoD: critical (touches `install.sh` and `packs/*/rules.md`) · Owner repo: rigorkit · Affected repos: none
 
 > **Declared deviations**:
 > - This spec is in English while `specs/constitution.md` and `AGENTS.md` still say "content in Spanish"; this change updates them (RF-14, RF-15).

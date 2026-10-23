@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "commit": "edad002",
+  "estimator": "nfc-codepoints-ceil-div4",
+  "entries": [
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-sample/SKILL.md",
+      "name": "sdd-sample",
+      "descriptionCharacters": 23,
+      "loadedTokens": 100
+    },
+    {
+      "kind": "agent",
+      "pack": "sdd",
+      "path": "packs/sdd/agents/sdd-reader.md",
+      "name": "sdd-reader",
+      "descriptionCharacters": 18,
+      "loadedTokens": 100
+    },
+    {
+      "kind": "skill",
+      "pack": "architecture",
+      "path": "packs/architecture/skills/arch-sample/SKILL.md",
+      "name": "arch-sample",
+      "descriptionCharacters": 15,
+      "loadedTokens": 100
+    },
+    {
+      "kind": "skill",
+      "pack": "frontend",
+      "path": "packs/frontend/skills/frontend-sample/SKILL.md",
+      "name": "frontend-sample",
+      "descriptionCharacters": 19,
+      "loadedTokens": 100
+    }
+  ],
+  "rules": [
+    {
+      "path": "packs/core/rules.md",
+      "tokens": 400
+    }
+  ]
+}
