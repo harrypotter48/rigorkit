@@ -8,7 +8,7 @@ import { measureRepository } from './measure-content.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sourceCommit = 'edad00214e552594fe4da00e51c88803a22f19c5';
-const output = path.join(root, 'specs/changes/001-english-and-compact/baseline.txt');
+const output = path.join(root, 'specs/archive/001-english-and-compact/baseline.txt');
 const git = (...args) => execFileSync('git', args, { cwd: root, maxBuffer: 32 * 1024 * 1024 });
 
 function capture() {

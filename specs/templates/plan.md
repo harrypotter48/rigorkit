@@ -1,30 +1,21 @@
-# Plan técnico — <id>
-
-## Contexto actual
-<Lo que existe hoy y se toca, con archivo:línea (sale de la etapa de contexto).>
-
-## Estructura por capa / módulo
-| Capa / módulo | Cambio | RF que cubre |
+# Technical plan — <id>
+## Current context
+<Existing/affected code, file:line from context.>
+## Structure by layer / module
+| Layer / module | Change | RFs covered |
 |---|---|---|
-| `<ruta>` | <qué cambia> | RF-1, RF-2 |
-
-## Modelo de datos
-<Entidades, campos y migración con un ejemplo, o "sin cambios". Si es grande, va en data-model.md.>
-
-## Algoritmos
-<Pseudocódigo de cualquier lógica que no sea trivial, o "no aplica".>
-
-## Contratos
-<Endpoints, eventos, payloads, o "sin cambios". Si es grande, va en contracts/.>
-
-## Decisiones
-- <Decisión> — en vez de <alternativa descartada>, porque <razón / principio de la constitución>.
-
-## Constitución
-<Principios que aplican. Violaciones con su justificación, o "ninguna".>
-
-## Estrategia de tests
-<A qué nivel se prueba cada escenario del spec (unitario, integración, contrato o manual) y cómo (ej. inyectar la fecha en vez de mockear el reloj).>
-
-## Riesgos y cross-layer
-<Productores y consumidores verificados, seeds, rutas críticas, contratos compartidos y límites entre capas que deben conservarse, con archivo:línea. Para cada riesgo: verificación existente o nueva según impacto (regresión, integración/contrato o dependencias). Referencias precisas para las tasks, sin copiar el spec.>
+| `<path>` | <change> | RF-1, RF-2 |
+## Data model
+<Entities/fields/migration/example or none; large→data-model.md.>
+## Algorithms
+<Nontrivial pseudocode or n/a.>
+## Contracts
+<Endpoints/events/payloads or none; large→contracts/.>
+## Decisions
+- <Decision> over <alternative>: <reason/principle>.
+## Constitution
+<Principles, justified violations or none.>
+## Test strategy
+<Each scenario: unit/integration/contract/manual; testability, e.g. inject date not clock mock.>
+## Risks and cross-layer
+<Verified writers/readers/seeds/critical paths/contracts/boundaries, file:line. Each risk's existing/new regression/integration/contract/dependency check; precise task refs, no copied spec.>

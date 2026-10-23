@@ -1,99 +1,54 @@
-# Pack `sdd` — Spec-Driven Development por etapas
+# sdd — Spec-Driven Development
+Agree WHAT/WHY (spec), HOW (plan), then steps (tasks) before code. Each stage has an output and Definition of Done gate. Spec, clarification, plan, tasks, tests and every commit require human approval.
 
-Antes de escribir código se acuerda **qué** y **por qué** (spec), después **cómo** (plan) y por último los **pasos** (tasks). Cada etapa tiene una salida concreta y un **Definition of Done** que funciona como gate. En spec, clarificación, plan, tasks, tests y en cada commit siempre hay aprobación humana.
+## Agent rules
+Top 1% role for its stage; no flattery, identify blind spots. Verify code with file:line, never assume. User runs install/build/lint/tsc/tests/migrations/seeds/deploy; agent provides commands and waits for output, reads only. One commit per task with approval; never chain commits, push or merge. Stop at each stage.
 
-## Reglas del agente (todas las skills)
-- Actúa como el **top 1%** del rol de cada etapa. Sin halagos; señala el punto ciego.
-- Verifica contra el código (`archivo:línea`); no supone.
-- **No corre comandos** (install, build, lint, tsc, tests, migraciones, seeds, deploy): los da y espera la salida. Solo lecturas.
-- Un commit por task, cada uno con OK del usuario. Nunca commits encadenados, push ni merge.
-- Para al final de cada etapa.
-
-## Estructura fija en cada repo
+## Repository layout
 ```
 specs/
-  constitution.md              reglas no negociables (máx. 15 líneas) + rutas críticas
-  baselines/<módulo>.md        cómo funcionaba el módulo al adoptar SDD
-  capabilities/<área>/spec.md  spec vivo: lo que el sistema ES hoy
-  changes/<id>/                spec.md, plan.md, tasks.md (+ data-model, contracts)
-                               o proposal.md si el repo no es el dueño del cambio
-  archive/<id>/                cambios terminados
-  half-wired.md                registro de features a medias
-  learnings/<id>-<slug>.md     conocimiento reutilizable y genérico (lo escribe sdd-archive)
-  templates/                   plantillas (las copia sdd-init)
-  scripts/check-scenarios.mjs  chequeo estático: escenarios completos y con test (lo copia sdd-init)
+  constitution.md              principles (at most 15 lines) and critical paths; Language:
+  baselines/<module>.md        behavior at adoption
+  capabilities/<area>/spec.md  current system, not change history
+  changes/<id>/                spec, plan, tasks (+ data-model/contracts), or non-owner proposal
+  archive/<id>/                completed changes
+  half-wired.md                unfinished-feature register
+  learnings/<id>-<slug>.md     reusable generic team knowledge, written by sdd-archive
+  templates/                   copies from sdd-init
+  scripts/check-scenarios.mjs  scenario structure/test-coverage check, copied by sdd-init
 ```
-`<id>` = `NNN-nombre-kebab` (ej. `007-pago-por-transferencia`). La metodología (estas skills) vive en rigorkit; el repo guarda solo lo suyo.
+ID = NNN-kebab-name (e.g. 007-bank-transfer); methodology lives in rigorkit, project artifacts in their repo.
 
-## Contexto por task sin perder la arquitectura
+## Selective context, global verification
+Always read full applicable instructions/constitution; load only current-stage skill. Implementation starts from task RF/scenario/decision/contract references, checks actual dependencies/all producers/consumers beyond initial paths, and expands to capabilities/baselines/full spec-plan when uncertain or impact grows. Changed approvals return to their gate. Reuse integration/contract checks for interactions and dependency checks for architecture; extra local unit tests alone are insufficient. Keep critical DoD.
+Resume checks brief tasks state against current files/evidence: checkbox/commit never proves approval or green tests. Closing uses full spec/plan and accumulated diff, architecture/contracts/cross-task effects, regression and live checks. Missing reviewers mean manual checks, not no checks. Tasks reference rather than copy documents; reconstruct old tasks' missing references. Check only after verification; report changes/evidence/pending work briefly.
+Installed copies need reinstall. Existing project templates stay in their structure/language; do not overwrite custom rules or migrate other repos. Missing artifact/templates sections are reported and skipped. New prose uses constitution Language:, else latest recognizable user language, then existing change artifacts; if neither exists ask once, fall back to English and say so if unanswered. Existing artifacts keep their prose/structure; chat follows user, fixed verdicts follow structure. Language may be a code/name; empty/unknown is undeclared.
 
-- **Siempre:** instrucciones aplicables y constitución completas. Carga solo la skill de la etapa necesaria.
-- **Al implementar:** empieza por la task y sus referencias precisas a RF, escenarios, decisiones y contratos; no cargues todo el cambio. Comprueba dependencias, productores y consumidores en el código actual antes de editar, también fuera de las rutas iniciales.
-- **Amplía cuando haga falta:** consulta capabilities, baselines y secciones adicionales, hasta spec/plan completos si hay dudas o impacto adicional. Si cambia lo aprobado, vuelve al gate correspondiente antes de implementar.
-- **Verifica según impacto:** reutiliza tests; integración/contrato para interacciones y revisión/reglas de dependencias para arquitectura. Más tests unitarios por sí solos no cubren esos riesgos. Mantén el DoD crítico cuando aplique.
-- **Al retomar:** usa el estado breve de `tasks.md` y contrástalo con archivos/evidencia actuales; no deduzcas aprobaciones ni tests verdes de una casilla o commit.
-- **Al cerrar:** spec/plan completos y diff acumulado, revisión global de arquitectura, contratos, efectos entre tasks, regresiones y prueba en vivo. Los revisores disponibles ayudan; si faltan, el agente realiza el control.
+## Stages
+| Stage | Skill | Role (top 1%) | Gate | Approval |
+|---|---|---|---|---|
+| Setup | sdd-init | Tech lead | specs/ and templates created | Yes |
+| −1 Adoption (mandatory for existing code) | sdd-adopt | Architect | Constitution/critical paths; module baselines with file:line; half-wired proposals | Yes |
+| 0 Triage | sdd-triage | Tech lead | Size/owner/ID/DoD, critical if uncertain | Yes |
+| 1 Context | sdd-context | Senior engineer | Current code evidence and unknowns | — |
+| 2 Spec | sdd-spec | Product manager | >=5 questions, one at a time; EARS, 4 scenario types or justified n/a, exclusions, no code references | Yes |
+| 2.5 Clarify | sdd-clarify | QA | Ready only with zero high/medium findings; every spec edit needs another round | Yes |
+| 3 Plan | sdd-plan | Architect | All RFs, rejected alternatives, constitution validated | Yes |
+| 4 Tasks | sdd-tasks | Tech lead | <=30 minutes, RF/completion/dependencies/context/restrictions | Yes |
+| 4.5 Tests first | sdd-tests | Testing engineer | Scenario-ID tests, intended red, checker finds none missing | Yes |
+| 5 Implement | sdd-implement | Senior developer | One task, impact/architecture/contracts checked, green before checkbox | Each commit |
+| 6 Verify | sdd-verify | QA | Scenario/test/result table, global diff/contracts, cross-layer, critical DoD, verdict | User closes |
+| 7 Archive | sdd-archive | Documenting engineer | Archive/capabilities/baselines current, half-wired registered, learnings proposed | Yes |
 
-Las tasks referencian, no copian el spec/plan. Las antiguas sin referencias requieren reconstruir el contexto pertinente. Marca `[x]` solo tras verificar; reporta cambios, evidencia y pendientes sin repetir documentos. La política se aplica a las skills actualizadas; las copias instaladas requieren reinstalar y las plantillas existentes se actualizan con revisión, sin sobrescribir reglas propias.
+Support: sdd-resume (new session), sdd-change (requirements: spec first), sdd-legacy-review (@legacy), sdd-explain (explain.md summary/Mermaid/walkthrough/RF mapping; archive proposes when warranted). Readonly agents: sdd-explorer for context/adoption; sdd-reviewer for clarification/verification/independent review. Optional [architecture](../architecture/README.md)/[frontend](../frontend/README.md) reviewers get diff/constraints; frontend only for .tsx/.jsx/app/; missing packs are reported and checks still performed.
 
-## Etapas
-| # | Etapa | Skill | Rol (top 1%) | DoD (gate) | Aprobación |
-|---|---|---|---|---|---|
-| — | Preparar el repo | `sdd-init` | Tech lead | Estructura `specs/` y plantillas creadas | ✅ |
-| −1 | Adopción (proyecto con código, obligatoria) | `sdd-adopt` | Arquitecto | Constitución con rutas críticas · un baseline por módulo con `archivo:línea` · features a medias registradas | ✅ |
-| 0 | Triage | `sdd-triage` | Tech lead | Tamaño, repo dueño, `<id>` y nivel de DoD (crítico si hay duda) | ✅ |
-| 1 | Contexto | `sdd-context` | Ingeniero senior | Qué existe hoy con `archivo:línea` · dudas listadas | — |
-| 2 | Spec | `sdd-spec` | Product manager | ≥5 preguntas de una en una · RF en EARS · escenarios de prueba por RF (4 tipos o `n/a` con motivo) · fuera de alcance · sin referencias al código | ✅ |
-| 2.5 | Clarificación | `sdd-clarify` | QA | Ronda con veredicto "listo para plan" (cero hallazgos altos o medios, escenarios auditados). **Cualquier cambio al spec obliga a una ronda nueva** | ✅ |
-| 3 | Plan | `sdd-plan` | Arquitecto | Todos los RF cubiertos · decisiones con alternativa descartada · constitución validada | ✅ |
-| 4 | Tasks | `sdd-tasks` | Tech lead | Tasks ≤30 min con RF, criterio verificable, dependencias y referencias a contexto/restricciones | ✅ |
-| 4.5 | Tests primero | `sdd-tests` | Ingeniero de testing | Un test por escenario, con su ID en el título, que falla por la razón correcta · `check-scenarios` sin faltantes | ✅ |
-| 5 | Implementar | `sdd-implement` | Desarrollador senior | Una task por vez · impacto comprobado · arquitectura/contratos revisados · verificaciones en verde antes de `[x]` · commit con OK | ✅ cada commit |
-| 6 | Verificar | `sdd-verify` | QA | Tabla escenario → test → resultado · revisión global del diff y contratos · cross-layer · DoD crítico si aplica · veredicto | ✅ lo cierra el usuario |
-| 7 | Archivar | `sdd-archive` | Ingeniero que documenta | `archive/`, `capabilities/` y baseline al día · half-wired registrado · learnings propuestos | ✅ |
+## Scope and DoD
+Bugfix/adjustment without observable change: no artifacts, commit only. Small single-repo feature: spec+tasks. Architecture/data-model change: spec+plan (+data-model)+tasks. Multi-repo: full artifacts in owner, proposal elsewhere.
+Normal DoD: all scenarios covered/green, coherent DB→API→DTO→frontend, live verification, same ID across repos, archived, remaining half-wired registered, owner approved. Critical (money/tenants/permissions/real-data migrations) adds relevant failure test, real-data smoke, existing-flow regression and honest missing-evidence report; see skills/sdd-verify/dod-critical.md.
+Same ID everywhere; non-owners have proposal pointing to owner plus their tasks. Learnings only in owner. Each repo specifies its own work (API contract where implemented, UI where rendered).
 
-**Soporte:** `sdd-resume` (retomar en una sesión nueva), `sdd-change` (cambia un requisito: primero el spec), `sdd-legacy-review` (código muerto con `@legacy`), `sdd-explain` (explicación visual del cambio en `explain.md`: resumen, diagramas Mermaid, recorrido con `archivo:línea`; la propone `sdd-archive` si el cambio lo amerita).
+## Scenarios and TDD
+All RFs have happy/edge/failure/security or justified n/a rows, at either DoD level; critical adds evidence, not fewer scenario types. See skills/sdd-init/templates/scenarios.md. sdd-spec writes, sdd-clarify/reviewer audit (missing type = high and blocks plan), user approves table instead of code, sdd-tests writes ID-titled tests before implementation (4.5), checker verifies coverage in pre-push/CI. Pure visual UI uses [manual] and live verification.
 
-**Subagentes (solo lectura):** `sdd-explorer` (contexto y baselines) y `sdd-reviewer` (clarificación, verificación y revisión independiente).
-
-**Con los packs [`architecture`](../architecture/README.md) y [`frontend`](../frontend/README.md):** `sdd-implement` (al terminar cada task) y `sdd-verify` delegan en `arch-reviewer` y, si el diff toca el frontend, en `frontend-reviewer`, con el diff y las restricciones pertinentes. Si falta un pack, se avisa y el agente realiza el control; no se elimina la revisión.
-
-## Cuánto escribir
-| Cambio | Qué se escribe |
-|---|---|
-| Bugfix o ajuste sin cambio observable | Nada; solo el commit |
-| Feature chica, un repo | spec + tasks |
-| Arquitectura o cambio de modelo de datos | spec + plan (+ data-model) + tasks |
-| Varios repos | Lo anterior en el repo dueño + `proposal.md` en los demás |
-
-## Definition of Done
-**Normal:** todos los escenarios de prueba cubiertos y en verde · capas coherentes (DB → API → DTO → front) · verificado en vivo · multi-repo cerrado con el mismo `<id>` · archivado · lo que quedó a medias en `half-wired.md` · aprobado por el responsable.
-
-**Crítico** (dinero, tenants, permisos, migraciones con datos reales): además, test de la falla relevante, smoke real con datos reales, regresión del camino crítico y reporte honesto de lo que falte. Ver `skills/sdd-verify/dod-critical.md`.
-
-## Multi-repo
-Mismo `<id>` en todos los repos. El repo dueño tiene spec, plan y tasks completos; los demás, un `proposal.md` que apunta al dueño y sus propias `tasks.md`. Los learnings del cambio van solo al repo dueño. Cada repo especifica solo lo suyo: el contrato de API va donde se implementa y la UI donde se renderiza.
-
-## Plan de pruebas y TDD
-El plan de pruebas está en el spec: cada RF tiene escenarios de **los 4 tipos** (happy, borde, falla, seguridad), o una fila `n/a — <motivo>` si un tipo no aplica. El nivel del cambio (normal o crítico) no cambia qué se prueba, sino cuánta evidencia extra se pide. Detalle y checklist de bordes en `skills/sdd-init/templates/scenarios.md`.
-
-| Quién | Qué hace |
-|---|---|
-| `sdd-spec` | Escribe los escenarios |
-| `sdd-clarify` / `sdd-reviewer` | Los audita: un tipo faltante es un hallazgo alto y bloquea el plan |
-| Usuario | Aprueba la tabla de escenarios: es lo que revisa en vez del código |
-| `sdd-tests` | Un test por escenario, antes de implementar (etapa 4.5), con el ID en el título |
-| `check-scenarios.mjs` | Comprueba en `pre-push` o CI que ningún escenario quedó sin test |
-
-Excepción: la UI puramente visual lleva `[manual]` y se cubre con la verificación en vivo.
-
-## Con o sin vault de conocimiento
-Funciona solo con el repo. El conocimiento compartido del equipo vive en `specs/learnings/`: solo lo global y reutilizable, sin nada específico del repo. Llega a todos con git.
-
-El vault es opcional y personal: cada persona puede tener uno o ninguno.
-- `sdd-triage`, `sdd-context`, `sdd-plan` y `sdd-implement` consultan por tags cuando una decisión o duda lo requiere: vocabulario, líneas `tags:` y solo notas pertinentes. Reutilizan contexto vigente; no recargan el vault por cada task. El repo manda.
-- `sdd-archive` escribe los learnings del cambio. Si el usuario tiene vault, le propone promover los que le falten, también los de compañeros.
-- Si el vault no está registrado, se pregunta una vez y la respuesta se guarda en las instrucciones locales del usuario.
-- Toda nota promovida queda enlazada desde la nota de entrada del vault: nada de notas aisladas.
-
-Detalle en `skills/sdd-archive/vault.md`.
+## Optional vault
+Works without one. specs/learnings/ is generic, cross-project, team-shared through Git; repo-specific knowledge stays in constitution/capabilities. Triage/context/plan/implementation consult tags only when a question/decision needs it: vocabulary, matching tags: lines, relevant notes; reuse valid context, repo wins. Archive proposes missing promotions including teammates' learnings. Ask once if unregistered and store approved response in unversioned user-local instructions. Link every promoted note from vault entry; never isolated notes. Vault rules win; see skills/sdd-archive/vault.md.

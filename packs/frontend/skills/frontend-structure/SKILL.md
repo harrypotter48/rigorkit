@@ -1,70 +1,46 @@
 ---
 name: frontend-structure
-description: 'Referencia de estructura de carpetas y nombres para frontend React y Next.js: page.tsx que solo renderiza su componente de presentation/pages, componentes en PascalCase con su carpeta, subcarpetas hooks/helpers/types/constants/components con sufijos, barriles index.ts con exports nombrados y qué va en shared. Úsala al crear o mover componentes, páginas o hooks, o cuando pregunten "dónde pongo este componente", "cómo nombro este archivo" o "estructura del front".'
+description: 'Reference for React/Next.js pages, component folders, suffixes, barrels and shared code. Use for "estructura del front" or "cómo nombro este archivo".'
 ---
+# React / Next.js
+**Type: reference.** Caller stage/stop; repo constitution/AGENTS.md wins.
 
-# frontend-structure — Estructura y nombres en React / Next.js
-
-**Tipo: referencia.** No tiene etapa ni punto de parada propio: la carga otra skill o el usuario. Si la constitución o el `AGENTS.md` del repo definen otra convención, **manda la del repo**.
-
-## Árbol
+## Layout
 ```
-app/users/page.tsx                    ruta de Next: solo compone
+app/users/page.tsx                      route composition only
 src/presentation/
-  pages/UsersPage/                    contenido de la página
-    UsersPage.tsx
-    index.ts
-  components/
-    UserList/
-      UserList.tsx
-      index.ts
-      components/                     subcomponentes privados
-        UserListItem/
-          UserListItem.tsx
-          index.ts
-      hooks/useUserList.hook.ts       + index.ts
-      helpers/formatUser.helper.ts    + index.ts
-      types/userList.type.ts          + index.ts
-      constants/userStatus.constant.ts + index.ts
-  shared/                             lo que usan 2 o más componentes
+  pages/UsersPage/UsersPage.tsx          + index.ts
+  components/UserList/
+    UserList.tsx                        + index.ts
+    components/UserListItem/UserListItem.tsx + index.ts
+    hooks/useUserList.hook.ts           + index.ts
+    helpers/formatUser.helper.ts        + index.ts
+    types/userList.type.ts              + index.ts
+    constants/userStatus.constant.ts    + index.ts
+  shared/                              used by 2 or more components
     hooks/ helpers/ types/ constants/ stores/
 ```
+Next page.tsx only composes: params/searchParams, metadata/generateMetadata, auth/redirect as needed, `presentation/pages/<X>Page/`. No route logic/state/effects/network: content handles them, data via project layers. page.tsx stays server; use client belongs on content, not route. layout.tsx/loading.tsx/error.tsx/not-found.tsx likewise compose, never implement.
 
-## Rutas de Next (`app/`)
-- `page.tsx` **solo compone**: lee `params`/`searchParams`, define `metadata`/`generateMetadata`, hace auth o `redirect` si hace falta, y renderiza el componente de `presentation/pages/<X>Page/`.
-- Sin lógica, estado, efectos ni llamadas a la red en `page.tsx`. Todo eso va en el componente de la página (y los datos, por las capas del proyecto).
-- `page.tsx` queda como server component. Si el contenido necesita `"use client"`, la directiva va en el componente, no en la página.
-- `layout.tsx`, `loading.tsx`, `error.tsx` y `not-found.tsx` siguen la misma idea: componen, no implementan.
-
-## Nombres
-| Qué | Archivo | Ejemplo |
+## Names
+| Kind | File | Example |
 |---|---|---|
-| Componente | `PascalCase.tsx`, igual que su carpeta | `UserList/UserList.tsx` |
-| Página | `<X>Page.tsx` en `presentation/pages/<X>Page/` | `UsersPage/UsersPage.tsx` |
-| Hook | `use<Name>.hook.ts` | `useUserList.hook.ts` |
-| Helper | `<name>.helper.ts` | `formatUser.helper.ts` |
-| Tipos | `<name>.type.ts` | `userList.type.ts` |
-| Constantes | `<name>.constant.ts` | `userStatus.constant.ts` |
-| Store | `<name>.store.ts` | `userList.store.ts` |
+| Component | PascalCase.tsx, matching folder | UserList/UserList.tsx |
+| Page | `<X>Page.tsx` in `presentation/pages/<X>Page/` | UsersPage/UsersPage.tsx |
+| Hook | `use<Name>.hook.ts` | useUserList.hook.ts |
+| Helper | `<name>.helper.ts` | formatUser.helper.ts |
+| Type | `<name>.type.ts` | userList.type.ts |
+| Constant | `<name>.constant.ts` | userStatus.constant.ts |
+| Store | `<name>.store.ts` | userList.store.ts |
+Always suffixes; only Next special files (page.tsx/layout.tsx/loading.tsx/error.tsx/not-found.tsx/route.ts) use framework-required lowercase names.
 
-Los sufijos van **siempre**. Excepción: los archivos especiales de Next (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`, `route.ts`) van en minúscula, como exige el framework.
-
-## Subcarpetas
-- `components/`, `hooks/`, `helpers/`, `types/`, `constants/` dentro de un componente **solo si hacen falta**. Nada de carpetas vacías.
-- Los subcomponentes van **dentro de `components/`**, nunca al mismo nivel que el componente que los usa.
-- Si algo lo usan 2 o más componentes, se mueve a `shared/`. Si deja de usarse en más de uno, se queda donde está: no se mueve de paso.
-
-## Barriles (`index.ts`)
-- Cada carpeta de componente y cada subcarpeta tiene su `index.ts`.
-- **Exports nombrados siempre**: `export { UserList } from './UserList';`. Nada de `export *` ni de `export default`.
-- **Sin barril en la raíz** de `components/`, `pages/` o `shared/`: arrastra módulos que no se usan y rompe el tree-shaking.
-- No mezcles en un mismo barril exports de server y de `"use client"`: el cliente termina importando código de servidor, o al revés.
-- Se importa desde la carpeta: `import { UserList } from '@/presentation/components/UserList';`.
+components/hooks/helpers/types/constants only as needed; never empty. Subcomponents go inside components/, never beside their parent. 2+ components→shared/; later one→leave it, no incidental moves.
+Every component folder/subfolder: index.ts. Named exports ONLY (`export { UserList } from './UserList';`), never export * or default. No root barrel in components/pages/shared: pulls unused modules, defeats tree-shaking. Never mix server/use-client barrel exports. Import folder entry (`import { UserList } from '@/presentation/components/UserList';`).
 
 ## Checklist
-- [ ] `page.tsx` solo compone y renderiza su `<X>Page`.
-- [ ] Componentes en PascalCase con el mismo nombre que su carpeta.
-- [ ] Sufijos en hooks, helpers, types, constants y stores.
-- [ ] Subcomponentes dentro de `components/`; sin carpetas vacías.
-- [ ] Un `index.ts` por carpeta, con exports nombrados, sin `export *` ni barril en la raíz.
-- [ ] Lo compartido por 2 o más componentes está en `shared/`.
+- [ ] Routes compose/render <X>Page only.
+- [ ] PascalCase component matches folder.
+- [ ] Hook/helper/type/constant/store suffixes.
+- [ ] Nested components/, no empty folders.
+- [ ] index.ts per folder, named exports, no export * or root barrel.
+- [ ] Shared by 2+ components lives in shared/.

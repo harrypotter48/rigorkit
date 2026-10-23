@@ -1,25 +1,14 @@
-# Pack `frontend` — Estructura y nombres en React / Next.js
+# frontend — React / Next.js structure
+A reference and readonly reviewer for pages, components, hooks and barrels.
 
-Una referencia de cómo se organizan y nombran páginas, componentes, hooks y barriles en un frontend React o Next.js, y un revisor de solo lectura que la comprueba.
+| Item | Purpose |
+|---|---|
+| frontend-structure | Composition-only routes; `presentation/pages/<X>Page/`; PascalCase folders; .hook.ts/.helper.ts/.type.ts/.constant.ts/.store.ts; named barrels and shared/ |
+| frontend-reviewer | Diff findings introduced/pre-existing or folder debt by rule/count/worst cases |
 
-## Qué trae
-| Tipo | Nombre | Qué hace |
-|---|---|---|
-| Skill (referencia) | `frontend-structure` | `page.tsx` que solo compone, `presentation/pages/<X>Page/`, componentes en PascalCase, subcarpetas con sufijos (`.hook.ts`, `.helper.ts`, `.type.ts`, `.constant.ts`, `.store.ts`), barriles con exports nombrados y `shared/` |
-| Agente (solo lectura) | `frontend-reviewer` | Revisa un diff (hallazgos introducidos vs preexistentes) o audita una carpeta (deuda por regla, con conteos y peores casos) |
-
-Las capas y la dirección de dependencias son del pack [`architecture`](../architecture/README.md); este pack revisa la estructura y los nombres dentro del front.
-
-## Con el pack `sdd`
-Si los dos packs están instalados, `sdd-implement` (al terminar cada task) y `sdd-verify` le pasan el diff a `frontend-reviewer` **solo si el diff toca el frontend** (`.tsx`, `.jsx` o `app/`). Sin este pack, `sdd` funciona igual.
-
-## Deuda técnica
-Pídele al agente: "audita la estructura del front de `src/`". Devuelve la deuda agrupada por regla. Si quieres guardarla, va en una sección "Deuda de frontend" del baseline del módulo.
-
-## La convención del proyecto manda
-Si la constitución o el `AGENTS.md` del repo definen otra convención, el revisor y la skill siguen la del repo.
-
-## Instalar
+Project constitution/AGENTS.md conventions win. Layer direction belongs to [architecture](../architecture/README.md).
+With sdd, implementation/verification passes frontend-reviewer the diff only for .tsx/.jsx/app/ changes. SDD still works without this pack and performs its own relevant checks.
+Ask for "audita la estructura del front de src/". Requested saved debt uses module baseline Frontend debt (legacy "Deuda de frontend").
 ```bash
-./install.sh --pack frontend,architecture,sdd --agent claude --project ~/code/mi-repo
+./install.sh --pack frontend,architecture,sdd --agent claude --project ~/code/my-repo
 ```

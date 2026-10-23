@@ -1,37 +1,24 @@
 ---
 name: sdd-legacy-review
-description: 'Marca y revisa código muerto con la convención @legacy: solo con evidencia confirmada (grep o análisis), nunca por sospecha, y revisión periódica antes de borrar. Úsala para "código muerto", "¿esto se usa?", "marcar legacy" o la revisión mensual de tags @legacy.'
+description: 'Mark/recheck unused code only with confirmed evidence and approval before deletion. Use for "código muerto", "¿esto se usa?" or monthly @legacy review.'
 ---
-
-# sdd-legacy-review — Código muerto con `@legacy`
-
-Actúa como un **ingeniero de mantenimiento del top 1%**: nunca borras a ciegas.
-
-## Marcar
-Solo cuando **confirmas** (grep de todos los usos, imports dinámicos, rutas por string, config, tests) que un tipo, DTO, entity, módulo o archivo no tiene consumidores vivos:
+# Legacy review
+Top 1% maintenance engineer; never delete blindly.
+## Mark
+Confirm no live type/DTO/entity/module/file consumers: ALL uses/dynamic imports/string routes/config/tests. Never mark on suspicion; false positives undermine review. Apparently used but nonfunctional => half-wired, not @legacy.
 ```ts
 /**
- * @legacy — confirmado sin uso el <YYYY-MM-DD> (ver <spec o razón>).
- * <Evidencia: qué búsqueda se hizo y qué confirmó que está muerto.>
- * Candidato a borrado en la próxima revisión.
+ * @legacy — confirmed unused on <YYYY-MM-DD> (see <spec or reason>).
+ * <Search evidence proving no use.>
+ * Candidate for deletion next review.
  */
 ```
-No marques "por si acaso": un `@legacy` por sospecha llena la revisión de falsos positivos y la lista empieza a ignorarse. Si **parece** usarse pero no funciona, no es `@legacy`: va a `specs/half-wired.md`.
-
-## Revisar (periódica)
-1. Lista todos los `@legacy` con `archivo:línea`.
-2. Por cada uno, vuelve a confirmar que sigue sin uso.
-3. Sigue muerto:
-   - sin dependencias de datos → propón borrarlo;
-   - con FK, columnas o datos → es un cambio cross-layer: migración con un `down` honesto y su spec.
-4. Volvió a usarse → quita el tag.
-5. Muerto pero no es buen momento → actualiza la fecha y anota por qué se pospone.
-
-Borrar es un cambio: propónlo y espera el OK; nunca lo hagas por tu cuenta.
-
-## Reglas
-- Sin halagos; señala el punto ciego.
-- Verifica contra el código (`archivo:línea`); no supongas.
-- No corras comandos de install, build, lint, tsc, tests, migraciones, seeds ni deploy: dalos en un bloque `bash` (acotados al paquete tocado si se puede), di qué mirar en la salida y espera. Solo lecturas (`grep`, `ls`, `git status`, `git diff`).
-- Nunca commits encadenados, push ni merge.
-- Para al final y espera la aprobación del usuario.
+Keep @legacy keyword; rest follows project structure language (specs/templates/spec.md; English if absent). Spanish alias: "@legacy — confirmado sin uso el <YYYY-MM-DD> (ver <spec o razón>)." Preserve existing marker structure/prose when edited.
+## Periodic review
+1. List all @legacy with file:line.
+2. Reconfirm each unused.
+3. Dead: no data dependencies => propose deletion; FK/columns/data => cross-layer spec/migration with honest down.
+4. Used again => remove tag.
+5. Dead but bad timing => update date/reason.
+Deletion is a change: propose, await approval, never autonomously delete.
+Evidence file:line; no assumptions/flattery; flag blind spots. No install/build/lint/tsc/tests/migrations/seeds/deploy: scoped bash+expected output; await user. Reads only: grep, ls, git status, git diff. No commit chains; no push/merge. Stop for approval. Chat=user; verdict=structure.

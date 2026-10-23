@@ -1,18 +1,18 @@
 # Tasks — <id>
 
-## Estado para retomar
-Etapa: <…> · Aprobaciones: <evidencia o pendiente> · Task actual: <Tn o ninguna>.
-Pendientes/bloqueos: <…> · Siguiente paso: <…>.
-Referencias: <secciones relevantes; no duplicar spec/plan>.
+## Resume state
+Stage: <…> · Approvals: <evidence or pending> · Current task: <Tn or none>.
+Pending/blockers: <…> · Next step: <…>.
+References: <relevant sections; do not duplicate spec/plan>.
 
 ## Tasks
-- [ ] T1. <Acción concreta>. (RF-1, RF-2) [<capa> · <repo>]
-      Hecho cuando: <comprobación verificable>.
-      Depende de: <IDs o ninguna>.
-      Leer: <spec.md#RF/escenarios; plan.md#decisiones/contratos si existe; rutas iniciales>.
-      Conservar: <referencias a constitución y contratos/consumidores afectados>.
-      Verificar: <escenarios, regresiones e integración/arquitectura según impacto>.
+- [ ] T1. <Concrete action>. (RF-1, RF-2) [<layer> · <repo>]
+      Done when: <verifiable check>.
+      Depends on: <IDs or none>.
+      Read: <spec.md#RF/scenarios; plan.md#decisions/contracts if present; initial code paths>.
+      Preserve: <constitutional rules and affected contracts/consumers>.
+      Verify: <scenarios, regressions and integration/architecture checks appropriate to the impact>.
 - [ ] T2. …
 
-Las referencias orientan la lectura; comprobar dependencias reales antes de editar.
-Marcar `[x]` solo con evidencia suficiente de verificación y revisión.
+References guide reading; check actual dependencies before editing.
+Mark `[x]` only with sufficient verification and review evidence.

@@ -1,18 +1,20 @@
-# Constitución — rigorkit
+# Constitution — rigorkit
 
-Principios innegociables. Todo spec, plan y task debe cumplirlos.
+Language: en
 
-1. **Agnóstico de herramienta**: skills en formato Agent Skills (`SKILL.md`); agentes en formato neutro que convierte `install.sh`. Nada escrito a mano por herramienta.
-2. **Autocontenido y dependencia blanda**: cada skill usa solo archivos de su carpeta; entre packs se invoca por nombre, nunca por ruta, y la falta de otro pack nunca rompe.
-3. **Rol y parada**: toda skill (salvo las de referencia) y todo agente declaran su rol del top 1%; toda skill termina en un punto de parada que espera aprobación.
-4. **YAML válido**: `name` igual a la carpeta, con prefijo del pack; `description` entre comillas simples, de 1024 caracteres como máximo.
-5. **Genérico y sin secretos**: nada de código, nombres internos ni datos de negocio de ningún trabajo; ningún secreto.
-6. **Referenciar, no copiar**: las skills de terceros no se copian al repo.
-7. **No pisar al usuario**: `install.sh` nunca reemplaza un archivo de instrucciones del usuario; solo escribe entre marcadores y guarda `.bak`.
-8. **Barato en contexto**: las reglas globales duran unos 300 tokens; lo que se carga en cada turno se paga en cada turno.
+Non-negotiable principles for every spec, plan and task.
 
-## Rutas críticas (DoD reforzado)
-| Ruta | Por qué es crítica | Camino crítico de regresión |
+1. **Tool-neutral**: Agent Skills (`SKILL.md`), neutral agents converted by `install.sh`; no handwritten tool-specific variants.
+2. **Self-contained, soft dependencies**: skill files stay in its folder; invoke other packs by name, never path; their absence never breaks a pack.
+3. **Role and stop**: skills (except references) and agents declare a top 1% role; every skill ends waiting for approval.
+4. **Valid YAML**: prefixed `name` matches its folder; English, single-quoted `description`, at most 300 characters, covering purpose, when to use and one or two request phrases. Content is English except Spanish structure aliases and quoted examples.
+5. **Generic, no secrets**: no work-project code, internal names, business data or secrets.
+6. **Reference, do not copy** third-party skills.
+7. **Preserve user files**: installer writes only between markers and keeps `.bak`; never replaces user instructions.
+8. **Context economy**: each `rules.md` has a token estimate at most 300; content loaded every turn costs every turn.
+
+## Critical paths (reinforced DoD)
+| Path | Why critical | Critical-path regression |
 |---|---|---|
-| `install.sh` | Escribe en carpetas y archivos de instrucciones del usuario | `--dry-run` en `--project` y `--global` + instalación real en una carpeta temporal |
-| `packs/*/rules.md` | Se carga en cada turno, en todas las sesiones del usuario | Revisión del tamaño (unos 300 tokens) |
+| `install.sh` | Writes user folders/instructions | Project/global dry-runs plus real installation in a temporary folder |
+| `packs/*/rules.md` | Loaded every turn in user sessions | Token estimate at most 300 |

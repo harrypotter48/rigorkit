@@ -32,7 +32,7 @@ describe('001-english-and-compact: real scenario checker CLI', () => {
   });
 
   it('RF-25.H1: the change spec has no scripted scenario missing a test', () => {
-    const result = check(path.join(repo, 'specs/changes/001-english-and-compact/spec.md'),
+    const result = check(path.join(repo, 'specs/archive/001-english-and-compact/spec.md'),
       path.join(repo, 'tools/test'));
     expectSuccess(result);
     assert.match(result.output, /001-english-and-compact/);

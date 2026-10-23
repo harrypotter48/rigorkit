@@ -1,15 +1,13 @@
-# Features a medias
+# Half-wired features
 
-Lo que **parece** terminado pero no tiene efecto real: UI sin backend, permisos que nadie
-aplica, emails que nunca se envían, flujos a los que ya no se llega pero cuyo código sigue
-ahí. No es lo mismo que `@legacy` (código confirmado sin uso).
+Features that **seem** finished but have no real effect: UI without a backend, unenforced permissions, emails never sent, or unreachable flows whose code remains. Distinct from `@legacy` (confirmed unused code).
 
-Cada entrada tiene un id estable `HW-NN`: **nunca se reutiliza ni se renumera**, ni siquiera cuando la entrada pasa a "Resueltas". El código y las specs citan la entrada por su id. Al cerrar una entrada no se borra: se mueve a "Resueltas" con su fecha y conserva su id.
+Each entry has a stable `HW-NN` ID: **never reuse or renumber it**, even after resolution. Code and specs reference that ID. Never delete closed entries: move them to Resolved with their resolution date and original ID.
 
-## Activas
+## Active
 
-_(ninguna)_
+_(none)_
 
-## Resueltas
+## Resolved
 
-_(ninguna)_
+_(none)_

@@ -1,10 +1,13 @@
 # Spec 001 — English and compact content
 
-> Status: approved by user on 2026-10-23 (clarified: round 8, ready for plan) · DoD: critical (touches `install.sh` and `packs/*/rules.md`) · Owner repo: rigorkit · Affected repos: none
+> Status: completed and archived by explicit user acceptance on 2026-10-23 (clarified: round 8; verification exceptions recorded below) · DoD: critical (touches `install.sh` and `packs/*/rules.md`) · Owner repo: rigorkit · Affected repos: none
 
 > **Declared deviations**:
-> - This spec is in English while `specs/constitution.md` and `AGENTS.md` still say "content in Spanish"; this change updates them (RF-14, RF-15).
+> - At approval, this spec was in English while `specs/constitution.md` and `AGENTS.md` still required Spanish; this change updated them (RF-14, RF-15).
 > - rigorkit has no build: scripted scenarios are covered by `node --test` tests in `tools/test/` (Node's built-in runner, no dependencies; RF-25); the rest are verified by review or live checks, marked `[manual]`.
+
+## Closure decision — 2026-10-23
+The user explicitly requested marking this change completed and archiving it for repository delivery, accepting fixes in a later change if problems arise. This acceptance closes the change with exceptions to the original completion criteria: live smoke/manual behavior checks are deferred to normal future use; independent review was not performed. Neither is represented as PASS. Automated tests, measurement, strict YAML and installer/protection evidence are recorded in validation.md. The scenarios and original completion criteria below remain as historical requirements, not a claim that every verification ran.
 
 ## Context and goal
 rigorkit is public and gaining users, but its content is in Spanish, which limits its reach. It also costs more tokens than needed: every `description` is loaded in every session (18 of 23 exceed 300 characters, max 515), `packs/core/rules.md` is loaded in every turn (≈ 364 tokens, above its own ~300 limit), and bodies, templates and references are loaded on each use. The goal is all of rigorkit in English and measurably more compact, **without changing what skills do**, without breaking projects that already use rigorkit in Spanish (with their own Spanish templates and scripts), and letting each project write its artifacts in its own language.
@@ -74,7 +77,7 @@ rigorkit is public and gaining users, but its content is in Spanish, which limit
 ### Chat output, code markers and tests
 - RF-23: The system shall write chat output of skills and agents in the user's language, except verdict lines, which are structure.
 - RF-24: When `sdd-legacy-review` writes a marker in code, the system shall keep the keyword `@legacy` and write the rest of the marker in the structure language of the project.
-- RF-25: The system shall have `node --test` tests in `tools/test/`, with fixtures in `tools/fixtures/`, and an ID-named test mentioning `001-english-and-compact` for every scenario that is neither manual nor not-applicable, so that `node packs/sdd/skills/sdd-init/scripts/check-scenarios.mjs specs/changes/001-english-and-compact/spec.md --tests tools/test` reports no missing test.
+- RF-25: The system shall have `node --test` tests in `tools/test/`, with fixtures in `tools/fixtures/`, and an ID-named test mentioning `001-english-and-compact` for every scenario that is neither manual nor not-applicable, so that `node packs/sdd/skills/sdd-init/scripts/check-scenarios.mjs specs/archive/001-english-and-compact/spec.md --tests tools/test` reports no missing test.
 
 ## Non-functional requirements
 - **YAML stays valid**: every frontmatter parses with a strict YAML parser; `description` stays in single quotes.

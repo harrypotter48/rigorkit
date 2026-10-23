@@ -1,6 +1,6 @@
 # Proposal — <id>
 
-Repo dueño: <repo> → `specs/changes/<id>/spec.md`
-Qué le toca a este repo: <una o dos líneas>.
-RF del spec que implementa este repo: RF-x, RF-y.
-Tasks: ver `tasks.md` de esta carpeta.
+Owner repo: <repo> → `specs/changes/<id>/spec.md`
+This repo's scope: <one or two lines>.
+Spec RFs implemented by this repo: RF-x, RF-y.
+Tasks: see `tasks.md` in this folder.

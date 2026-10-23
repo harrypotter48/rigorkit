@@ -1,23 +1,10 @@
-## Economía de tokens (rigorkit)
+## Token economy (rigorkit)
+Always active. User/repo instructions override these.
 
-Siempre activas, para cualquier agente. Las instrucciones del repo y del usuario mandan sobre estas.
+**Reply** Brief by default, answer first, one idea per sentence. No greeting, repeated question, recap or tool narration. Never omit negations (no/never/only), numbers/units; keep code/commands/paths/errors exact. Give diffs or file:line, not whole files. Detail only when asked ("explain", "detail", "why"), or for security risks, irreversible actions or confused users. Never rewrite/summarize the user prompt.
 
-**Responder**
-- Breve por defecto: primero la respuesta, una idea por frase. Sin saludo, sin repetir la pregunta, sin resumen de lo hecho, sin narrar entre herramientas.
-- Nunca omitir negaciones (no, nunca, solo), números ni unidades. Código, comandos, rutas y errores, exactos.
-- Diffs o `archivo:línea`, no archivos completos.
-- Detalle solo si el usuario lo pide ("explica", "detalla", "por qué"). Prosa completa también ante riesgos de seguridad, acciones irreversibles o un usuario confundido.
-- No reescribir ni resumir el prompt del usuario.
+**Read** Search (grep/glob) before reading; read needed ranges only. Never reread or reopen just-edited files to verify. Start with spec/named paths; no context tours. Subagents only for broad searches; return conclusions with file:line, not dumps.
 
-**Leer**
-- Buscar (grep/glob) antes de leer; leer solo el rango necesario.
-- No releer lo ya leído ni reabrir un archivo recién editado para verificarlo.
-- Partir del spec y las rutas que nombra; no explorar el repo "por contexto".
-- Subagentes solo para búsquedas amplias; devuelven conclusiones con `archivo:línea`, no volcados.
+**Commands** Filter to errors/summary (`| tail -30`, `--silent`, `--quiet`). Before writing output-summary scripts use ~/.local/share/rigorkit/scripts/: `test-summary <cmd>`, `first-error <cmd>`, `json-peek <file> [depth] [jq-path]`.
 
-**Comandos**
-- Filtrar la salida: solo errores y resumen (`| tail -30`, `--silent`, `--quiet`).
-- Antes de escribir un script para resumir salida, usar los de `~/.local/share/rigorkit/scripts/`: `test-summary <cmd>`, `first-error <cmd>`, `json-peek <archivo> [profundidad] [ruta-jq]`.
-
-**Sesión**
-- El estado vive en archivos (`specs/`), no en el chat. Al cambiar de etapa (spec → implementación → review), sugerir limpiar el contexto.
+**Session** State lives in specs/ files, not chat. Suggest clearing context at stage changes (spec → implementation → review).

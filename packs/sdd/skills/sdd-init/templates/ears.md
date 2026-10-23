@@ -1,26 +1,18 @@
 # EARS: writing requirements
-
-Number each functional requirement `RF-n` and use one of these 5 patterns:
-
+Number RF-n; use ONE of 5 patterns:
 | Pattern | Form | When |
 |---|---|---|
-| Ubiquitous | THE SYSTEM SHALL \<action\> | Always holds |
-| Event | WHEN \<trigger\>, THE SYSTEM SHALL \<action\> | Responds to an event |
-| State | WHILE \<state\>, THE SYSTEM SHALL \<action\> | During a condition |
-| Optional | WHERE \<feature\>, THE SYSTEM SHALL \<action\> | Only when the feature exists |
-| Unwanted | IF \<condition\>, THEN THE SYSTEM SHALL \<action\> | Errors and edge cases |
-
+| Ubiquitous | THE SYSTEM SHALL \<action\> | Always |
+| Event | WHEN \<trigger\>, THE SYSTEM SHALL \<action\> | Event |
+| State | WHILE \<state\>, THE SYSTEM SHALL \<action\> | Condition holds |
+| Optional | WHERE \<feature\>, THE SYSTEM SHALL \<action\> | Feature exists |
+| Unwanted | IF \<condition\>, THEN THE SYSTEM SHALL \<action\> | Errors/edges |
 ## Rules
-- One requirement per sentence: if "and" joins two behaviors, write two requirements.
-- No unmeasurable adjectives ("fast", "intuitive", "robust"): give a threshold or omit the claim.
-- If you cannot check a requirement, rewrite it.
-- Mark unknowns `[NEEDS CLARIFICATION: <specific question>]`. Never invent an answer.
-
+One behavior/sentence; "and" joining behaviors => separate RFs. No unmeasurable "fast/intuitive/robust": threshold or omit. Uncheckable => rewrite. Unknown => [NEEDS CLARIFICATION: <specific question>], NEVER invent.
 ## Example
 Good:
-> RF-4: IF the name already exists (ignoring case and leading/trailing whitespace),
-> THEN THE SYSTEM SHALL not create a duplicate and shall report the conflict.
-
+> RF-4: IF name exists (ignore case/leading/trailing spaces),
+> THEN THE SYSTEM SHALL not duplicate it and shall report conflict.
 Bad:
-> ~~RF-4: The system must handle duplicates well and be fast.~~
-> No EARS pattern, unverifiable, combines two ideas and uses an unmeasurable adjective.
+> ~~RF-4: Handle duplicates well and be fast.~~
+> No EARS; unverifiable; two ideas; unmeasurable adjective.

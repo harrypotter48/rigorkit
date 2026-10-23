@@ -1,20 +1,22 @@
-# Features a medias
+# Half-wired features
 
-Lo que **parece** terminado pero no tiene efecto real: UI sin backend, permisos que nadie
-aplica, emails que nunca se envían, flujos a los que ya no se llega pero cuyo código sigue
-ahí. No es lo mismo que `@legacy` (código confirmado sin uso).
+What seems finished but has no real effect: UI without backend, unenforced permissions,
+emails never sent, unreachable flows whose code remains. This differs from `@legacy`
+(code confirmed unused).
 
-Cada entrada tiene un id estable `HW-NN`: **nunca se reutiliza ni se renumera**, ni siquiera cuando la entrada pasa a "Resueltas". El código y las specs citan la entrada por su id. Al cerrar una entrada no se borra: se mueve a "Resueltas" con su fecha y conserva su id.
+Every entry has a stable `HW-NN`: never reuse or renumber it, even after moving it to
+"Resolved". Code and specs reference that ID. Do not delete a closed entry: move it
+to "Resolved" with its resolution date and the same ID.
 
-## Activas
+## Active
 
-### HW-01 · <Feature> (`<módulo>`)
-- Dónde: <archivo(s)>
-- Qué parece: <lo que el usuario o el código sugiere que hace>
-- Qué falta en realidad: <la pieza que no existe o no está conectada>
-- Decisión: <quién lo dejó así, cuándo y por qué, o "sin decidir">
+### HW-01 · <Feature> (`<module>`)
+- Where: <file(s)>
+- What it seems to do: <what the user or code suggests>
+- What is actually missing: <the absent or disconnected piece>
+- Decision: <who left it this way, when and why, or "undecided">
 
-## Resueltas
+## Resolved
 
-### HW-NN · <Feature> — resuelta el <YYYY-MM-DD>
-- <Qué se hizo y en qué cambio (<id>)>
+### HW-NN · <Feature> — resolved on <YYYY-MM-DD>
+- <What was done and in which change (<id>)>
