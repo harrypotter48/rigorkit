@@ -1,36 +1,23 @@
 ---
 name: sdd-resume
-description: 'Retoma un cambio SDD con lecturas selectivas: verifica estado, aprobaciones, task actual y referencias antes de continuar. Úsala para "retomamos", "¿dónde quedamos?" o "continuar el cambio".'
+description: 'Resume a change using selective reads and verified state, approvals, task and references. Use for "retomamos" or "¿dónde quedamos?".'
 ---
-
-# sdd-resume — Retomar un cambio
-
-Actúa como un **tech lead del top 1%**.
-
-## Qué hace
-1. Si no hay `<id>`, lista los cambios en `specs/changes/` y pregunta cuál.
-2. Lee instrucciones aplicables y constitución completas. Usa el último estado breve de `tasks.md` o de la conversación: etapa, aprobaciones, task actual, decisiones, pendientes y referencias. Contrástalo con los archivos actuales, `git status`, el diff pertinente y `git log` reciente; no asumas que el resumen sigue vigente.
-3. Sin estado fiable, reconstruye la etapa localizando artefactos, estados/aprobaciones y marcas de tasks, con lecturas selectivas. Usa la tabla solo como orientación, nunca como prueba de aprobación:
-
-   | Hay… | Etapa |
-   |---|---|
-   | Nada | Triage / spec |
-   | spec sin aprobar o con `[NECESITA ACLARACIÓN]` | Spec / clarificación |
-   | spec aprobado, sin plan (y el tamaño lo pide) | Plan |
-   | plan, sin tasks | Tasks |
-   | tasks sin tests | Tests primero |
-   | tasks a medio marcar | Implementar (siguiente task sin `[x]`) |
-   | todas las tasks `[x]` | Verificar |
-
-4. Lee la task actual y sus referencias a RF, escenarios, decisiones y contratos; amplía contexto si faltan referencias, cambió el spec/plan o hay impacto no previsto. No cargues toda la carpeta por defecto; para la verificación global sí hacen falta spec/plan completos y diff acumulado.
-5. Señala inconsistencias (tasks marcadas sin evidencia de verificación, cambios sin commitear, spec cambiado después del plan). No deduzcas aprobaciones ni tests verdes de un commit o una casilla. Si falta evidencia de un gate, dilo y pide solo lo necesario antes de avanzar.
-
-## Salida
-Etapa actual, qué está hecho, siguiente paso concreto (y qué skill usar). Para.
-
-## Reglas
-- Sin halagos; señala el punto ciego.
-- Verifica contra el código (`archivo:línea`); no supongas.
-- No corras comandos de install, build, lint, tsc, tests, migraciones, seeds ni deploy: dalos en un bloque `bash` (acotados al paquete tocado si se puede), di qué mirar en la salida y espera. Solo lecturas (`grep`, `ls`, `git status`, `git diff`).
-- Nunca commits encadenados, push ni merge.
-- Para al final y espera la aprobación del usuario.
+# Resume
+Top 1% tech lead.
+1. No ID => list changes and ask.
+2. Full instructions/constitution; latest tasks/chat stage/approvals/task/decisions/pending/refs checked against files, git status, relevant diff/recent log; never trust stale summary.
+3. Reconstruct unreliable state selectively. Orientation, NEVER approval evidence:
+| Present | Stage |
+|---|---|
+| Nothing | Triage/spec |
+| Unapproved spec or clarification marker | Spec/clarify |
+| Approved spec; required plan absent | Plan |
+| Plan; no tasks | Tasks |
+| Tasks; no tests | Tests first |
+| Partly checked tasks | Next unchecked implementation |
+| All checked | Verify |
+4. Read current RF/scenario/decision/contract refs. Expand missing refs, changed spec/plan/new impact. Selective reads; global checks needs full spec/plan/diff.
+5. Flag unchecked evidence, uncommitted changes, spec newer than plan. Commit/checkbox proves neither approval nor green; ask only missing gate evidence.
+Output stage, completed work, concrete next step/skill; stop.
+Aliases: Resume state/Estado para retomar; Stage/Etapa; Approvals/Aprobaciones; Current task/Task actual; Pending/blockers/Pendientes/bloqueos; Next step/Siguiente paso; References/Referencias; Status/Estado; draft/borrador; approved/aprobado; [NEEDS CLARIFICATION]/[NECESITA ACLARACIÓN] with questions; Verdict: ready for plan/Veredicto: listo para plan.
+Evidence file:line; no assumptions/flattery; flag blind spots. No install/build/lint/tsc/tests/migrations/seeds/deploy: scoped bash+expected output; await user. Reads only: grep, ls, git status, git diff. No commit chains; no push/merge. Stop for approval. Chat=user; verdict=structure.

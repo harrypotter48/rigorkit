@@ -1,50 +1,47 @@
 # AGENTS.md — rigorkit
 
-## Proyecto
-Monorepo de skills y agentes para agentes de IA (Claude Code, Codex, Cursor, OpenCode), organizado en packs por tema (`packs/<tema>/`). Sin build: son archivos Markdown y un instalador en bash (`install.sh`).
+## Project
+Tool-neutral skills and agents for Claude Code, Codex, Cursor and OpenCode, grouped in `packs/<topic>/`. Markdown plus a Bash installer (`install.sh`); no build.
 
-## Estructura
+## Layout
 ```
-packs/<tema>/
-  README.md            qué trae el pack y cómo se usa
-  skills/<nombre>/     SKILL.md (+ plantillas, checklists, referencias)
-  agents/<nombre>.md   agentes en formato neutro (install.sh los convierte)
-  rules.md             opcional: reglas globales (solo --global, entre marcadores)
-  scripts/<nombre>     opcional: scripts que las reglas nombran (~/.local/share/rigorkit/scripts/)
+packs/<topic>/
+  README.md             contents and usage
+  skills/<name>/        SKILL.md and local templates/checklists/references
+  agents/<name>.md      neutral agents converted by install.sh
+  rules.md              optional global rules, --global only, between markers
+  scripts/<name>        optional rule helpers installed in ~/.local/share/rigorkit/scripts/
 install.sh
 ```
 
-## Reglas para skills
-- Formato Agent Skills: `skills/<nombre>/SKILL.md` con frontmatter `name` y `description`.
-- `name`: minúsculas, números y guiones, ≤64 caracteres, **igual al nombre de la carpeta**. Con prefijo del pack (`sdd-…`, `arch-…`, `frontend-…`). Los agentes también llevan el prefijo del pack.
-- `description`: ≤1024 caracteres. Dice qué hace **y cuándo usarla** (frases con las que la pediría un usuario).
-- `description` siempre **entre comillas simples** (`description: '…'`, con `''` para un apóstrofo): un `: ` sin comillas rompe el YAML y los parsers estrictos (OpenCode) descartan la skill.
-- Cada skill declara su **rol del top 1%** y termina en un punto de parada que espera la aprobación del usuario.
-- Excepción: las skills de **referencia** (conocimiento que aplica otra skill, ej. `arch-boundaries`) lo dicen al inicio (`**Tipo: referencia.**`) y no tienen rol ni punto de parada propio: manda el de quien la carga.
-- Cada skill es autocontenida: los archivos que usa viven en su carpeta. No referencies archivos de otra skill.
-- **Entre packs, dependencia blanda**: una skill invoca skills o agentes de otro pack **por nombre**, nunca por ruta, y si no están disponibles lo dice en una línea y sigue. Ningún pack deja de funcionar porque falte otro.
-- Contenido en español; identificadores y nombres de archivo en inglés.
+## Skills
+- Agent Skills format: `skills/<name>/SKILL.md`, frontmatter `name` and `description`.
+- `name`: lowercase letters/numbers/hyphens, at most 64 characters, matching its folder. Prefix by pack (`sdd-`, `arch-`, `frontend-`); agents use prefixes too.
+- `description`: English, at most 300 characters; purpose, when to use it, and one or two request phrases. Always single-quoted; escape apostrophes as `''`. An unquoted `: ` breaks strict YAML parsers such as OpenCode's.
+- Every skill declares its top 1% role and ends by waiting for user approval. Reference skills instead declare `**Type: reference.**`; they have no role/stop of their own and follow the caller.
+- Self-contained: files used by a skill live in its folder; never read another skill's files.
+- Between packs, invoke skills/agents by name, never path. If absent, say so in one line and continue; no pack requires another to function.
+- Content is English, except Spanish structure aliases and quoted examples. Identifiers and filenames are English.
 
-## Reglas para agentes (formato neutro)
+## Neutral agents
 ```markdown
 ---
-name: <nombre>
-description: <qué hace y cuándo usarlo>
-readonly: true            # opcional: el instalador le quita permisos de escritura
-tier: barato | fuerte     # opcional: nivel de modelo, nunca un modelo concreto
+name: <name>
+description: '<purpose and activation>'
+readonly: true            # optional: installer removes write permissions
+tier: cheap | strong      # optional, never a concrete model
 ---
-<instrucciones>
+<instructions>
 ```
-- `tier` no nombra modelos: cada usuario los mapea por herramienta en `~/.config/rigorkit/models`. Sin mapeo, el agente usa el modelo de la sesión. Exploradores `barato`, revisores `fuerte`.
-- Todo agente declara su **rol del top 1%**.
-- Los revisores son `readonly`. Como en ese modo no pueden correr `git`, el diff se lo pasa quien los invoca. Tienen modo revisión (diff: hallazgos introducidos vs preexistentes, severidad y veredicto) y modo auditoría (carpeta: deuda por regla).
-- Una sola línea por campo de frontmatter. Si un agente necesita algo que el formato neutro no cubre, se amplía `install.sh`, no se escriben versiones por herramienta a mano.
+- Users map tiers per tool in `~/.config/rigorkit/models`; without a mapping, inherit the session model. Explorers use cheap, reviewers strong. Spanish aliases `barato`/`fuerte` remain supported; English keys take precedence.
+- Every agent declares its top 1% role. Reviewers are readonly and cannot run git; callers provide the diff. Review mode distinguishes introduced/pre-existing findings with severity/verdict; audit mode lists folder debt by rule.
+- One line per frontmatter field. Extend `install.sh` for missing neutral-format capabilities; never handwrite tool-specific variants.
 
-## Reglas generales
-- Nada de código, nombres internos ni datos de negocio de ningún trabajo: todo genérico.
-- Nada de secrets.
-- Las skills de terceros no se copian: se referencian desde el README del pack.
-- Algo entra al kit cuando es un procedimiento que un agente debe ejecutar o se repite en varios proyectos.
-- Al cambiar `install.sh`, prueba con `--dry-run` en `--project` y en `--global`.
-- `install.sh` nunca reemplaza un archivo de instrucciones del usuario: solo escribe entre `<!-- rigorkit:<pack>:start/end -->` y guarda `.bak`.
-- Las reglas globales (`rules.md`) se pagan en cada turno: cortas, unos 300 tokens.
+## General rules
+- Follow the SDD pack's process under `specs/`; `specs/constitution.md` governs.
+- Generic content only: no work-project code, internal names, business data or secrets.
+- Reference third-party skills from the pack README; do not copy them.
+- Add procedures agents must execute or practices reused across projects.
+- Changes to `install.sh` require `--dry-run` in both `--project` and `--global` modes.
+- Never replace user instructions: `install.sh` writes only between `<!-- rigorkit:<pack>:start/end -->` markers and keeps `.bak`.
+- Each `rules.md` must have a token estimate at most 300; global rules cost context every turn.

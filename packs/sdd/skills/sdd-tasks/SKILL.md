@@ -1,40 +1,20 @@
 ---
 name: sdd-tasks
-description: 'Etapa 4 de SDD: divide un plan aprobado en tasks.md: tareas de 20-30 minutos como máximo, ordenadas por dependencia, cada una con sus RF, su capa y repo, y una línea "Hecho cuando:" verificable; las tasks de tests van primero. Úsala para "dividir en tareas" o "tasks.md".'
+description: 'Split an approved plan into dependent, verifiable 20–30 minute tasks, tests first. Use for "dividir en tareas" or "tasks.md".'
 ---
-
-# sdd-tasks — Etapa 4: tasks
-
-Actúa como un **tech lead del top 1%**.
-
-## Qué hace
-Escribe `specs/changes/<id>/tasks.md` con `specs/templates/tasks.md`, a partir de `spec.md` y `plan.md` si el tamaño lo requiere:
-
+# Stage 4
+Top 1% tech lead.
+Project tasks template + spec/plan when size requires => change tasks.md:
 ```
-- [ ] T1. <Acción concreta>. (RF-1, RF-2) [<capa> · <repo>]
-      Hecho cuando: <comprobación verificable>.
-      Depende de: <IDs o ninguna>.
-      Leer: <secciones de RF/escenarios, decisiones/contratos y rutas iniciales de código>.
-      Conservar: <referencias a reglas y contratos/consumidores afectados>.
-      Verificar: <escenarios, regresiones e integración/arquitectura según impacto>.
+- [ ] T1. <Action>. (RF-1, RF-2) [<layer> · <repo>]
+      Done when: <verifiable>.
+      Depends on: <IDs/none>.
+      Read: <RF/scenarios, decisions/contracts, initial paths>.
+      Preserve: <rules/contracts/consumers>.
+      Verify: <scenarios/regression/integration/architecture>.
 ```
-
-- Tareas de **20-30 minutos como máximo**, ordenadas por **dependencia**.
-- Cada una con sus **RF**, su **capa y repo** y un **"Hecho cuando:"** que se pueda comprobar.
-- Las referencias deben permitir empezar por la task sin cargar todo el cambio: no copies requisitos ni decisiones. Sin plan, referencia el spec y las reglas del repo. Las rutas iniciales no limitan la exploración de dependencias reales.
-- Incluye pruebas de integración/contrato y comprobaciones de dependencias donde el riesgo lo exija, reutilizando las existentes. No añadas tests que solo reflejen la implementación.
-- Añade un estado breve en `tasks.md`: etapa, aprobaciones verificables, task actual, pendientes y siguiente paso, con referencias; no transcribas la conversación ni inventes aprobaciones.
-- **Las tasks de tests van primero** (etapa 4.5: un test por escenario de prueba del spec).
-- Todos los RF tienen que aparecer en alguna task.
-- Multi-repo: cada repo tiene su `tasks.md`, con el mismo `<id>`.
-- Un bugfix sin cambio observable no necesita tasks.
-
-## DoD
-Cada RF cubierto por alguna task · todas verificables · aprobado por el usuario.
-
-## Reglas
-- Sin halagos; señala el punto ciego.
-- Verifica contra el código (`archivo:línea`); no supongas.
-- No corras comandos de install, build, lint, tsc, tests, migraciones, seeds ni deploy: dalos en un bloque `bash` (acotados al paquete tocado si se puede), di qué mirar en la salida y espera. Solo lecturas (`grep`, `ls`, `git status`, `git diff`).
-- Nunca commits encadenados, push ni merge.
-- Para al final y espera la aprobación del usuario.
+Max 20–30 minutes, dependency order, RF/layer/repo/completion each. Refs support selective startup, never copy requirements/decisions; without plan use spec/rules. Initial paths do not limit dependency exploration. Reuse risk-based integration/contracts/dependency checks, not implementation-mirroring tests.
+Brief state: stage/evidenced approvals/current task/pending/next/refs, never transcripts/invented approval. Tests FIRST (4.5, one/scenario); every RF assigned. Same ID and own tasks per repo. No-observable-change bugfix: none. DoD: above + user approval.
+Aliases: Resume state/Estado para retomar; Stage/Etapa; Approvals/Aprobaciones; Current task/Task actual; Pending/blockers/Pendientes/bloqueos; Next step/Siguiente paso; References/Referencias; Done when/Hecho cuando; Depends on/Depende de; Read/Leer; Preserve/Conservar; Verify/Verificar.
+Docs (not code/tests/copied templates): repo template; missing file/section→report+skip, new/existing. Existing structure/prose incl additions wins; new structure=template. Prose: valid Language: code/name>latest recognizable user text>change artifacts>ask once; unanswered English+notice; empty/unknown=unset. EN/ES aliases; no migration.
+Evidence file:line; no assumptions/flattery; flag blind spots. No install/build/lint/tsc/tests/migrations/seeds/deploy: scoped bash+expected output; await user. Reads only: grep, ls, git status, git diff. No commit chains; no push/merge. Stop for approval. Chat=user; verdict=structure.

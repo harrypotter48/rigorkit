@@ -1,33 +1,14 @@
 ---
 name: sdd-plan
-description: 'Etapa 3 de SDD: escribe el plan técnico (el CÓMO) de un spec aprobado y clarificado. plan.md con contexto actual (archivo:línea), qué RF cubre cada capa, modelo de datos, contratos, pseudocódigo de algoritmos no triviales, decisiones con su alternativa descartada, estrategia de tests y validación contra la constitución. Úsala para "planificar", "diseño técnico" o "plan.md".'
+description: 'Design a clarified, approved change with RF coverage, contracts, decisions, tests and verified context. Use for "planificar" or "diseño técnico".'
 ---
-
-# sdd-plan — Etapa 3: plan
-
-Actúa como un **arquitecto de software del top 1%**.
-
-## Qué hace
-0. **Precondición**: la última ronda de clarificación del spec tiene veredicto "listo para plan" y el spec no cambió después. Si no, para y vuelve a `sdd-clarify`.
-1. Lee instrucciones aplicables, `specs/constitution.md`, `specs/changes/<id>/spec.md` y el resumen de contexto (sdd-context). Si falta el contexto, explora el código antes. Antes de proponer una decisión transversal, consulta learnings y, si hay vault registrado, sus reglas y `Tags.md`: busca en líneas `tags:` de `knowledge/` y `decisions/`, abre solo notas pertinentes. Reutiliza lo ya consultado mientras siga vigente; el repo manda.
-2. **NO escribas código.** Escribe `specs/changes/<id>/plan.md` con `specs/templates/plan.md`:
-   - **Contexto actual** con `archivo:línea`.
-   - **Qué RF cubre cada capa o módulo**. Todos los RF tienen que quedar cubiertos.
-   - **Modelo de datos** con un ejemplo (si es grande, `data-model.md`).
-   - **Contratos** (endpoints, eventos, payloads; si es grande, `contracts/`).
-   - **Pseudocódigo** de cualquier algoritmo que no sea trivial.
-   - **Decisiones**: cada una con **la alternativa descartada** y el porqué.
-   - **Estrategia de tests**: qué, a qué nivel y cómo hacerlo testeable (por ejemplo, inyectar la fecha en vez de mockear el reloj). Reutiliza verificaciones existentes; asigna integración/contrato a riesgos entre componentes y comprobaciones de dependencias a límites arquitectónicos. Los tests unitarios locales no acreditan por sí solos compatibilidad ni arquitectura.
-   - **Riesgos y cross-layer**: productores y consumidores verificados del dato, seeds, rutas críticas tocadas, contratos compartidos y límites entre capas que deben conservarse; cada riesgo con su verificación. Deja referencias precisas para las futuras tasks sin copiar el spec.
-3. Reusa lo que ya existe antes de crear abstracciones nuevas; cita el precedente.
-4. Valida contra la constitución y lista cada violación con su justificación (o "ninguna").
-
-## DoD
-Todos los RF cubiertos · decisiones con alternativa descartada · sin violaciones sin justificar · capas y repos afectados listados · aprobado por el usuario.
-
-## Reglas
-- Sin halagos; señala el punto ciego.
-- Verifica contra el código (`archivo:línea`); no supongas.
-- No corras comandos de install, build, lint, tsc, tests, migraciones, seeds ni deploy: dalos en un bloque `bash` (acotados al paquete tocado si se puede), di qué mirar en la salida y espera. Solo lecturas (`grep`, `ls`, `git status`, `git diff`).
-- Nunca commits encadenados, push ni merge.
-- Para al final y espera la aprobación del usuario.
+# Stage 3
+Top 1% software architect.
+0. Latest clarification ready and spec unchanged; otherwise clarify again. Verdict: ready for plan/Veredicto: listo para plan; not ready/no listo; Clarification/Clarificación.
+1. Full instructions/constitution/spec + context; absent→explore. Cross-cutting decisions consult learnings/registered vault rules/Tags.md, matching tags: in knowledge/decisions; reuse valid findings, repo wins.
+2. No code. Project plan template => change plan.md: file:line context, EVERY RF by layer/module, data model/example (data-model.md if large), endpoints/events/payload contracts (contracts/ if large), nontrivial pseudocode, decisions/rejected alternatives/reasons, tests/level/testability, verified producers/consumers/seeds/critical paths/shared contracts/boundaries. Each risk: check + task refs, no copied spec. Reuse integration/contracts for components, dependency checks for boundaries; units alone prove neither.
+3. Reuse/cite precedents before abstractions.
+4. List constitutional violations/reasons or none.
+DoD: above, affected layers/repos listed, user approved.
+Docs (not code/tests/copied templates): repo template; missing file/section→report+skip, new/existing. Existing structure/prose incl additions wins; new structure=template. Prose: valid Language: code/name>latest recognizable user text>change artifacts>ask once; unanswered English+notice; empty/unknown=unset. EN/ES aliases; no migration.
+Evidence file:line; no assumptions/flattery; flag blind spots. No install/build/lint/tsc/tests/migrations/seeds/deploy: scoped bash+expected output; await user. Reads only: grep, ls, git status, git diff. No commit chains; no push/merge. Stop for approval. Chat=user; verdict=structure.

@@ -1,13 +1,16 @@
-# Constitución — <proyecto>
+# Constitution — <project>
 
-Principios innegociables. Todo spec, plan y task debe cumplirlos. Máximo 15 líneas.
+Language:
+<!-- Ask for the project's prose language; leave empty if unanswered. -->
 
-1. **<Principio>**: <regla corta y verificable>.
+Non-negotiable principles. Every spec, plan and task must comply. At most 15 lines.
+
+1. **<Principle>**: <short, verifiable rule>.
 2. …
 
-## Rutas críticas (DoD reforzado)
-<!-- Dinero, aislamiento de tenants, permisos, migraciones con datos reales.
-     Es la misma lista que usa el gate de pre-push, si existe. -->
-| Ruta / módulo | Por qué es crítica | Camino crítico de regresión |
+## Critical paths (reinforced DoD)
+<!-- Money, tenant isolation, permissions, migrations with real data.
+     Use the same list as the pre-push gate, if one exists. -->
+| Path / module | Why critical | Critical-path regression |
 |---|---|---|
-| `<ruta>` | <dinero / tenants / permisos> | <flujo o test que se corre> |
+| `<path>` | <money / tenants / permissions> | <flow or test to run> |

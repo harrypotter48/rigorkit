@@ -1,63 +1,44 @@
 ---
 name: arch-boundaries
-description: 'Referencia de arquitectura por capas o hexagonal (ports & adapters): qué va en domain, application, infrastructure y presentation, la regla de dependencia, qué puede importar cada capa y el orden para crear un feature. Úsala al planear o implementar código en un proyecto con capas, o cuando pregunten "dónde va esto", "arquitectura hexagonal", "clean architecture", "ports and adapters" o "en qué capa pongo X".'
+description: 'Reference for layered/hexagonal architecture: dependencies, ports/adapters and feature order. Use for "dónde va esto" or "arquitectura hexagonal" when planning or implementing.'
 ---
+# arch-boundaries — Layers and boundaries
+**Type: reference.** No stage/stop of its own; caller skill or user controls approval.
 
-# arch-boundaries — Capas y límites
+## Project first
+Constitution/AGENTS.md/repo architecture conventions win. Otherwise infer folders, import aliases and an end-to-end feature. Without layers, report it and follow existing structure; never impose layers incidentally.
 
-**Tipo: referencia.** No tiene etapa ni punto de parada propio: la carga otra skill (por ejemplo, la de implementar) o el usuario, y manda el punto de parada de quien la usa.
-
-## Primero, la del proyecto
-1. Si la constitución, `AGENTS.md` o la documentación del repo definen capas o convenciones, **mandan sobre esta skill**.
-2. Si no, infiérelas del código: carpetas (`domain/`, `application/`, `infrastructure/`, `presentation/` o equivalentes), alias de import y un feature existente de punta a punta.
-3. Si el repo no tiene capas, no las impongas de paso: avisa y sigue la estructura que hay.
-
-## Las 4 capas
-| Capa | Contiene | Puede importar |
+## The 4 layers
+| Layer | Contents | Imports |
 |---|---|---|
-| `domain` | Modelos y tipos puros, DTOs de entrada y salida, **interfaces de repositorio (ports)** | Nada de otras capas ni de frameworks |
-| `application` | Casos de uso: `queries/` (lectura) y `mutations/` (escritura) | Solo `domain` |
-| `infrastructure` | **Adapters**: implementaciones de los ports (`*-repository-impl`), clientes HTTP/DB/storage, y el punto de entrada (controller o facade) que conecta caso de uso con implementación | `domain` y `application` |
-| `presentation` | UI: páginas, componentes, hooks, stores | Controllers de `infrastructure` para operaciones; tipos de `domain` para tipar props y estado |
+| domain | Pure models/types, input/output DTOs, repository interfaces (ports) | No other layers or frameworks |
+| application | Read queries/ and write mutations/ use cases | domain only |
+| infrastructure | Port adapters (*-repository-impl), HTTP/DB/storage clients, controller/facade wiring use cases to implementations | domain, application |
+| presentation | UI pages/components/hooks/stores | Infrastructure controllers for operations; domain types for props/state |
+Dependencies point toward domain, never reverse; domain knows no other layer, application no implementations.
 
-**Regla de dependencia:** las dependencias apuntan hacia `domain`. Nunca al revés: `domain` no conoce a nadie y `application` no conoce implementaciones.
+Hexagonal: outbound port = domain repository interface; outbound adapter = infrastructure implementation; inbound adapter = UI or backend framework HTTP controller, calling use cases, never repositories. Composition root = infrastructure controller/facade, injecting repository into use case and delegating; no business logic.
 
-## Hexagonal = estas capas
-- **Port de salida** = interfaz de repositorio en `domain`.
-- **Adapter de salida** = su implementación en `infrastructure`.
-- **Adapter de entrada** = `presentation` (UI) o el controller HTTP del framework en un backend: llama a casos de uso, nunca a repositorios.
-- **Composition root** = el controller o facade de `infrastructure`: obtiene la implementación del repositorio, se la pasa al caso de uso y delega. No tiene lógica de negocio.
-
-## Casos de uso
-- **Uno por archivo**, como función que recibe el repositorio por parámetro: `application/queries/order/getOrderById.ts`. Es fácil de encontrar y se testea con un repositorio falso.
-- Variante que vas a encontrar: una clase por entidad (`OrderQueries`, `OrderMutations`) con el repositorio en el constructor. Es válida en código existente; el código nuevo sigue la convención que declare el proyecto y **no se migra lo existente de paso**.
-
-## Flujo
+One use case per file, a function receiving its repository (`application/queries/order/getOrderById.ts`), testable with a fake. Existing entity classes (OrderQueries/OrderMutations with constructor injection) are valid; new code follows project conventions, never migrate existing code incidentally.
 ```
-presentation → controller (infrastructure) → caso de uso (application) → port (domain) ← repository impl (infrastructure) → red / DB
+presentation → controller (infrastructure) → use case (application) → port (domain) ← repository impl (infrastructure) → network/DB
 ```
 
-## Receta: nueva operación para la entidad `Order`
-1. Tipos `Request`/`Response` y modelo en `domain/entities/order/`.
-2. Método en la interfaz del repositorio (`domain`).
-3. Implementación en `infrastructure/repositories/`.
-4. Caso de uso en `application/{queries|mutations}/order/`.
-5. Método en el controller de `infrastructure/controllers/`.
-6. Presentation llama al controller.
+## New Order operation
+1. Request/Response types and model in domain/entities/order/.
+2. Repository interface method in domain.
+3. Implementation in infrastructure/repositories/.
+4. Use case in application/{queries|mutations}/order/.
+5. Controller method in infrastructure/controllers/.
+6. Presentation calls controller.
 
-## Anti-patrones
-- **Presentation hablando con la red**: `fetch`, `axios` o el cliente de datos dentro de una página, componente o hook. Se pierde la validación de tipos que dan las capas, y es donde aparecen los bugs de shapes. No hay excepción para "una pantalla chica".
-- Presentation importando repositorios o casos de uso directamente (se salta el controller).
-- `domain` importando un framework, un ORM, un cliente HTTP o variables de entorno.
-- Un caso de uso que instancia una implementación concreta en vez de recibir el port.
-- Lógica de negocio (reglas, cálculos, decisiones) en el controller, en el repository impl o en un componente.
+## Reject
+Direct fetch/axios/data clients in pages/components/hooks (no small-screen exception); UI bypassing controllers for repositories/use cases; domain imports of frameworks/ORM/HTTP/env; use case instantiating an implementation instead of receiving its port; business rules/calculations/decisions in controller, repository implementation or component.
 
-## Tests por capa
-`domain`: unitarios puros · `application`: unitarios con repositorio falso · `infrastructure`: integración (HTTP, DB) · `presentation`: componentes + E2E.
-
-## Checklist
-- [ ] `domain` sin imports de frameworks ni de otras capas.
-- [ ] Cada caso de uso depende solo de `domain` y recibe el port.
-- [ ] Las implementaciones cumplen la interfaz del port.
-- [ ] Presentation usa controllers para operaciones y tipos de `domain` para tipar; nada de red directa.
-- [ ] Nombres consistentes por entidad en todas las capas, según la convención del proyecto.
+## Tests and checklist
+Domain: pure unit; application: fake-repository unit; infrastructure: HTTP/DB integration; presentation: component/E2E.
+- [ ] Domain imports no framework/other layer.
+- [ ] Each use case imports domain only and receives port.
+- [ ] Implementations satisfy port interfaces.
+- [ ] UI calls controllers and uses domain types; no direct network.
+- [ ] Entity naming consistent across layers with project conventions.

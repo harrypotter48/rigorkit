@@ -1,36 +1,15 @@
 ---
 name: sdd-init
-description: 'Prepara un repo para Spec-Driven Development con rigorkit. Crea la estructura fija specs/ (constitution, baselines, capabilities, changes, archive, half-wired, learnings, templates, scripts), copia las plantillas y el chequeo de escenarios y propone la sección SDD del AGENTS.md. Úsala cuando el usuario quiera empezar a usar SDD en un repo, "inicializar specs" o "setup sdd". Si el proyecto ya tiene código, después sigue sdd-adopt.'
+description: 'Prepare a repository for SDD: templates, scenario checker and proposed instructions. Use for "inicializar specs" or "setup sdd"; existing code continues with sdd-adopt.'
 ---
-
-# sdd-init — Preparar el repo para SDD
-
-Actúa como un **tech lead del top 1%** que deja montado el marco de trabajo de un equipo.
-
-## Qué hace
-1. Comprueba si ya existe `specs/`. Si existe, **no sobrescribas nada**: lista lo que falta y pregunta.
-2. Propón esta estructura y espera el OK antes de crearla:
-   ```
-   specs/
-     constitution.md              reglas no negociables + rutas críticas
-     baselines/                   cómo funcionaba cada módulo al adoptar SDD
-     capabilities/                spec vivo: lo que el sistema ES hoy
-     changes/                     cambios en curso: changes/<NNN-nombre-kebab>/
-     archive/                     cambios terminados
-     half-wired.md                registro de features a medias
-     learnings/                   conocimiento reutilizable y genérico, compartido por el equipo
-     templates/                   plantillas (copia de templates/ de esta skill)
-     scripts/                     chequeos estáticos (copia de scripts/ de esta skill)
-   ```
-3. Con el OK: crea las carpetas (con un `.gitkeep` si quedan vacías), copia todos los archivos de `templates/` (junto a este SKILL.md) a `specs/templates/` y los de `scripts/` a `specs/scripts/`, y crea `specs/half-wired.md` desde su plantilla. Si el repo ya tenía `specs/` sin `templates/scenarios.md` o sin `scripts/check-scenarios.mjs`, propón añadirlos.
-4. **Chequeo de escenarios**: propón (sin escribirlo sin OK) añadir `node specs/scripts/check-scenarios.mjs` al hook `pre-push` o a CI, junto a lint, typecheck y tests.
-5. **Constitución**:
-   - Proyecto nuevo: hazle al usuario preguntas **de una en una** (stack, relación spec ↔ código, separación lógica/interfaz, política de tests, datos, idioma) y propón `specs/constitution.md` con `templates/constitution.md`: principios cortos y verificables, máximo 15 líneas, más la tabla de rutas críticas.
-   - Proyecto con código: no la inventes; indica que el siguiente paso es `sdd-adopt`.
-6. **AGENTS.md**: si existe, propón (como diff) añadir la sección de reglas de `templates/AGENTS.md`; si no existe, propón crearlo con esa plantilla. Si hay un `CLAUDE.md`, sugiere que sea un puntero (`@AGENTS.md`). No lo escribas sin OK.
-
-## Reglas
-- Sin halagos; señala el punto ciego.
-- No corras comandos de install, build, lint, tests, migraciones ni deploy. Solo lecturas (`ls`, `git status`, `git diff`) y crear o copiar los archivos de esta skill.
-- Nunca hagas commit, push ni merge. Al terminar, propón el mensaje de commit y espera.
-- Para al final y espera la aprobación del usuario.
+# Setup
+Top 1% tech lead establishing a team framework.
+1. Existing specs/: never overwrite; list gaps and ask.
+2. Propose specs/ with constitution.md (principles/critical paths), baselines/, capabilities/ (current system), changes/<NNN-kebab-name>/, archive/, half-wired.md, learnings/ (generic team knowledge), templates/, scripts/. Await approval before creation.
+3. Approved: create folders (.gitkeep if empty); copy this skill's templates/ and scripts/ into project counterparts; create half-wired from template. Propose missing scenarios.md/check-scenarios.mjs in old projects.
+4. Propose checker in pre-push/CI beside lint/typecheck/tests; never write without approval.
+5. New project: ask one/time about stack, spec/code, logic/UI, tests, data, language. Record language in constitution Language: (empty if unanswered); <=15 lines of verifiable principles plus critical paths. Existing code: never invent constitution; sdd-adopt next.
+6. Propose AGENTS rules diff or new file from copied template; suggest CLAUDE import @AGENTS.md. No instructions writes without approval.
+Critical paths/Rutas críticas; field Language: is heading-independent.
+Docs (not code/tests/copied templates): repo template; missing file/section→report+skip, new/existing. Existing structure/prose incl additions wins; new structure=template. Prose: valid Language: code/name>latest recognizable user text>change artifacts>ask once; unanswered English+notice; empty/unknown=unset. EN/ES aliases; no migration.
+No flattery; flag blind spots. Chat=user language. No install/build/lint/tests/migrations/deploy; only reads (ls/git status/diff) and this skill's file creation/copy. Never commit/push/merge; propose commit then stop for approval.

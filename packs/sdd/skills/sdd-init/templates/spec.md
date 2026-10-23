@@ -1,47 +1,35 @@
-# Spec <NNN> — <Nombre>
-
-> Estado: borrador | aprobado · DoD: normal | crítico · Repo dueño: <repo> · Repos afectados: <…>
-
-## Contexto y objetivo
-<Qué problema resuelve y por qué merece la pena. Un párrafo. Sin stack ni archivos.>
-
-## Usuarios / actores
-<Quién lo usa.>
-
-## Historias de usuario
-- H1: Como <rol> quiero <acción> para <beneficio>.
-
-## Requisitos funcionales (EARS)
-### <Grupo> (H1)
-- RF-1: CUANDO <evento>, EL SISTEMA <respuesta> (<resultado esperado>).
-- RF-2: SI <condición no deseada>, ENTONCES EL SISTEMA <respuesta>.
-- RF-3: MIENTRAS <estado>, EL SISTEMA <respuesta>.
-- RF-4: EL SISTEMA <comportamiento permanente>.
-
-## Requisitos no funcionales
-<Solo los que apliquen, con umbral: rendimiento, seguridad, plataformas, idioma…>
-
-## Escenarios de prueba
-<!-- Cada RF con los 4 tipos: happy (H), borde (E), falla (F) y seguridad (S).
-     Un tipo que no aplica va como fila `RF-n.<tipo>` con `n/a — <motivo>`. Ver `specs/templates/scenarios.md`. -->
+# Spec <NNN> — <Name>
+> Status: draft | approved · DoD: normal | critical · Owner repo: <repo> · Affected repos: <…>
+## Context and goal
+<Problem/why; 1 paragraph, no stack/files.>
+## Users / actors
+<Who uses it.>
+## User stories
+- H1: As <role> I want <action> for <benefit>.
+## Functional requirements (EARS)
+### <Group> (H1)
+- RF-1: WHEN <event>, THE SYSTEM SHALL <response> (<expected result>).
+- RF-2: IF <unwanted condition>, THEN THE SYSTEM SHALL <response>.
+- RF-3: WHILE <state>, THE SYSTEM SHALL <response>.
+- RF-4: THE SYSTEM SHALL <permanent behavior>.
+## Non-functional requirements
+<Applicable performance/security/platform/language thresholds.>
+## Test scenarios
+<!-- ALL 4 types per RF, or RF-n.<type> n/a — reason; specs/templates/scenarios.md. -->
 ### RF-1
-| ID | Tipo | Dado | Cuando | Entonces |
+| ID | Type | Given | When | Then |
 |---|---|---|---|---|
-| RF-1.H1 | happy | <estado inicial> | <acción> | <resultado observable> |
-| RF-1.E1 | borde | <valor en el límite> | <acción> | <resultado> |
-| RF-1.F1 | falla | <input inválido o error> | <acción> | <cómo responde y qué no cambia> |
-| RF-1.S1 | seguridad | <usuario sin permiso / otro tenant> | <acción> | <se rechaza> |
-
-## Fuera de alcance
-<Lo que explícitamente NO se hace en esta iteración.>
-
-## Criterios de finalización
-- Cada escenario de prueba cubierto por su test, en verde (`check-scenarios` sin faltantes).
-- <Demo manual del flujo principal.>
-- <Si es crítico: smoke real + regresión del camino crítico.>
-
-## Preguntas y respuestas
-1. <Pregunta> → <respuesta>
-
-## Dudas abiertas
-- [NECESITA ACLARACIÓN] <pregunta concreta>
+| RF-1.H1 | happy | <initial state> | <action> | <observable result> |
+| RF-1.E1 | edge | <boundary> | <action> | <result> |
+| RF-1.F1 | failure | <invalid input/error> | <action> | <response/unchanged state> |
+| RF-1.S1 | security | <unauthorized user/other tenant> | <action> | <rejected> |
+## Out of scope
+<Explicitly NOT done this iteration.>
+## Completion criteria
+- All scenarios tested/green; checker none missing.
+- <Manual main-flow demo.>
+- <Critical: real smoke + critical-path regression.>
+## Questions and answers
+1. <Question> → <answer>
+## Open questions
+- [NEEDS CLARIFICATION] <specific question>

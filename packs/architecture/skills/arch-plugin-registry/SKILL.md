@@ -1,28 +1,17 @@
 ---
 name: arch-plugin-registry
-description: 'Referencia para hacer extensible algo que hoy se despacha con un switch o if/else cerrado: el default consulta un registry y los built-ins y las extensiones se registran igual, reusando el ciclo de vida que ya existe. Úsala cuando pidan "hacerlo extensible", "agregar tipos sin tocar el switch", "plugins", "registry" o "que terceros agreguen X".'
+description: 'Reference for extensible dispatch: registry fallback, equal built-in/extension registration and existing lifecycle. Use for "hacerlo extensible" or "plugins".'
 ---
+# arch-plugin-registry — Open dispatch
+**Type: reference.** Caller skill or user controls stage/stop.
 
-# arch-plugin-registry — Registry en vez de switch cerrado
-
-**Tipo: referencia.** No tiene etapa ni punto de parada propio: la carga otra skill o el usuario.
-
-## Regla
-Para hacer extensible un `switch` cerrado, el `default` pasa a consultar un **registry**. Los built-ins y las extensiones se registran **de la misma forma**. Las extensiones se enganchan al ciclo de vida que ya existe (por ejemplo, `onInstall` de un plugin) en vez de inventar un tipo de plugin o un loader nuevo.
-
-## Antes de diseñar
-1. Busca un **precedente** en el código: otro registry, un mapa de handlers, un sistema de plugins. Si existe, cópialo.
-2. Busca el ciclo de vida existente donde una extensión pueda registrarse.
-
-## Forma
+Replace a closed switch default with registry lookup; built-ins/extensions register identically. Use existing plugin lifecycle (e.g. onInstall), never invent a new plugin type/loader. First find/reuse a registry/handler-map/plugin precedent, then its registration lifecycle.
 ```ts
 type Renderer = (props: FieldProps) => Element;
 type KnownType = 'text' | 'number';
-type FieldType = KnownType | (string & {}); // acepta tipos nuevos sin perder el autocompletado
-
+type FieldType = KnownType | (string & {}); // open types, keep autocomplete
 const registry = new Map<string, Renderer>();
 export const registerFieldType = (type: string, r: Renderer) => registry.set(type, r);
-
 switch (type) {
   case 'text': return renderText(props);
   case 'number': return renderNumber(props);
@@ -32,12 +21,6 @@ switch (type) {
   }
 }
 ```
-Una extensión es un plugin normal que, en su `onInstall`, llama a `registerFieldType(...)`.
+An ordinary extension plugin calls registerFieldType in onInstall. This reuses its loader and avoids editing the switch per type.
 
-## Por qué
-Hay menos superficie de cambio: el switch no se toca para cada tipo nuevo y se reusa el loader que ya existe.
-
-## Cuidado
-- **Singletons en bundles cargados dinámicamente**: si el registry vive en un paquete que se empaqueta dos veces (host y extensión), hay dos `Map` y las extensiones registran en el que nadie lee. El registry tiene que ser una sola instancia compartida.
-- Un tipo desconocido no debe romper: tiene un fallback visible (`renderUnknown`).
-- Registrar dos veces el mismo tipo: decide si se sobrescribe o es error, y que sea explícito.
+Ensure one shared registry instance across dynamically loaded host/extension bundles: duplicate packaged singletons create two Maps and register into an unread one. Unknown types must show a visible fallback, never crash. Explicitly choose overwrite or error for duplicate registration.

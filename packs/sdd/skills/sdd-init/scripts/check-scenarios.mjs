@@ -1,23 +1,23 @@
 #!/usr/bin/env node
-// rigorkit · check-scenarios — chequeo estático del plan de pruebas de un spec SDD.
+// rigorkit · check-scenarios — static checks for an SDD spec's test plan.
 //
-// 1. Cada RF del spec tiene escenarios de los 4 tipos (H happy, E borde, F falla, S seguridad)
-//    o una fila `RF-n.<tipo>` con `n/a — <motivo>`.
-// 2. Cada escenario (salvo `[manual]`) tiene un test: un archivo de test que contiene el ID
-//    del escenario (ej. `RF-3.F2`) y el <id> del cambio (ej. en el describe). El <id> evita
-//    que un test de otro cambio con el mismo RF-n cuente por error.
+// 1. Every RF has all four scenario types (H happy, E edge, F failure, S security),
+//    or an RF-n.<type> row with "n/a — <reason>".
+// 2. Every scenario except [manual] has a test file containing its ID (e.g. RF-3.F2)
+//    and the change ID (e.g. in describe). The change ID prevents another change's
+//    test with the same RF-n from counting by mistake.
 //
-// Uso (desde la raíz del repo, Node >= 18, sin dependencias):
-//   node specs/scripts/check-scenarios.mjs                        todos los cambios de specs/changes/
+// Usage (from the repository root, Node >= 18, no dependencies):
+//   node specs/scripts/check-scenarios.mjs                        all specs/changes/
 //   node specs/scripts/check-scenarios.mjs specs/changes/<id>/spec.md [--tests <dir>]...
 //
-// Sin argumentos, un cambio sin ningún test todavía (spec en curso) se avisa y no falla.
-// Con un spec explícito o con --strict, sí falla. Sale con código 1 si hay errores.
+// Without arguments, a change with no tests yet is warned about without failing.
+// An explicit spec or --strict requires coverage. Exit code 1 means errors.
 
 import fs from 'node:fs';
 import path from 'node:path';
 
-const TYPES = { H: 'happy', E: 'borde', F: 'falla', S: 'seguridad' };
+const TYPES = { H: 'happy', E: 'edge', F: 'failure', S: 'security' };
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.turbo', '.cache', 'specs']);
 const TEST_FILE = /(\.|_)(test|spec)\.[a-z0-9]+$|^test_.*\.py$/i;
 const TEST_DIR = /^(__tests__|tests?|e2e)$/i;
@@ -69,10 +69,10 @@ function parseSpec(text) {
     if (m) rfs.add(Number(m[1]));
   }
 
-  const start = lines.findIndex((l) => /^##\s+Escenarios de prueba/i.test(l));
+  const start = lines.findIndex((l) => /^##\s+(?:Test scenarios|Escenarios de prueba)/i.test(l));
   const scenarios = [];
   const errors = [];
-  if (start === -1) return { rfs, scenarios, errors: ['no tiene la sección "## Escenarios de prueba"'] };
+  if (start === -1) return { rfs, scenarios, errors: ['missing section "## Test scenarios" (Spanish alias: "## Escenarios de prueba")'] };
 
   for (let i = start + 1; i < lines.length && !/^##\s/.test(lines[i]); i++) {
     const l = lines[i].trim();
@@ -83,8 +83,8 @@ function parseSpec(text) {
     const [, rf, type, num] = m;
     const id = `RF-${rf}.${type}${num ?? ''}`;
     const na = !num;
-    if (na && !/n\/a\s*[—–-]+\s*\S/i.test(l)) errors.push(`${id}: fila n/a sin motivo (formato: "n/a — <motivo>")`);
-    if (!na && /\bn\/a\b/i.test(l)) errors.push(`${id}: un escenario con número no puede ser n/a (usa ${`RF-${rf}.${type}`})`);
+    if (na && !/n\/a\s*[—–-]+\s*\S/i.test(l)) errors.push(`${id}: n/a row has no reason (format: "n/a — <reason>")`);
+    if (!na && /\bn\/a\b/i.test(l)) errors.push(`${id}: a numbered scenario cannot be n/a (use ${`RF-${rf}.${type}`})`);
     scenarios.push({ id, rf: Number(rf), type, na, manual: /\[manual\]/i.test(l), line: i + 1 });
   }
   return { rfs, scenarios, errors };
@@ -102,28 +102,28 @@ function checkSpec(specPath, testFiles, strict) {
 
   const seen = new Set();
   for (const s of scenarios) {
-    if (seen.has(s.id)) errors.push(`${s.id}: ID duplicado (línea ${s.line})`);
+    if (seen.has(s.id)) errors.push(`${s.id}: duplicate ID (line ${s.line})`);
     seen.add(s.id);
-    if (!rfs.has(s.rf)) errors.push(`${s.id}: el RF-${s.rf} no existe en el spec`);
+    if (!rfs.has(s.rf)) errors.push(`${s.id}: el RF-${s.rf} does not exist in the spec`);
   }
 
-  if (rfs.size === 0) errors.push('no se encontró ningún RF (formato: "- RF-n: …")');
+  if (rfs.size === 0) errors.push('no RF found (format: "- RF-n: …")');
   for (const rf of [...rfs].sort((a, b) => a - b)) {
     for (const [t, name] of Object.entries(TYPES)) {
       const ofType = scenarios.filter((s) => s.rf === rf && s.type === t);
       const na = ofType.some((s) => s.na);
       const real = ofType.some((s) => !s.na);
-      if (!na && !real) errors.push(`RF-${rf}: falta un escenario de ${name} (${t}) o una fila "RF-${rf}.${t} | n/a — <motivo>"`);
-      if (na && real) errors.push(`RF-${rf}: ${name} (${t}) tiene escenarios y n/a a la vez`);
+      if (!na && !real) errors.push(`RF-${rf}: missing a ${name} scenario (${t}) or a row "RF-${rf}.${t} | n/a — <reason>"`);
+      if (na && real) errors.push(`RF-${rf}: ${name} (${t}) has both scenarios and n/a`);
     }
   }
 
   const toTest = scenarios.filter((s) => !s.na && !s.manual);
   const missing = toTest.filter((s) => !hasTest(testFiles, changeId, s.id));
   if (toTest.length > 0 && missing.length === toTest.length && !strict) {
-    warnings.push(`ningún escenario tiene test todavía: se omite la cobertura (usa --strict para exigirla)`);
+    warnings.push(`no scenario has a test yet: skipping coverage (use --strict to require it)`);
   } else {
-    for (const s of missing) errors.push(`${s.id}: sin test (ningún archivo de test contiene "${s.id}" y "${changeId}")`);
+    for (const s of missing) errors.push(`${s.id}: missing test (no test file contains "${s.id}" and "${changeId}")`);
   }
 
   const manual = scenarios.filter((s) => s.manual).map((s) => s.id);
@@ -132,25 +132,25 @@ function checkSpec(specPath, testFiles, strict) {
 
 const opts = parseArgs(process.argv.slice(2));
 if (opts.help) {
-  console.log('Uso: node specs/scripts/check-scenarios.mjs [specs/changes/<id>/spec.md ...] [--tests <dir>]... [--strict]');
+  console.log('Usage: node specs/scripts/check-scenarios.mjs [specs/changes/<id>/spec.md ...] [--tests <dir>]... [--strict]');
   process.exit(0);
 }
 
 const explicit = opts.specs.length > 0;
 const specs = explicit ? opts.specs : findSpecs();
 if (specs.length === 0) {
-  console.log('check-scenarios: no hay specs en specs/changes/, nada que revisar.');
+  console.log('check-scenarios: no specs in specs/changes/, nothing to check.');
   process.exit(0);
 }
 
 const testFiles = collectTestFiles(opts.tests.length ? opts.tests : ['.']);
 let failed = false;
 for (const spec of specs) {
-  if (!fs.existsSync(spec)) { console.error(`✗ ${spec}: no existe`); failed = true; continue; }
+  if (!fs.existsSync(spec)) { console.error(`✗ ${spec}: does not exist`); failed = true; continue; }
   const r = checkSpec(spec, testFiles, opts.strict || explicit);
   const ok = r.errors.length === 0;
   failed ||= !ok;
-  console.log(`${ok ? '✓' : '✗'} ${r.changeId} — ${r.count} escenarios${r.manual.length ? `, manuales: ${r.manual.join(', ')}` : ''}`);
+  console.log(`${ok ? '✓' : '✗'} ${r.changeId} — ${r.count} scenarios${r.manual.length ? `, manual: ${r.manual.join(', ')}` : ''}`);
   for (const w of r.warnings) console.log(`  ! ${w}`);
   for (const e of r.errors) console.log(`  ✗ ${e}`);
 }

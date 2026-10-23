@@ -1,18 +1,18 @@
-# Baseline — <módulo> (<fecha>)
+# Baseline — <module> (<date>)
 
-## Qué hace hoy
-<Una o dos líneas.>
+## What it does today
+<1–2 lines.>
 
-## Contrato real
-| Campo | Entity | Migración | DTO | Tipo compartido | Productores | Consumidores |
+## Actual contract
+| Field | Entity | Migration | DTO | Shared type | Producers | Consumers |
 |---|---|---|---|---|---|---|
-| `<campo>` | `archivo:línea` | … | … | … | … | … |
+| `<field>` | `file:line` | … | … | … | … | … |
 
-## Mismatches conocidos
-- <Descripción> (`archivo:línea`)
+## Known mismatches
+- <Mismatch> (`file:line`)
 
-## Features a medias detectadas
-- → entrada en `specs/half-wired.md`
+## Detected half-wired features
+- → entry in `specs/half-wired.md`
 
-## ¿Ruta crítica?
-<Sí / no, y por qué.>
+## Critical path?
+<Yes/no + why.>
