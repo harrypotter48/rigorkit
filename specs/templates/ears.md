@@ -1,26 +1,26 @@
-# EARS: cómo escribir requisitos
+# EARS: writing requirements
 
-Cada requisito funcional se numera `RF-n` y usa **uno** de estos 5 patrones:
+Number each functional requirement `RF-n` and use one of these 5 patterns:
 
-| Patrón | Forma | Cuándo |
+| Pattern | Form | When |
 |---|---|---|
-| Ubicuo | EL SISTEMA \<hará\> | Siempre se cumple |
-| Evento | CUANDO \<disparador\>, EL SISTEMA \<hará\> | Responde a algo |
-| Estado | MIENTRAS \<estado\>, EL SISTEMA \<hará\> | Durante una condición |
-| Opcional | DONDE \<característica\>, EL SISTEMA \<hará\> | Solo si la característica existe |
-| No deseado | SI \<condición\>, ENTONCES EL SISTEMA \<hará\> | Errores y casos límite |
+| Ubiquitous | THE SYSTEM SHALL \<action\> | Always holds |
+| Event | WHEN \<trigger\>, THE SYSTEM SHALL \<action\> | Responds to an event |
+| State | WHILE \<state\>, THE SYSTEM SHALL \<action\> | During a condition |
+| Optional | WHERE \<feature\>, THE SYSTEM SHALL \<action\> | Only when the feature exists |
+| Unwanted | IF \<condition\>, THEN THE SYSTEM SHALL \<action\> | Errors and edge cases |
 
-## Reglas
-- Un requisito por frase: si hace falta un "y" para unir dos comportamientos, son dos requisitos.
-- Sin adjetivos que no se puedan medir ("rápido", "intuitivo", "robusto"): se escribe el umbral o no se escribe.
-- Si no se te ocurre cómo comprobar un requisito, está mal escrito.
-- Lo que no se sabe se marca `[NECESITA ACLARACIÓN: <pregunta concreta>]`. Nunca se inventa.
+## Rules
+- One requirement per sentence: if "and" joins two behaviors, write two requirements.
+- No unmeasurable adjectives ("fast", "intuitive", "robust"): give a threshold or omit the claim.
+- If you cannot check a requirement, rewrite it.
+- Mark unknowns `[NEEDS CLARIFICATION: <specific question>]`. Never invent an answer.
 
-## Ejemplo
-Bien:
-> RF-4: SI el nombre ya existe (sin distinguir mayúsculas ni espacios al inicio o al final),
-> ENTONCES EL SISTEMA no creará un duplicado e informará del conflicto.
+## Example
+Good:
+> RF-4: IF the name already exists (ignoring case and leading/trailing whitespace),
+> THEN THE SYSTEM SHALL not create a duplicate and shall report the conflict.
 
-Mal:
-> ~~RF-4: El sistema debe manejar bien los duplicados y ser rápido.~~
-> No sigue ningún patrón EARS, no se puede verificar, junta dos ideas y usa un adjetivo que no se puede medir.
+Bad:
+> ~~RF-4: The system must handle duplicates well and be fast.~~
+> No EARS pattern, unverifiable, combines two ideas and uses an unmeasurable adjective.

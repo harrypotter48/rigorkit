@@ -1,47 +1,47 @@
-# Spec <NNN> — <Nombre>
+# Spec <NNN> — <Name>
 
-> Estado: borrador | aprobado · DoD: normal | crítico · Repo dueño: <repo> · Repos afectados: <…>
+> Status: draft | approved · DoD: normal | critical · Owner repo: <repo> · Affected repos: <…>
 
-## Contexto y objetivo
-<Qué problema resuelve y por qué merece la pena. Un párrafo. Sin stack ni archivos.>
+## Context and goal
+<Problem and why it matters. One paragraph; no stack or files.>
 
-## Usuarios / actores
-<Quién lo usa.>
+## Users / actors
+<Who uses it.>
 
-## Historias de usuario
-- H1: Como <rol> quiero <acción> para <beneficio>.
+## User stories
+- H1: As a <role> I want <action> so that <benefit>.
 
-## Requisitos funcionales (EARS)
-### <Grupo> (H1)
-- RF-1: CUANDO <evento>, EL SISTEMA <respuesta> (<resultado esperado>).
-- RF-2: SI <condición no deseada>, ENTONCES EL SISTEMA <respuesta>.
-- RF-3: MIENTRAS <estado>, EL SISTEMA <respuesta>.
-- RF-4: EL SISTEMA <comportamiento permanente>.
+## Functional requirements (EARS)
+### <Group> (H1)
+- RF-1: WHEN <event>, THE SYSTEM SHALL <response> (<expected result>).
+- RF-2: IF <unwanted condition>, THEN THE SYSTEM SHALL <response>.
+- RF-3: WHILE <state>, THE SYSTEM SHALL <response>.
+- RF-4: THE SYSTEM SHALL <permanent behavior>.
 
-## Requisitos no funcionales
-<Solo los que apliquen, con umbral: rendimiento, seguridad, plataformas, idioma…>
+## Non-functional requirements
+<Only applicable requirements, with thresholds: performance, security, platforms, language…>
 
-## Escenarios de prueba
-<!-- Cada RF con los 4 tipos: happy (H), borde (E), falla (F) y seguridad (S).
-     Un tipo que no aplica va como fila `RF-n.<tipo>` con `n/a — <motivo>`. Ver `specs/templates/scenarios.md`. -->
+## Test scenarios
+<!-- Each RF needs all 4 types: happy (H), edge (E), failure (F), security (S).
+     An inapplicable type needs an RF-n.<type> row with "n/a — <reason>". See specs/templates/scenarios.md. -->
 ### RF-1
-| ID | Tipo | Dado | Cuando | Entonces |
+| ID | Type | Given | When | Then |
 |---|---|---|---|---|
-| RF-1.H1 | happy | <estado inicial> | <acción> | <resultado observable> |
-| RF-1.E1 | borde | <valor en el límite> | <acción> | <resultado> |
-| RF-1.F1 | falla | <input inválido o error> | <acción> | <cómo responde y qué no cambia> |
-| RF-1.S1 | seguridad | <usuario sin permiso / otro tenant> | <acción> | <se rechaza> |
+| RF-1.H1 | happy | <initial state> | <action> | <observable result> |
+| RF-1.E1 | edge | <boundary value> | <action> | <result> |
+| RF-1.F1 | failure | <invalid input or error> | <action> | <response and what stays unchanged> |
+| RF-1.S1 | security | <unauthorized user / another tenant> | <action> | <rejected> |
 
-## Fuera de alcance
-<Lo que explícitamente NO se hace en esta iteración.>
+## Out of scope
+<What this iteration explicitly does NOT do.>
 
-## Criterios de finalización
-- Cada escenario de prueba cubierto por su test, en verde (`check-scenarios` sin faltantes).
-- <Demo manual del flujo principal.>
-- <Si es crítico: smoke real + regresión del camino crítico.>
+## Completion criteria
+- Every test scenario covered by a passing test (`check-scenarios` reports none missing).
+- <Manual demo of the main flow.>
+- <If critical: real smoke test + critical-path regression.>
 
-## Preguntas y respuestas
-1. <Pregunta> → <respuesta>
+## Questions and answers
+1. <Question> → <answer>
 
-## Dudas abiertas
-- [NECESITA ACLARACIÓN] <pregunta concreta>
+## Open questions
+- [NEEDS CLARIFICATION] <specific question>

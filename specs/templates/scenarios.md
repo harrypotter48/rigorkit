@@ -1,55 +1,55 @@
-# Escenarios de prueba
+# Test scenarios
 
-El plan de pruebas vive en el spec: cada RF tiene sus **escenarios**, con un ID propio y en formato dado / cuando / entonces. Los escribe `sdd-spec`, los audita `sdd-clarify`, los aprueba el usuario y `sdd-tests` escribe un test por escenario.
+The test plan lives in the spec: each RF has scenarios with unique IDs and given / when / then. `sdd-spec` writes them, `sdd-clarify` audits them, the user approves them, and `sdd-tests` writes one test per scenario.
 
-## Tipos
-| Tipo | Letra | Qué prueba | Ejemplo (aplicar cupón) |
+## Types
+| Type | Letter | What it tests | Example (apply coupon) |
 |---|---|---|---|
-| Happy path | `H` | El uso normal, todo bien | Cupón válido → descuenta 10 % |
-| Borde | `E` | Valores en el límite o raros, pero válidos | Total justo en el mínimo; cupón que vence hoy |
-| Falla | `F` | Input inválido o algo que sale mal, y cómo responde el sistema | Cupón inexistente → error, pedido intacto |
-| Seguridad | `S` | Quién puede hacerlo y datos de otro tenant o usuario | Cupón de otro tenant → rechazado |
+| Happy path | `H` | Normal use, everything works | Valid coupon → 10% discount |
+| Edge | `E` | Boundary or unusual but valid values | Total exactly at the minimum; coupon expires today |
+| Failure | `F` | Invalid input or a failure, and the system's response | Unknown coupon → error, order unchanged |
+| Security | `S` | Who may act and other users' or tenants' data | Another tenant's coupon → rejected |
 
-## Regla
-- **Cada RF tiene los 4 tipos**, sea el cambio normal o crítico. Un RF nunca se prueba solo con el camino feliz.
-- Un tipo solo se omite con una fila `n/a — <motivo>`. Así se distingue "no aplica" de "se olvidó". El motivo tiene que sostenerse: lo revisa `sdd-clarify`.
-- **Crítico**: `S` no puede ser `n/a` si el RF toca tenants o permisos. El nivel no cambia qué se prueba, sino cuánta evidencia extra se pide (ver el Definition of Done reforzado en `sdd-verify`).
+## Rule
+- Every RF needs all 4 types, for normal and critical changes. Never test only the happy path.
+- Omit a type only with an `n/a — <reason>` row. This distinguishes inapplicable from forgotten; `sdd-clarify` checks that the reason holds.
+- Critical: `S` cannot be `n/a` when the RF touches tenants or permissions. The level changes the extra evidence required, not what is tested (see the reinforced Definition of Done in `sdd-verify`).
 
 ## IDs
-- Escenario: `RF-<n>.<tipo><k>`, por ejemplo `RF-3.H1`, `RF-3.E2`.
-- No aplica: `RF-<n>.<tipo>` sin número, con `n/a — <motivo>` en la fila.
-- El título de cada test empieza por el ID del escenario: `RF-3.F2: no duplica el descuento si se aplica dos veces`.
-- Los RF se numeran por cambio, así que el archivo de test también menciona el `<id>` del cambio, normalmente en el `describe` (`describe('007-cupones', …)`). Sin eso, un `RF-1.H1` de otro cambio contaría por error.
-- Un escenario que se verifica a mano (UI puramente visual) lleva `[manual]` en la fila; no necesita test, pero sí aparece en la verificación en vivo.
+- Scenario: `RF-<n>.<type><k>`, e.g. `RF-3.H1`, `RF-3.E2`.
+- Inapplicable: `RF-<n>.<type>` without a number, with `n/a — <reason>` in its row.
+- Every test title starts with its scenario ID: `RF-3.F2: does not duplicate the discount when applied twice`.
+- RFs are numbered per change, so the test file must also mention the change `<id>`, usually in `describe` (`describe('007-coupons', …)`). Otherwise another change's `RF-1.H1` could count by mistake.
+- A manually verified scenario (purely visual UI) carries `[manual]` in its row: no test is required, but it must appear in live verification.
 
-## Formato en el spec
+## Spec format
 ```md
 ### RF-3
-| ID | Tipo | Dado | Cuando | Entonces |
+| ID | Type | Given | When | Then |
 |---|---|---|---|---|
-| RF-3.H1 | happy | un pedido de 120 y un cupón válido del 10 % | se aplica el cupón | el total es 108 |
-| RF-3.E1 | borde | un pedido justo en el mínimo del cupón | se aplica el cupón | el descuento se aplica |
-| RF-3.F1 | falla | un código de cupón que no existe | se aplica el cupón | se rechaza y el pedido no cambia |
-| RF-3.F2 | falla | un cupón ya aplicado al pedido | se aplica otra vez | no se duplica el descuento |
-| RF-3.S | seguridad | n/a — el cupón no depende del usuario ni del tenant | | |
+| RF-3.H1 | happy | an order of 120 and a valid 10% coupon | apply coupon | total is 108 |
+| RF-3.E1 | edge | an order exactly at the coupon minimum | apply coupon | discount applies |
+| RF-3.F1 | failure | an unknown coupon code | apply coupon | rejected, order unchanged |
+| RF-3.F2 | failure | a coupon already applied to the order | apply again | discount is not duplicated |
+| RF-3.S | security | n/a — the coupon depends on neither user nor tenant | | |
 ```
 
-## Checklist para encontrar bordes y fallas
-- Límites: 0, mínimo, máximo, justo por debajo y por encima.
-- Vacío: `null`, texto vacío, lista vacía, campo ausente.
-- Duplicados e idempotencia: repetir la misma acción, doble click, reintento.
-- Concurrencia: dos usuarios o dos peticiones a la vez sobre lo mismo.
-- Permisos y tenants: usuario sin permiso, recurso de otro tenant, sesión vencida.
-- Input inválido: formato, tipo, longitud, caracteres especiales.
-- Dependencias externas: timeout, error o respuesta inesperada de un servicio o la base de datos.
-- Fechas y horas: zona horaria, cambio de día, vencimientos, años bisiestos.
-- Estado: la acción sobre algo ya cancelado, borrado, cerrado o a medio crear.
+## Checklist for edges and failures
+- Boundaries: 0, minimum, maximum, just below and above.
+- Empty: `null`, empty text/list, missing field.
+- Duplicates and idempotency: repeat an action, double click, retry.
+- Concurrency: two users or requests act on the same thing at once.
+- Permissions and tenants: unauthorized user, another tenant's resource, expired session.
+- Invalid input: format, type, length, special characters.
+- External dependencies: timeout, error, unexpected service or database response.
+- Dates and times: timezone, day boundary, expiration, leap years.
+- State: acting on something already canceled, deleted, closed or partly created.
 
-## Chequeo automático
-`specs/scripts/check-scenarios.mjs` comprueba que cada RF tiene los 4 tipos (o `n/a` con motivo) y que cada escenario (salvo `[manual]`) tiene un test con su ID, en un archivo que menciona el `<id>` del cambio. Comprueba que el test **existe**, no que pruebe lo correcto: eso lo cubren la revisión de los títulos y el lint de tests.
+## Automated check
+`specs/scripts/check-scenarios.mjs` checks all 4 types per RF (or `n/a` with a reason), and a test per scenario except `[manual]`. The test file must contain its scenario ID and change `<id>`. It checks existence, not whether assertions test the right behavior: title review and test lint cover that.
 
 ```bash
 node specs/scripts/check-scenarios.mjs specs/changes/<id>/spec.md
 ```
 
-Sin argumentos revisa todos los cambios de `specs/changes/`; un cambio que todavía no tiene ningún test (spec en curso) se avisa sin fallar, salvo con `--strict`. Así sirve como paso del hook `pre-push` o de CI. `--tests <dir>` acota dónde buscar los tests.
+Without arguments it checks every change in `specs/changes/`. A change with no tests yet gets a warning rather than a failure, unless `--strict` is used, so it can run in a `pre-push` hook or CI. `--tests <dir>` limits the test search.

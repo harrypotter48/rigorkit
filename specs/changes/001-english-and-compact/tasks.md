@@ -1,26 +1,40 @@
 # Tasks — 001-english-and-compact
 
 ## Estado para retomar
-Etapa: T5–T6 implementadas, pendientes de verificación del usuario · Aprobaciones: spec por «adelante», plan por «continua», tasks por «dale» e implementación T5–T6 por «adelante», el 2026-10-23 · Task actual: T5–T6, casillas abiertas hasta confirmar verde.
-Pendientes/bloqueos: ejecutar suite del medidor; baseline real sin capturar (T7); checker inglés y cobertura ejecutable pendientes T9; cambios sin commit · Siguiente paso: commit autorizado y preparación de T7; confirmar los 15 tests verdes antes de acreditar T6 y capturar baseline.
-Referencias: `spec.md` RF-2/RF-16–RF-19 y ronda 8; `plan.md` §§ Modelo de datos, Medición e identidad, Contratos y D1–D3/D9; `tools/measure-content.mjs`.
+Etapa: T1–T10 completas en su alcance; pendiente autorización para T11 · Aprobaciones: spec/plan/tasks y continuidad por usuario; T10 por «all green continua», 2026-10-23 · Task actual: ninguna; siguiente T11.
+Pendientes/bloqueos: traducción de plantillas restantes y consumidores; medición final/revisión global/en vivo pendientes · Siguiente paso: T11. Commit previo: `8b13977`; T7–T10, baseline y estado actual sin commit.
+Referencias: `spec.md` RF-1/RF-6/RF-8/RF-17/RF-20; `plan.md` § Alias derivados y D4/D5; ambas carpetas de plantillas.
 
-Evidencia vigente del rojo (salida del usuario, 2026-10-23), antes de implementar:
-- Checker: 6 tests, 3 verdes (RF-8.E1, RF-25.E1/F1) y 3 rojos esperados (RF-8.H1/F1, RF-25.H1).
-- Medidor: 15 tests, 0 verdes y 15 rojos por `Pending implementation: tools/measure-content.mjs does not exist (T5/T6)`.
-- Los 21 títulos coinciden estáticamente con los escenarios automatizables. Las fixtures corregidas usan marcadores separados `*.test.txt`; T1–T4 acreditan preparación y rojo, no cobertura ejecutable verde.
+Evidencia vigente (2026-10-23):
+- T5–T7: usuario confirmó tests del medidor/captura; baseline v1 presente, commit `edad00214e552594fe4da00e51c88803a22f19c5`, 23 entradas y 1 rules.md.
+- T8: usuario aportó dry-runs project/global y confirmó los 50 casos de la matriz temporal. Regresión completa contra edad002/protección de archivos siguen en T33/T34.
+- T9: usuario confirmó «all green continua» tras recibir seis tests del checker y chequeo del spec real. Se registra como confirmación de ambos comandos, sin atribuir ejecución al agente.
+- T10: cinco plantillas traducidas en ambas copias; originales contrastados contra edad002, IDs preservados y parejas de estructura derivadas de los textos reales antes/después. Revisión manual conserva negaciones, cifras, cinco patrones EARS, cuatro tipos, exclusiones n/a/manual, veredictos y formatos. Copias sincronizadas por construcción; no se modificaron tests ni checker.
+- T10 solo cambia documentación/plantillas. La evidencia de T9 sigue vigente para el checker; integración conductual de productores/consumidores y revisión independiente global quedan en T14–T23/T31/T35–T39. No repetir tests sin cambios relevantes a sus consumidores.
 
-Implementación T5–T6:
-- `tools/measure-content.mjs`: inventario determinista, lectura de frontmatter de una línea, NFC/code points, carga agregada con auxiliares, exclusión de NOTICE/frontmatter, informe por archivo/pack y baseline JSON v1 validada.
-- Identidad por kind/pack/path/name, límites 300/300, reducción independiente con comparación entera; CLI `--root`/`--baseline`, errores por stderr y código 1, sin escrituras ni captura de baseline.
-- Revisión manual del cambio contra plan/constitución: solo imports de Node, sin dependencia de packs, red, configuración personal o escritura. Este repo no tiene estructura de capas de aplicación; las reglas de `arch-reviewer` no tienen capas que comprobar. Tests y fixtures conservados.
-- No se ejecutaron tests, lint, typecheck ni instalación. Sin evidencia verde todavía. El usuario autorizó commit y continuar mediante «haz commit y continua» (2026-10-23). La preparación de T7 puede avanzar; su captura y verificación siguen pendientes de ejecución del usuario.
+Alias derivados para T14–T23 (evidencia de migración, no una referencia instalada compartida):
+Fuente: `git show edad002:packs/sdd/skills/sdd-init/templates/<archivo>` frente a su traducción en T10; ambos juegos eran idénticos al original antes de editar. Los consumidores incorporarán solo los alias que lean, inline, según D4. Las versiones españolas de esta tabla son citas de estructura para compatibilidad.
 
-Comando pendiente del usuario:
-```bash
-node --test --test-reporter=spec tools/test/measure-content.test.mjs 2>&1 | grep -E '✔|✖|ℹ (tests|pass|fail)'
-```
-Esperado: 15 tests verdes. La suite del checker conserva sus 3 rojos hasta T9; no repetir su comprobación global mientras siga sin reconocer la cabecera inglesa.
+| Plantilla / clase | Parejas derivadas | Productores / consumidores |
+|---|---|---|
+| `spec.md` — encabezados | `# Spec <NNN> — <Nombre>` → `# Spec <NNN> — <Name>`; `## Contexto y objetivo` → `## Context and goal`; `## Usuarios / actores` → `## Users / actors`; `## Historias de usuario` → `## User stories`; `## Requisitos funcionales (EARS)` → `## Functional requirements (EARS)`; `### <Grupo> (H1)` → `### <Group> (H1)`; `## Requisitos no funcionales` → `## Non-functional requirements`; `## Escenarios de prueba` → `## Test scenarios`; `## Fuera de alcance` → `## Out of scope`; `## Criterios de finalización` → `## Completion criteria`; `## Preguntas y respuestas` → `## Questions and answers`; `## Dudas abiertas` → `## Open questions` | sdd-spec (T15); sdd-clarify/plan (T16); sdd-tests (T18); sdd-change (T22); sdd-reviewer (T23); checker (T9, solo cabecera) |
+| `spec.md` — columnas | `\| ID \| Tipo \| Dado \| Cuando \| Entonces \|` → `\| ID \| Type \| Given \| When \| Then \|` | sdd-spec (T15); sdd-clarify/plan (T16); sdd-tests (T18); sdd-change (T22); sdd-reviewer (T23); checker (T9, solo cabecera) |
+| `spec.md` — metadata y EARS | `> Estado: borrador \| aprobado · DoD: normal \| crítico · Repo dueño: <repo> · Repos afectados: <…>` → `> Status: draft \| approved · DoD: normal \| critical · Owner repo: <repo> · Affected repos: <…>`; `- RF-1: CUANDO <evento>, EL SISTEMA <respuesta> (<resultado esperado>).` → `- RF-1: WHEN <event>, THE SYSTEM SHALL <response> (<expected result>).`; `- RF-2: SI <condición no deseada>, ENTONCES EL SISTEMA <respuesta>.` → `- RF-2: IF <unwanted condition>, THEN THE SYSTEM SHALL <response>.`; `- RF-3: MIENTRAS <estado>, EL SISTEMA <respuesta>.` → `- RF-3: WHILE <state>, THE SYSTEM SHALL <response>.`; `- RF-4: EL SISTEMA <comportamiento permanente>.` → `- RF-4: THE SYSTEM SHALL <permanent behavior>.` | sdd-spec (T15); sdd-clarify/plan (T16); sdd-tests (T18); sdd-change (T22); sdd-reviewer (T23); checker (T9, solo cabecera) |
+| `spec.md` — marcadores | `[NECESITA ACLARACIÓN]` → `[NEEDS CLARIFICATION]` | sdd-spec (T15); sdd-clarify/plan (T16); sdd-tests (T18); sdd-change (T22); sdd-reviewer (T23); checker (T9, solo cabecera) |
+| `spec.md` — tipos de fila | `borde` → `edge`; `falla` → `failure`; `seguridad` → `security` | sdd-spec (T15); sdd-clarify/plan (T16); sdd-tests (T18); sdd-change (T22); sdd-reviewer (T23); checker (T9, solo cabecera) |
+| `scenarios.md` — encabezados | `# Escenarios de prueba` → `# Test scenarios`; `## Tipos` → `## Types`; `## Regla` → `## Rule`; `## Formato en el spec` → `## Spec format`; `## Checklist para encontrar bordes y fallas` → `## Checklist for edges and failures`; `## Chequeo automático` → `## Automated check` | sdd-spec (T15); sdd-clarify (T16); sdd-tests (T18); sdd-verify (T19); sdd-reviewer (T23) |
+| `scenarios.md` — columnas | `\| Tipo \| Letra \| Qué prueba \| Ejemplo (aplicar cupón) \|` → `\| Type \| Letter \| What it tests \| Example (apply coupon) \|`; `\| ID \| Tipo \| Dado \| Cuando \| Entonces \|` → `\| ID \| Type \| Given \| When \| Then \|` | sdd-spec (T15); sdd-clarify (T16); sdd-tests (T18); sdd-verify (T19); sdd-reviewer (T23) |
+| `scenarios.md` — tipos de fila | `borde` → `edge`; `falla` → `failure`; `seguridad` → `security` | sdd-spec (T15); sdd-clarify (T16); sdd-tests (T18); sdd-verify (T19); sdd-reviewer (T23) |
+| `ears.md` — encabezados | `# EARS: cómo escribir requisitos` → `# EARS: writing requirements`; `## Reglas` → `## Rules`; `## Ejemplo` → `## Example` | sdd-spec (T15); sdd-clarify (T16); sdd-change (T22); sdd-reviewer (T23) |
+| `ears.md` — columnas | `\| Patrón \| Forma \| Cuándo \|` → `\| Pattern \| Form \| When \|` | sdd-spec (T15); sdd-clarify (T16); sdd-change (T22); sdd-reviewer (T23) |
+| `ears.md` — patrones EARS | `EL SISTEMA \<hará\>` → `THE SYSTEM SHALL \<action\>`; `CUANDO \<disparador\>, EL SISTEMA \<hará\>` → `WHEN \<trigger\>, THE SYSTEM SHALL \<action\>`; `MIENTRAS \<estado\>, EL SISTEMA \<hará\>` → `WHILE \<state\>, THE SYSTEM SHALL \<action\>`; `DONDE \<característica\>, EL SISTEMA \<hará\>` → `WHERE \<feature\>, THE SYSTEM SHALL \<action\>`; `SI \<condición\>, ENTONCES EL SISTEMA \<hará\>` → `IF \<condition\>, THEN THE SYSTEM SHALL \<action\>` | sdd-spec (T15); sdd-clarify (T16); sdd-change (T22); sdd-reviewer (T23) |
+| `ears.md` — marcadores | `[NECESITA ACLARACIÓN: <pregunta concreta>]` → `[NEEDS CLARIFICATION: <specific question>]` | sdd-spec (T15); sdd-clarify (T16); sdd-change (T22); sdd-reviewer (T23) |
+| `clarification.md` — encabezados | `## Clarificación — <id>, ronda <n> (<fecha>) · Veredicto: listo para plan \| no listo` → `## Clarification — <id>, round <n> (<date>) · Verdict: ready for plan \| not ready` | sdd-clarify/plan (T16); sdd-resume (T17); sdd-reviewer (T23) |
+| `validation.md` — encabezados | `## Validación — <id>` → `## Validation — <id>` | sdd-verify (T19); sdd-reviewer (T23) |
+| `validation.md` — columnas | `\| Escenario \| Tipo \| Test que lo cubre \| Resultado \|` → `\| Scenario \| Type \| Covering test \| Result \|` | sdd-verify (T19); sdd-reviewer (T23) |
+| `validation.md` — campos y veredicto | `Revisión global` → `Global review`; `Contratos e integración` → `Contracts and integration`; `Prueba en vivo` → `Live test`; `Pendientes` → `Pending`; `Veredicto` → `Verdict` | sdd-verify (T19); sdd-reviewer (T23) |
+| `validation.md` — resultado del checker | `check-scenarios: sin faltantes \| faltan <…>` → `check-scenarios: none missing \| missing <…>` | sdd-verify (T19); sdd-reviewer (T23) |
+| `validation.md` — veredicto | `Veredicto: spec cumplido \| falta <…>` → `Verdict: spec fulfilled \| missing <…>` | sdd-verify (T19); sdd-reviewer (T23) |
 
 ## Tasks
 
@@ -54,42 +68,42 @@ Todas las tasks tienen un presupuesto de 20–30 minutos como máximo. Si una no
       Conservar: asociación entre escenario y cambio, exclusiones manual/n/a, fixtures sin falsos IDs que oculten cobertura faltante.
       Verificar: H1 usa el spec real y `--tests tools/test`; E1 excluye manual; F1 detecta un escenario sin test; cada test tiene assertion del resultado esperado.
 
-- [ ] T5. Implementar inventario y estimación en la CLI de medición. (RF-2, RF-16, RF-18, RF-19) [tools · rigorkit]
+- [x] T5. Implementar inventario y estimación en la CLI de medición. (RF-2, RF-16, RF-18, RF-19) [tools · rigorkit]
       Hecho cuando: `tools/measure-content.mjs` inventaría skills/agentes/reglas, mide carga/descripciones y genera el desglose definido por el plan; el usuario verifica los casos aplicables de T1/T2.
       Depende de: T1, T2, T3, T4.
       Leer: plan §§ Medición e identidad, Modelo de datos, Contratos; D1–D3; fixtures T1/T2.
       Conservar: módulos incorporados de Node, NOTICE/frontmatter excluidos de carga, auxiliares incluidos, ningún archivo instalado nuevo.
       Verificar: nombre de skill/carpeta y agente/archivo, apóstrofos YAML, NFC, reglas completas y errores claros; el chequeo permanece sin escrituras.
 
-- [ ] T6. Implementar comparación y fallos del medidor. (RF-2, RF-16, RF-17, RF-18, RF-19) [tools · rigorkit]
+- [x] T6. Implementar comparación y fallos del medidor. (RF-2, RF-16, RF-17, RF-18, RF-19) [tools · rigorkit]
       Hecho cuando: la CLI acepta `--root`/`--baseline`, valida esquema, compara conjuntos y límites, informa todos los incumplimientos y devuelve 0/1; los 15 tests del medidor pasan según salida del usuario.
       Depende de: T5.
       Leer: plan §§ Medición e identidad y Contratos; D2/D3; tests T1/T2.
       Conservar: comparación entera por pack, precedencia de errores legibles, baseline inmutable, orden estable por ruta.
       Verificar: reducción exactamente 30%, fallo 29%, altas/bajas/renombrados y name/ruta; argumentos, baseline ausente/ilegible y esquema inválido no se aceptan silenciosamente.
 
-- [ ] T7. Preparar captura reproducible y obtener baseline de `edad002`. (RF-2, RF-17, RF-19, RF-20) [baseline · rigorkit]
+- [x] T7. Preparar captura reproducible y obtener baseline de `edad002`. (RF-2, RF-17, RF-19, RF-20) [baseline · rigorkit]
       Hecho cuando: existe `baseline.txt` con esquema del plan, commit completo resuelto desde `edad002`, nombres, descripciones, cargas y reglas; la salida del comando ejecutado por el usuario acredita la fuente y el inventario.
       Depende de: T6.
       Leer: spec § Definitions, plan §§ Modelo de datos y Contratos; `git ls-tree`/`git show` del commit fuente.
       Conservar: operación de captura explícita separada del chequeo, sin cambiar checkout ni sobrescribir baseline existente; ninguna exigencia de reducción sobre el estado inicial.
       Verificar: comando de captura documentado con rutas temporales concretas, sin leer configuración personal; contraste de inventario con `edad002` antes de editar contenido empaquetado.
 
-- [ ] T8. Añadir normalización de tiers y precedencia de claves. (RF-3, RF-4) [instalador · rigorkit]
+- [x] T8. Añadir normalización de tiers y precedencia de claves. (RF-3, RF-4) [instalador · rigorkit]
       Hecho cuando: `install.sh` acepta ambos idiomas de tier y resuelve claves inglesas primero por presencia, manteniendo adaptadores, destinos y escapes; comprobaciones focalizadas del usuario registradas.
       Depende de: T7.
       Leer: RF-3/RF-4 y escenarios; plan § Tiers y selección de modelo, Contratos, D6; `install.sh:162-206`.
       Conservar: tier vacío hereda, clave inglesa vacía prevalece, tier inválido falla, readonly y YAML/TOML; no tocar lógica fuera de RF-3.
       Verificar: ambos niveles con claves antiguas/inglesas/ambas y ausencia de configuración; Cursor sin Claude además de adaptadores restantes; dejar regresión completa a T33/T34.
 
-- [ ] T9. Actualizar el checker del pack. (RF-1, RF-8, RF-25) [checker · rigorkit]
+- [x] T9. Actualizar el checker del pack. (RF-1, RF-8, RF-25) [checker · rigorkit]
       Hecho cuando: acepta las dos cabeceras y tiene comentarios/mensajes ingleses; los seis tests de checker y el checker contra el spec real pasan según salida del usuario.
       Depende de: T4, T7.
       Leer: escenarios RF-8/RF-25; plan §§ Alias derivados y Contratos; checker `:20-157`.
       Conservar: RF/HEFS, IDs, n/a, manual, detección de archivos, modo estricto y asociación con ID de cambio.
       Verificar: regresiones de cabecera española, manual/n/a, escenario faltante y comportamiento no estricto; no añadir otra copia del checker.
 
-- [ ] T10. Traducir plantillas de spec, escenarios, EARS, clarificación y validación. (RF-1, RF-6, RF-8, RF-17, RF-20) [plantillas · rigorkit]
+- [x] T10. Traducir plantillas de spec, escenarios, EARS, clarificación y validación. (RF-1, RF-6, RF-8, RF-17, RF-20) [plantillas · rigorkit]
       Hecho cuando: ambas copias de esos cinco archivos están traducidas y sus cadenas estructurales tienen pareja antes/después identificada con consumidores.
       Depende de: T7, T9.
       Leer: plan § Alias derivados y D4/D5; `packs/sdd/skills/sdd-init/templates/{spec,scenarios,ears,clarification,validation}.md` y `specs/templates/` equivalentes.

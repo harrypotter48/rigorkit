@@ -120,7 +120,7 @@ Para cada plantilla/agente en `edad002`, comparar sus cadenas estructurales con 
 
 - Sin endpoints, eventos ni nuevos formatos por herramienta. Skills/agentes conservan nombres y rutas; el instalador continúa consumiendo el mismo frontmatter y convirtiéndolo.
 - CLI nueva: `node tools/measure-content.mjs --root <repo> --baseline <baseline.txt>`. Rutas relativas a cwd; errores de argumentos, baseline o lectura por stderr y salida 1; informe estable ordenado por ruta, sin escrituras durante la medición. Incluye estimación por archivo/pack, longitudes, diferencias de identidad, reducción y fallos.
-- La generación inicial de baseline será una operación explícita distinta del chequeo: nunca sobrescribir la baseline como efecto lateral de medir. Su comando se concretará junto con la implementación; la captura debe admitir el árbol exportado de `edad002` y no exigir sus límites nuevos.
+- Captura explícita separada: `node tools/capture-baseline.mjs`. Lee blobs de `edad00214e552594fe4da00e51c88803a22f19c5` en un temporal, reutiliza el medidor y escribe exclusivamente `specs/changes/001-english-and-compact/baseline.txt`, sin sobrescribir, cambiar checkout ni exigir límites nuevos al estado original. El chequeo nunca genera baseline como efecto lateral.
 - CLI existente del checker: mismos argumentos posicionales, `--tests`, `--strict`, códigos 0/1 y búsqueda de tests (`check-scenarios.mjs:25-61,133-157`). Cambian idioma de mensajes y aceptación de cabecera, no la asociación test/cambio/escenario.
 - Configuración existente: `RIGORKIT_MODELS` y `tool.tier=model`, con aliases antiguos compatibles. Las claves inglesas prevalecen con cualquiera de las dos formas del tier del agente.
 - Estructura propia de nuevos proyectos: plantillas inglesas con `Language:`. Proyectos existentes: conservar sus plantillas, prose y scripts; no declararles idioma ni migrarlos. El modo de actualización y el website siguen diferidos.
@@ -195,4 +195,4 @@ Esperado: tests verdes, cero escenarios sin test, cero errores del medidor y des
 
 No hay entidades, seeds, tenants ni contratos de negocio. El límite relevante es contenido empaquetado → instalación → artefactos del proyecto → lectores/gates. No se toca el website, el vault, repos externos ni el modo de actualización diferido de `sdd-init`.
 
-Plan, tasks e implementación T5/T6 aprobados por el usuario; T5/T6 escritas y pendientes de verificación verde. Siguiente gate: revisar la salida del medidor antes de T7; evidencia y cobertura pendiente de T9 en `tasks.md`. Al cambiar de etapa se sugiere limpiar el contexto; las referencias y aprobaciones necesarias quedan aquí y luego en `tasks.md`.
+Plan y tasks aprobados; T5–T9 verificadas por confirmación del usuario. T10 traducida y revisada estáticamente en ambas copias, con alias derivados/consumidores en `tasks.md`; siguiente T11. Al cambiar de etapa se sugiere limpiar el contexto; las referencias y aprobaciones necesarias quedan aquí y luego en `tasks.md`.

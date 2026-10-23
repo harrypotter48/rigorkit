@@ -1,14 +1,14 @@
-## Validación — <id>
-| Escenario | Tipo | Test que lo cubre | Resultado |
+## Validation — <id>
+| Scenario | Type | Covering test | Result |
 |---|---|---|---|
-| RF-1.H1 | happy | `<archivo de test>::<nombre>` | ✅ / ❌ / manual |
-| RF-1.S | seguridad | n/a — <motivo> | — |
+| RF-1.H1 | happy | `<test file>::<name>` | ✅ / ❌ / manual |
+| RF-1.S | security | n/a — <reason> | — |
 
-`check-scenarios`: sin faltantes | faltan <…>
+`check-scenarios`: none missing | missing <…>
 
-Revisión global: <spec/plan completos y diff acumulado contra constitución, decisiones y límites; archivo:línea>.
-Contratos e integración: <productores/consumidores, regresiones y resultados verificados>.
-Prueba en vivo: <flujo y resultado>.
-Pendientes: <evidencia faltante o ninguno>.
+Global review: <full spec/plan and accumulated diff against constitution, decisions and boundaries; file:line>.
+Contracts and integration: <producers/consumers, regressions and verified results>.
+Live test: <flow and result>.
+Pending: <missing evidence or none>.
 
-Veredicto: spec cumplido | falta <…>
+Verdict: spec fulfilled | missing <…>

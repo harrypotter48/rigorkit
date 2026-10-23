@@ -162,13 +162,21 @@ fi
 fm()   { awk -v k="$2" 'NR==1&&/^---$/{f=1;next} f&&/^---$/{exit} f&&index($0,k": ")==1{sub("^"k": ","");print;exit}' "$1" \
            | sed -e "s/^'\(.*\)'$/\1/" -e "s/''/'/g"; }
 body() { awk 'NR==1&&/^---$/{f=1;next} f==1&&/^---$/{f=2;next} f==2{print}' "$1" | sed '1{/^$/d;}'; }
-# Model for a tier in a tool, from $MODELS ("tool.tier=model" lines); empty = inherit the session's.
+# English model keys take precedence over legacy aliases, including an empty value.
 model_for() {
   [ -n "$2" ] && [ -f "$MODELS" ] || return 0
-  awk -v k="$1.$2" '
+  local legacy
+  case "$2" in cheap) legacy=barato ;; strong) legacy=fuerte ;; *) return 0 ;; esac
+  awk -v k="$1.$2" -v old_key="$1.$legacy" '
     function trim(x) { gsub(/^[ \t]+|[ \t]+$/, "", x); return x }
     /^[ \t]*#/ { next }
-    { i = index($0, "="); if (i && trim(substr($0, 1, i - 1)) == k) { print trim(substr($0, i + 1)); exit } }' "$MODELS"
+    {
+      i = index($0, "="); if (!i) next
+      key = trim(substr($0, 1, i - 1)); value = trim(substr($0, i + 1))
+      if (key == k) { print value; found = 1; exit }
+      if (key == old_key && !fallback_seen) { fallback = value; fallback_seen = 1 }
+    }
+    END { if (!found && fallback_seen) print fallback }' "$MODELS"
 }
 toml_str() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
 yaml_str() { printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"; }
@@ -177,7 +185,12 @@ install_agent() { # neutral agent file
   local f="$1" name desc ro tier m b
   name="$(fm "$f" name)"; desc="$(fm "$f" description)"; ro="$(fm "$f" readonly)"; tier="$(fm "$f" tier)"; b="$(body "$f")"
   [ -n "$name" ] && [ -n "$desc" ] || die "agent without name/description: $f"
-  case "$tier" in ""|barato|fuerte) ;; *) die "agent $f: tier must be barato or fuerte" ;; esac
+  case "$tier" in
+    "") ;;
+    barato|cheap) tier=cheap ;;
+    fuerte|strong) tier=strong ;;
+    *) die "agent $f: tier must be cheap or strong (aliases: barato, fuerte)" ;;
+  esac
 
   if has_agent claude; then
     { echo "---"; echo "name: $name"; echo "description: $(yaml_str "$desc")"
