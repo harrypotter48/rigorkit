@@ -41,6 +41,7 @@ tier: barato | fuerte     # opcional: nivel de modelo, nunca un modelo concreto
 - Una sola línea por campo de frontmatter. Si un agente necesita algo que el formato neutro no cubre, se amplía `install.sh`, no se escriben versiones por herramienta a mano.
 
 ## Reglas generales
+- Los cambios siguen el proceso SDD del propio pack `sdd`: `specs/`, con la constitución en `specs/constitution.md`.
 - Nada de código, nombres internos ni datos de negocio de ningún trabajo: todo genérico.
 - Nada de secrets.
 - Las skills de terceros no se copian: se referencian desde el README del pack.
