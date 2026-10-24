@@ -1,0 +1,14 @@
+---
+import { withBase } from '../lib/urls.mjs';
+---
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="robots" content="noindex"/><title>Page not found — rigorkit</title><link rel="icon" href={withBase('/favicon.svg')}/></head>
+  <body><main><a class="wordmark" href={withBase('/')}>rigorkit</a><p class="eyebrow">404 / Page not found</p><h1>This page<br/>isn't here.</h1><p>The link may be outdated, or this document may have moved.</p><nav aria-label="Page recovery"><a href={withBase('/')}>Back to home →</a><a href={withBase('/docs/overview/')}>Browse documentation →</a></nav></main></body>
+</html>
+<style>
+  :global(*) { box-sizing: border-box; } :global(body) { margin: 0; color: #17241e; background: #f8f9f6; font: 1rem/1.6 system-ui,sans-serif; }
+  main { max-width: 64rem; margin: auto; padding: 3rem clamp(1.25rem,6vw,5rem); } .wordmark { display: inline-block; margin-bottom: 5rem; font-size: 1.25rem; font-weight: 750; text-decoration: none; }
+  .eyebrow { text-transform: uppercase; font: .75rem ui-monospace,monospace; letter-spacing: .1em; color: #426951; } h1 { font-size: clamp(3rem,10vw,6rem); letter-spacing: -.06em; line-height: 1.05; margin: 1.25rem 0 2rem; }
+  nav { display: flex; flex-wrap: wrap; gap: 1rem 2rem; margin-top: 2rem; } a { color: #145c3e; } a:focus-visible { outline: 3px solid #147b50; outline-offset: 5px; }
+</style>

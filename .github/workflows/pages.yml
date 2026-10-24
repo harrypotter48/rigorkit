@@ -1,0 +1,76 @@
+name: Website checks and Pages
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pages: read
+    concurrency:
+      group: website-checks-${{ github.ref }}
+      cancel-in-progress: true
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Install locked website dependencies
+        run: npm ci
+      - name: Install browser
+        run: npm exec -- playwright install --with-deps chromium
+      - name: Check website types
+        run: npm run check
+      - name: Check source and actual workflow contracts
+        run: npm run test:unit
+      - name: Exercise real production builds and browser search
+        run: npm run test:browser
+      - name: Validate final production output
+        run: npm run check:site
+      - name: Verify scripted scenario coverage
+        run: |
+          spec=../specs/changes/002-website/spec.md
+          if [ ! -f "$spec" ]; then spec=../specs/archive/002-website/spec.md; fi
+          node ../packs/sdd/skills/sdd-init/scripts/check-scenarios.mjs "$spec" --tests test
+      - name: Existing toolkit regression
+        run: node --test ../tools/test/*.test.mjs
+      - name: Configure existing Pages site
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v5
+      - name: Upload only checked production website
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/dist
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy checked Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

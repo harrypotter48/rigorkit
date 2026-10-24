@@ -1,0 +1,41 @@
+{
+  "name": "rigorkit-website",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "prepare:docs": "node scripts/prepare-docs.mjs",
+    "predev": "npm run prepare:docs",
+    "dev": "astro dev --host 127.0.0.1",
+    "prebuild": "npm run prepare:docs",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "check": "npm run prepare:docs && astro check",
+    "check:site": "node scripts/check-site.mjs",
+    "test:unit": "node --test --test-reporter=spec test/source.test.mjs test/workflow.test.mjs",
+    "test:browser": "node test/run-browser.mjs",
+    "test": "npm run test:unit && npm run test:browser"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.42.7",
+    "@astrojs/markdown-remark": "7.3.4",
+    "astro": "7.4.2",
+    "sharp": "0.35.5",
+    "unified": "11.0.5",
+    "remark-parse": "11.0.0",
+    "remark-gfm": "4.0.1",
+    "mdast-util-to-string": "4.0.0",
+    "mdast-util-to-markdown": "2.2.0",
+    "github-slugger": "2.0.0",
+    "yaml": "2.9.1",
+    "parse5": "8.0.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "typescript": "6.0.3",
+    "playwright": "1.64.1"
+  }
+}

@@ -1,1 +1,9 @@
 .DS_Store
+
+# Isolated website dependencies and reproducible generated output.
+site/node_modules/
+site/.astro/
+site/dist/
+site/.test-artifacts/
+site/src/content/docs/docs/
+site/npm-debug.log*

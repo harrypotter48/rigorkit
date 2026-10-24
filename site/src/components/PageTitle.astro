@@ -1,0 +1,15 @@
+---
+const data = Astro.locals.starlightRoute.entry.data;
+---
+{!data.landing && (
+  <>
+    <h1 id="_top" class:list={{ "sr-only": data.sourceHasH1 }}>{data.title}</h1>
+    {data.sourcePath && <p class="source-file"><span>From the repository</span><a href={data.sourceUrl}>{data.sourcePath} ↗</a></p>}
+  </>
+)}
+<style>
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .source-file { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin: .35rem 0 0; font-size: .75rem; color: var(--sl-color-gray-2); }
+  .source-file a { overflow-wrap: anywhere; font-family: ui-monospace, monospace; color: var(--sl-color-text-accent); }
+  h1 { font-size: var(--sl-text-h1); font-weight: 600; line-height: 1.2; }
+</style>

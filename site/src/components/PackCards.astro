@@ -1,0 +1,15 @@
+---
+import manifest from '../content/docs/docs/manifest.json';
+import { withBase } from '../lib/urls.mjs';
+const notes: Record<string, string> = { core: 'Every session', sdd: 'From idea to evidence', architecture: 'Boundaries that hold', frontend: 'Structure for the interface' };
+---
+<div class="pack-grid">
+  {manifest.packs.map((pack, index) => (
+    <a class="pack-card" href={withBase(pack.documentRoute)}>
+      <div class="pack-card-top"><span class="pack-number">/{String(index + 1).padStart(2, '0')}</span><span aria-hidden="true">↗</span></div>
+      <h3>{pack.name}</h3>
+      <p>{pack.summary}</p>
+      <span class="pack-note">{notes[pack.name] || 'Explore the documentation'} <span aria-hidden="true">→</span></span>
+    </a>
+  ))}
+</div>
