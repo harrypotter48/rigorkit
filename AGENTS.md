@@ -1,7 +1,7 @@
 # AGENTS.md — rigorkit
 
 ## Project
-Tool-neutral skills and agents for Claude Code, Codex, Cursor and OpenCode, grouped in `packs/<topic>/`. Markdown plus a Bash installer (`install.sh`); no build.
+Tool-neutral skills and agents for Claude Code, Codex, Cursor and OpenCode, grouped in `packs/<topic>/`. Markdown plus a Bash installer (`install.sh`); the toolkit needs no build. The isolated Astro/Starlight website lives in `site/` and has its own npm build/test commands.
 
 ## Layout
 ```
@@ -12,6 +12,8 @@ packs/<topic>/
   rules.md              optional global rules, --global only, between markers
   scripts/<name>        optional rule helpers installed in ~/.local/share/rigorkit/scripts/
 install.sh
+site/                  website only; dependencies/generated files never installed as packs
+.github/workflows/     website checks and gated Pages publication
 ```
 
 ## Skills
@@ -45,3 +47,10 @@ tier: cheap | strong      # optional, never a concrete model
 - Changes to `install.sh` require `--dry-run` in both `--project` and `--global` modes.
 - Never replace user instructions: `install.sh` writes only between `<!-- rigorkit:<pack>:start/end -->` markers and keeps `.bak`.
 - Each `rules.md` must have a token estimate at most 300; global rules cost context every turn.
+
+## Website development
+- Public docs are generated only from the main README and pack Markdown. Never copy internal specs/tools into website pages or search.
+- Author public docs in their repository source. `site/src/content/docs/docs/` is importer-owned generated content; never edit/commit it.
+- Node 24 and all website packages stay in site/. User runs `npm --prefix site run check`, `test:unit`, `test:browser`, `check:site`, build and preview; see site/README.md.
+- Tests run against real production and isolated fixture builds. Upload only the restored/checked normal site/dist output, never fixtures.
+- Feature branches/PRs cannot publish. User confirms Pages settings/default branch and performs push/merge; configuration is not deployment evidence.

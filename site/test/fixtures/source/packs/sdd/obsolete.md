@@ -1,0 +1,3 @@
+# Obsolete document
+
+vanishedquartz

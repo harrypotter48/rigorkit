@@ -49,9 +49,30 @@ opencode.cheap=<provider/model>
 Legacy barato/fuerte tiers and keys still work; English keys take precedence, even when empty (inherit session). Missing file/tool mapping also inherits session; one-model/free-model setups need none. Override path with RIGORKIT_MODELS.
 
 ## SDD and packs
-Install sdd, ask for sdd-init; existing code then sdd-adopt. Change flow: sdd-triage → sdd-spec → sdd-clarify → sdd-plan → sdd-tasks → sdd-tests → sdd-implement (one task at a time) → sdd-verify → sdd-archive. See [SDD](packs/sdd/README.md).
-Process skills have roles/stops. Reference skills (arch-boundaries, frontend-structure) supply knowledge and follow their caller's stop. Readonly reviewers inspect diffs or audit folder debt. Cross-pack dependencies are soft, by name: absent packs are reported and SDD performs relevant checks itself. Implementation/verification uses architecture reviewer and frontend reviewer for .tsx/.jsx/app/ changes.
+Install `sdd`, then ask for `sdd-init`. For existing code, continue with `sdd-adopt`.
+
+Change flow:
+
+1. `sdd-triage`
+2. `sdd-spec`
+3. `sdd-clarify`
+4. `sdd-plan`
+5. `sdd-tasks`
+6. `sdd-tests`
+7. `sdd-implement` (one task at a time)
+8. `sdd-verify`
+9. `sdd-archive`
+
+See [SDD](packs/sdd/README.md).
+
+
+Process skills have roles/stops. Reference skills (`arch-boundaries`, `frontend-structure`) supply knowledge and follow their caller's stop. Readonly reviewers inspect diffs or audit folder debt. Cross-pack dependencies are soft, by name: absent packs are reported and SDD performs relevant checks itself. Implementation/verification uses architecture reviewer and frontend reviewer for .tsx/.jsx/app/ changes.
+
 Ask for "audita la arquitectura de src/" or "audita la estructura del front". Contribution rules: [AGENTS.md](AGENTS.md).
+
+## Website
+The intended GitHub Pages address is [harrypotter48.github.io/rigorkit](https://harrypotter48.github.io/rigorkit/). Publication requires enabling Pages and a successful primary-branch workflow; configuration alone does not mean the site is live.
+The website derives documentation from this README and pack Markdown. Internal specs are excluded from its pages/search. See [website maintenance](site/README.md) for local setup, checks and publishing prerequisites.
 
 ## License
 MIT: [LICENSE](LICENSE). Some SDD templates derive from [hello-sdd](https://github.com/mouredev/hello-sdd), Apache-2.0; see [NOTICE](packs/sdd/NOTICE.md).
