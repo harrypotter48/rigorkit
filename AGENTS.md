@@ -20,7 +20,7 @@ site/                  website only; dependencies/generated files never installe
 - Agent Skills format: `skills/<name>/SKILL.md`, frontmatter `name` and `description`.
 - `name`: lowercase letters/numbers/hyphens, at most 64 characters, matching its folder. Prefix by pack (`sdd-`, `arch-`, `frontend-`); agents use prefixes too.
 - `description`: English, at most 300 characters; purpose, when to use it, and one or two request phrases. Always single-quoted; escape apostrophes as `''`. An unquoted `: ` breaks strict YAML parsers such as OpenCode's.
-- Every skill declares its top 1% role and ends by waiting for user approval. Reference skills instead declare `**Type: reference.**`; they have no role/stop of their own and follow the caller.
+- Every skill declares its top 1% role. SDD pairs spec→clarify and plan→tasks without intermediate approval; each pair ends at its user gate. Other skills stop at their declared gate; stricter project/user gates win. Reference skills instead declare `**Type: reference.**`; they have no role/stop of their own and follow the caller.
 - Self-contained: files used by a skill live in its folder; never read another skill's files.
 - Between packs, invoke skills/agents by name, never path. If absent, say so in one line and continue; no pack requires another to function.
 - Content is English, except Spanish structure aliases and quoted examples. Identifiers and filenames are English.

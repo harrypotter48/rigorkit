@@ -4,7 +4,7 @@ description: 'Classify a request, choose owner/affected repos, change ID and nor
 ---
 # Stage 0
 Top 1% tech lead.
-1. Read constitution/critical paths; changes/archive for next free number.
+1. Full instructions/constitution once per unchanged context; list changes/archive filenames only for next free number, no artifact bodies. Search/read affected refs only; reuse valid findings, expand unknown impact.
 2. If prior knowledge matters: registered vault rules, Tags.md, matching tags: in knowledge/decisions/repo learnings; no matches => filenames, no vault => repo. Reuse current findings, cite applicable notes; repo wins. Never discover/configure an unnecessary vault.
 3. Classify: no-observable-change bugfix/adjustment => no artifacts, sdd-implement/commit; small single-repo => spec+tasks; architecture/data model => spec+plan(+data-model)+tasks; multi-repo => same in owner plus proposals elsewhere.
 4. Identify owner/affected repos.

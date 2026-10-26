@@ -1,8 +1,8 @@
 # sdd — Spec-Driven Development
-Agree WHAT/WHY (spec), HOW (plan), then steps (tasks) before code. Each stage has an output and Definition of Done gate. Spec, clarification, plan, tasks, tests and every commit require human approval.
+Agree WHAT/WHY (spec + clarification), then HOW (plan + functional blocks/tasks) before code. Each pair has one human approval gate. Implement and review an approved block as a unit; tasks are its internal checklist. Test evidence, block review, every commit and final closure retain their gates. Stricter project/user instructions win.
 
 ## Agent rules
-Top 1% role for its stage; no flattery, identify blind spots. Verify code with file:line, never assume. User runs install/build/lint/tsc/tests/migrations/seeds/deploy; agent provides commands and waits for output, reads only. One commit per task with approval; never chain commits, push or merge. Stop at each stage.
+Top 1% role for its stage; no flattery, identify blind spots. Batch independent searches; filter command output with existing summary helpers when available, retaining failures/IDs/status and evidence gaps. Verify code with file:line, never assume. User runs install/build/lint/tsc/tests/migrations/seeds/deploy; agent provides commands and waits for output, reads only. Propose one commit per verified block; every commit needs explicit approval, never chain commits, push or merge. Stop at shared design gates, block review, missing evidence or consequential uncertainty; no stop between internal tasks.
 
 ## Repository layout
 ```
@@ -20,8 +20,9 @@ specs/
 ID = NNN-kebab-name (e.g. 007-bank-transfer); methodology lives in rigorkit, project artifacts in their repo.
 
 ## Selective context, global verification
-Always read full applicable instructions/constitution; load only current-stage skill. Implementation starts from task RF/scenario/decision/contract references, checks actual dependencies/all producers/consumers beyond initial paths, and expands to capabilities/baselines/full spec-plan when uncertain or impact grows. Changed approvals return to their gate. Reuse integration/contract checks for interactions and dependency checks for architecture; extra local unit tests alone are insufficient. Keep critical DoD.
-Resume checks brief tasks state against current files/evidence: checkbox/commit never proves approval or green tests. Closing uses full spec/plan and accumulated diff, architecture/contracts/cross-task effects, regression and live checks. Missing reviewers mean manual checks, not no checks. Tasks reference rather than copy documents; reconstruct old tasks' missing references. Check only after verification; report changes/evidence/pending work briefly.
+Read full applicable instructions/constitution once per unchanged context; never truncate governing rules. Load only the active skill, then its paired successor when needed. Reuse in-context sources and evidence while their revision/scope remains valid; search first, read relevant ranges, never whole archives/modules by default. Source revision includes working-tree edits, not HEAD alone. Recheck affected paths/diffs on resume, edits or external changes; after context loss reload governing rules and referenced evidence, not transcripts.
+Start a block from its RF/scenario/decision/contract references and shared dependency map; tasks reference these instead of copying them. Trace actual dependencies/all producers/consumers beyond initial paths. Expand capabilities/baselines/spec/plan for missing refs, ambiguity, shared-contract changes, critical paths or growing impact; record unresolved dependencies, never infer safety from no matches. Recheck affected refs/consumers after edits, reuse unaffected findings. Scope/behavior/design changes return to their approval gate. Reuse integration/contract/dependency checks; local units alone are insufficient. Keep critical DoD.
+Resume uses brief block/task state checked against current files/evidence; checkbox/commit never proves approval or green tests. Review the combined block diff once, rechecking fixes/changed dependencies rather than repeating each task review. Final verification still reads full spec/plan and accumulated diff, checks architecture/contracts/cross-block effects, regressions and live behavior. Reuse valid block evidence, never substitute it for global review. Missing reviewers mean manual checks. Mark complete only after verification; report evidence/pending work briefly.
 Installed copies need reinstall. Existing project templates stay in their structure/language; do not overwrite custom rules or migrate other repos. Missing artifact/templates sections are reported and skipped. New prose uses constitution Language:, else latest recognizable user language, then existing change artifacts; if neither exists ask once, fall back to English and say so if unanswered. Existing artifacts keep their prose/structure; chat follows user, fixed verdicts follow structure. Language may be a code/name; empty/unknown is undeclared.
 
 ## Stages
@@ -31,16 +32,24 @@ Installed copies need reinstall. Existing project templates stay in their struct
 | −1 Adoption (mandatory for existing code) | sdd-adopt | Architect | Constitution/critical paths; module baselines with file:line; half-wired proposals | Yes |
 | 0 Triage | sdd-triage | Tech lead | Size/owner/ID/DoD, critical if uncertain | Yes |
 | 1 Context | sdd-context | Senior engineer | Current code evidence and unknowns | — |
-| 2 Spec | sdd-spec | Product manager | >=5 questions, one at a time; EARS, 4 scenario types or justified n/a, exclusions, no code references | Yes |
-| 2.5 Clarify | sdd-clarify | QA | Ready only with zero high/medium findings; every spec edit needs another round | Yes |
-| 3 Plan | sdd-plan | Architect | All RFs, rejected alternatives, constitution validated | Yes |
-| 4 Tasks | sdd-tasks | Tech lead | <=30 minutes, RF/completion/dependencies/context/restrictions | Yes |
-| 4.5 Tests first | sdd-tests | Testing engineer | Scenario-ID tests, intended red, checker finds none missing | Yes |
-| 5 Implement | sdd-implement | Senior developer | One task, impact/architecture/contracts checked, green before checkbox | Each commit |
+| 2 Spec | sdd-spec | Product manager | >=5 questions, one at a time; EARS, 4 scenario types or justified n/a, exclusions, no code references | Continue to clarify |
+| 2.5 Clarify | sdd-clarify | QA | Auto-audit/fix grounded gaps; ask user decisions; zero high/medium; re-audit edits | Approve clarified spec |
+| 3 Plan | sdd-plan | Architect | All RFs, rejected alternatives, constitution validated | Continue to tasks |
+| 4 Tasks | sdd-tasks | Tech lead | Functional blocks with internal tasks, RFs, dependencies, refs and checks; no time-box split | Approve plan + blocks/tasks |
+| 4.5 Tests first | sdd-tests | Testing engineer | Block scenario-ID tests, intended-red evidence; whole-change gaps remain explicit | User evidence/approval |
+| 5 Implement | sdd-implement | Senior developer | Whole approved block; combined diff review; green before completion | Block review + each commit |
 | 6 Verify | sdd-verify | QA | Scenario/test/result table, global diff/contracts, cross-layer, critical DoD, verdict | User closes |
 | 7 Archive | sdd-archive | Documenting engineer | Archive/capabilities/baselines current, half-wired registered, learnings proposed | Yes |
 
 Support: sdd-resume (new session), sdd-change (requirements: spec first), sdd-legacy-review (@legacy), sdd-explain (explain.md summary/Mermaid/walkthrough/RF mapping; archive proposes when warranted). Readonly agents: sdd-explorer for context/adoption; sdd-reviewer for clarification/verification/independent review. Optional [architecture](../architecture/README.md)/[frontend](../frontend/README.md) reviewers get diff/constraints; frontend only for .tsx/.jsx/app/; missing packs are reported and checks still performed.
+
+## Using the paired flow
+Ask for a feature: answer the spec interview, let clarification resolve gaps grounded in those answers, then review the clarified spec. After approval, the agent prepares the plan and block tasks together for your second review. It asks about unresolved decisions rather than inventing behavior.
+
+For example, a create-user feature can be B1, with API, form and integration tasks inside it. Once B1 is approved, those tasks proceed without separate permission prompts. User-run tests, one combined block review and explicit commit approval remain. A larger feature can have several dependent blocks; final verification checks them together. Existing stricter project gates still apply.
+
+## Functional blocks
+A block delivers one verifiable behavior across its required layers; a small feature can be one block. Large features use dependent blocks with explicit integration points, not arbitrary minute/line limits. Group internal tasks by block, share references/checks, keep every RF assigned. Approval names the authorized block(s); never infer authorization for the next block or a commit. Continue internal tasks without permission prompts, but pause for required user-run checks, blockers or scope/design decisions. Do not collect red evidence for unrelated future blocks. Whole-change verification still covers all blocks together. Legacy Tn tasks without blocks remain single-task units until regrouping is approved; preserve IDs/completion/evidence, never silently migrate project files.
 
 ## Scope and DoD
 Bugfix/adjustment without observable change: no artifacts, commit only. Small single-repo feature: spec+tasks. Architecture/data-model change: spec+plan (+data-model)+tasks. Multi-repo: full artifacts in owner, proposal elsewhere.
