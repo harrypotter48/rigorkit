@@ -3,6 +3,14 @@
 ## Project
 Tool-neutral skills and agents for Claude Code, Codex, Cursor and OpenCode, grouped in `packs/<topic>/`. Markdown plus a Bash installer (`install.sh`); the toolkit needs no build. The isolated Astro/Starlight website lives in `site/` and has its own npm build/test commands.
 
+## Factory and lanes
+- rigorkit is an AI software factory. A **lane** is a track of work with an entry, its specialists, its output and its exit criterion; a **pack** is the set of specialists staffed in a lane, never a lane itself.
+- Lanes today: SDD (core, staffed by the `sdd` pack), design (`design` pack) and security (`security` pack). The operation lane is deferred to a later change.
+- `architecture` and `frontend` are specialists the SDD lane calls in its review station; `core` carries global rules instead of a lane.
+- The pack stays the namespace of its members: `<pack>-<role>`. `--pack` and the pack folders keep their names.
+- Public documentation describes the factory, its lanes and every member with its current name; a change that adds, renames or removes a member corrects the affected README in the same change.
+- `VERSION` at the repository root is the only copy of the version (semantic versioning, bumped by hand). `install.sh --version` prints it, `--list` shows the local and installed versions, and the installer records the installed version in `.rigorkit-version` at the scope root.
+
 ## Layout
 ```
 packs/<topic>/
@@ -12,6 +20,7 @@ packs/<topic>/
   rules.md              optional global rules, --global only, between markers
   scripts/<name>        optional rule helpers installed in ~/.local/share/rigorkit/scripts/
 install.sh
+VERSION                  single source of the toolkit version (semver)
 site/                  website only; dependencies/generated files never installed as packs
 .github/workflows/     website checks and gated Pages publication
 ```

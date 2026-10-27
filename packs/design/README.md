@@ -1,6 +1,8 @@
 # design — Interface quality and usability
 Reference skills for the design lane, plus a readonly interface reviewer.
 
+Lane: design. It runs before the plan (UX criteria become requirements) and after the builder (interface review).
+
 | Item | Purpose |
 |---|---|
 | design-ux-flow | Journeys, tasks, friction and observable usability criteria; simulated results labeled |

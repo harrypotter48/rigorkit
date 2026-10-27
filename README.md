@@ -1,5 +1,17 @@
 # rigorkit
-Tool-neutral skills and agents for rigorous AI-assisted work: verify before claiming, human approval gates and explicit Definition of Done. Supports Claude Code, Codex, Cursor and OpenCode. Install only the topic packs you need.
+An AI software factory for rigorous, tool-neutral work: lanes of work, each staffed by specialists, with human approval gates and explicit Definition of Done. Supports Claude Code, Codex, Cursor and OpenCode. Install only the packs you need. Current version: 0.1.0 (`VERSION`, `./install.sh --version`).
+
+## Lanes and packs
+A **lane** is a track of work with an entry, its specialists, its output and its exit criterion. A **pack** is the set of specialists staffed in a lane and stays their namespace: every member is named `<pack>-<role>`. A pack can also be specialists called from another lane, and the core pack carries global rules instead of a lane.
+
+| Lane | Specialists | Entry | Output | Exit |
+|---|---|---|---|---|
+| SDD (core) | `sdd` pack | A change to specify | Approved spec, plan, functional blocks, reviewed diff | The owner closes the change |
+| design | `design` pack | A change with rendered screens | UX criteria, UI criteria, interface verdict | Defects corrected or registered |
+| security | `security` pack | A change with sensitive paths or a new data flow | Threat model, secure defaults, security verdict | Findings fixed or escalated |
+| operation | deferred to a later change | — | — | — |
+
+`architecture` and `frontend` are specialists the SDD lane calls in its review station; `core` provides global token-economy rules for every session.
 
 | Pack | Contents |
 |---|---|
@@ -14,6 +26,7 @@ Tool-neutral skills and agents for rigorous AI-assisted work: verify before clai
 ```bash
 git clone <repository-url> rigorkit
 cd rigorkit
+./install.sh --version
 ./install.sh --list
 ./install.sh --pack sdd --agent claude,cursor --project ~/code/my-repo
 ./install.sh --pack sdd --agent claude,codex,cursor,opencode --global
@@ -28,8 +41,11 @@ cd rigorkit
 | --global | User-wide installation |
 | --force | Overwrite existing installed files |
 | --dry-run | Show planned actions, rule diff; no writes |
+| --version | Print the local version |
 | --uninstall-rules | Remove only rigorkit global rule blocks |
 Update with git pull, then reinstall --force. --pack all --force replaces installed packs and adds new ones.
+
+The version lives in `VERSION` at the repository root and is the only copy of it. The installer records the version it wrote in `.rigorkit-version` at the scope root (the project directory, or your home directory for a global install), and `--list` prints the local version next to the installed one. Without `--force` the installer never overwrites an installed copy, so a different installed version is reported instead of replaced.
 
 ## Destinations
 | Tool | Skills | Agents |
@@ -38,7 +54,7 @@ Update with git pull, then reinstall --force. --pack all --force replaces instal
 | Codex | .agents/skills/ | .codex/agents/*.toml |
 | Cursor | .agents/skills/ | .cursor/agents/*.md; reads .claude/agents/ if Claude also selected |
 | OpenCode | .agents/skills/ | .opencode/agents/*.md; global ~/.config/opencode/agents/ |
-Global paths start at ~. Skills are copied, not symlinked (unreliable in Cursor/Codex); .rigorkit records origin. Cursor/OpenCode may see duplicate skills when .claude/skills and .agents/skills coexist.
+Global paths start at ~. Skills are copied, not symlinked (unreliable in Cursor/Codex); .rigorkit records origin and .rigorkit-version records the installed version. Cursor/OpenCode may see duplicate skills when .claude/skills and .agents/skills coexist.
 Global core rules use markers in ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md and ~/.config/opencode/AGENTS.md, preserving outside content; see [core](packs/core/README.md).
 
 ## Optional model tiers
@@ -50,8 +66,8 @@ opencode.cheap=<provider/model>
 ```
 Legacy barato/fuerte tiers and keys still work; English keys take precedence, even when empty (inherit session). Missing file/tool mapping also inherits session; one-model/free-model setups need none. Override path with RIGORKIT_MODELS.
 
-## SDD and packs
-Install `sdd`, then ask for `sdd-init`. For existing code, continue with `sdd-adopt`.
+## SDD and the other lanes
+Install `sdd`, then ask for `sdd-init`. For existing code, continue with `sdd-adopt`. `sdd` is the core lane; `design` and `security` staff their own lanes and join the SDD review station when the change needs them.
 
 Change flow:
 

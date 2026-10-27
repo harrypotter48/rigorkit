@@ -1,6 +1,8 @@
 # frontend — React / Next.js structure
 A reference and readonly reviewer for pages, components, hooks and barrels.
 
+Lane: none of its own. These are specialists the SDD lane calls in its review station.
+
 | Item | Purpose |
 |---|---|
 | frontend-structure | Composition-only routes; `presentation/pages/<X>Page/`; PascalCase folders; .hook.ts/.helper.ts/.type.ts/.constant.ts/.store.ts; named barrels and shared/ |

@@ -1,6 +1,8 @@
 # architecture — Layers and extensibility
 Reference skills for planning/implementation, plus readonly architecture review.
 
+Lane: none of its own. These are specialists the SDD lane calls in its review station.
+
 | Item | Purpose |
 |---|---|
 | architecture-boundaries | Layers/hexagonal, dependencies, ports/adapters, feature order, anti-patterns |

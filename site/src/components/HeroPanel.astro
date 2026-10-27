@@ -1,10 +1,11 @@
 ---
 import { withBase } from '../lib/urls.mjs';
+import { VERSION } from '../lib/version.mjs';
 ---
 <section class="rigor-hero" aria-labelledby="_top">
-  <p class="eyebrow"><span class="status-dot"></span> rigorkit / tool-neutral by design</p>
-  <h1 id="_top">Give your AI<br/>a rigorous way<br/>to <em>work.</em></h1>
-  <p class="hero-description">Clear specs. Deliberate changes. Evidence before claims.<br class="desktop-break"/> Small, reusable packs that bring structure to AI-assisted development.</p>
+  <p class="eyebrow"><span class="status-dot"></span> rigorkit {VERSION} · an AI software factory</p>
+  <h1 id="_top">Give your AI<br/>a factory to<br/>work in.</h1>
+  <p class="hero-description">Clear specs. Deliberate changes. Evidence before claims.<br class="desktop-break"/> Lanes of work staffed by specialists, installed as the packs you choose.</p>
   <div class="hero-actions">
     <a class="primary-action" href={withBase('/docs/overview/#install')}>Start with installation <span aria-hidden="true">↗</span></a>
     <a class="text-action" href={withBase('/docs/overview/')}>Read the documentation <span aria-hidden="true">→</span></a>
@@ -16,4 +17,4 @@ import { withBase } from '../lib/urls.mjs';
   <article><span>02 / Build</span><h2>Keep changes deliberate.</h2><p>Deliver approved functional blocks. Reuse verified context and read only what the next step needs, expanding when risk or uncertainty grows.</p></article>
   <article><span>03 / Verify</span><h2>Show the evidence.</h2><p>Review each complete block, then verify the whole change. Keep tests, critical checks and missing evidence visible.</p></article>
 </section>
-<div class="section-heading"><div><p class="eyebrow">Take only what you need</p><h2>Six packs. One way of working.</h2></div><a href={withBase('/packs/')}>Explore the catalog →</a></div>
+<div class="section-heading"><div><p class="eyebrow">Take only what you need</p><h2>Six packs. Lanes of work. One factory.</h2></div><a href={withBase('/packs/')}>Explore the catalog →</a></div>

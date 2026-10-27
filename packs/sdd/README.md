@@ -1,6 +1,8 @@
 # sdd — Spec-Driven Development
 Agree WHAT/WHY (spec + clarification), then HOW (plan + functional blocks/tasks) before code. Each pair has one human approval gate. Implement and review an approved block as a unit; tasks are its internal checklist. Test evidence, block review, every commit and final closure retain their gates. Stricter project/user instructions win.
 
+Lane: SDD, the core lane. It runs from triage to archive and calls the specialists of the other lanes in its review station.
+
 ## Agent rules
 Top 1% role for its stage; no flattery, identify blind spots. Batch independent searches; filter command output with existing summary helpers when available, retaining failures/IDs/status and evidence gaps. Verify code with file:line, never assume. User runs install/build/lint/tsc/tests/migrations/seeds/deploy; agent provides commands and waits for output, reads only. Propose one commit per verified block; every commit needs explicit approval, never chain commits, push or merge. Stop at shared design gates, block review, missing evidence or consequential uncertainty; no stop between internal tasks.
 

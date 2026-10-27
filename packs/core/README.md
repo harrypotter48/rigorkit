@@ -1,6 +1,8 @@
 # core — Token economy
 Always-on reading/reply rules and reusable command-output helpers. Some ideas reference [caveman](https://github.com/juliusbrussee/caveman); its skills are not copied.
 
+Lane: none. `core` carries the global rules every session reads; it is not a track of work.
+
 | Item | Purpose |
 |---|---|
 | rules.md | Brief replies, scoped reads, filtered output, file state; at most 300 estimated tokens per turn |

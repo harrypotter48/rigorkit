@@ -22,6 +22,9 @@ References describe the inspected pre-change source, not post-edit line position
 | Init templates (tasks, half-wired) | Station and accepted-item state with stable identifiers | RF-13 |
 | Content measurement tool | Prefix and role validation | RF-2 |
 | Website source copy and site tests | Published packs table and pack list in the browser test | RF-1, RF-3, RF-8 |
+| Factory model in governance and public docs (root `README.md`, `AGENTS.md`, one README per pack, site copy) | Factory framing, lane catalogue with entry, specialists, output and exit criterion, README correction before the announcement | RF-17–RF-21 |
+| Version source and installer (`VERSION`, `install.sh`) | Single version source, `--version`, `--list` with the local and installed versions, installed-version marker per scope | RF-22–RF-24 |
+| Site version display | Version read from the VERSION file at build time | RF-23 |
 ## Data model
 No runtime model. The tasks template gains per-station state and accepted-item identifiers; the half-wired template gains the accepted finding entry shape while keeping `HW-NN` semantics unchanged. Existing installed projects keep their own templates until reinstalled.
 ## Algorithms
@@ -38,10 +41,14 @@ Member names are the public contract: `architecture-reviewer`, `architecture-bou
 - Builder with a fresh context per approved block: implementation separated from the discussion that produced the plan.
 - No copy of third-party agents: the profiles are rewritten in the neutral format with the useful criteria only.
 - Phase 2 stays outside this change: the `operation` lane, product outcome metrics and a dedicated test-writing agent.
+- Factory framing with lanes as tracks and packs as specialists: the owner described a factory, so a lane names the track of work (entry, specialists, output, exit criterion) while the pack keeps the namespace role of its members; `--pack` and the prefix rule stay.
+- README correction before the announcement: the owner asked for the documentation to be correct first, so the corrected READMEs are a precondition of publishing the factory framing.
+- Version in a `VERSION` file at the repository root, semantic versioning from 0.1.0, bumped by hand: one source, no second copy, and no automatic bumps.
+- Installed-version marker per scope, reported by `install.sh --list` next to the local version: the owner needs to know what runs in a project without reading the repository, and the marker records what was installed, not what is recommended.
 ## Constitution
-Preserves tool-neutrality, self-contained folders, soft dependencies by name, valid YAML and 300-character descriptions, generic content, reference-don't-copy, context economy, the top 1% role rule and user-run commands. No critical installer or global-rule source is edited; the install critical path is exercised by user-run dry-runs and a temporary-folder installation.
+Preserves tool-neutrality, self-contained folders, soft dependencies by name, valid YAML and 300-character descriptions, generic content, reference-don't-copy, context economy, the top 1% role rule and user-run commands. The amendment edits `install.sh`, a constitutional critical path, so the DoD level is critical and its evidence is the project and global dry-runs plus a real installation in a temporary folder; the installer gains only version reporting and the marker, and no global rule source changes.
 ## Test strategy
-Manual instruction-following validation for every scenario, as the content check only proves naming and role. The user runs the content measurement tool, the scenario checker, the website checks and the installer dry-runs plus a temporary-folder installation; their output is pending evidence. No automated execution, no claimed savings and no claimed live result.
+Manual instruction-following validation for every scenario, as the content check only proves naming and role. The user runs the content measurement tool, the scenario checker, the website checks and the installer dry-runs plus a temporary-folder installation; their output is pending evidence. The version adds `install.sh --version`, `install.sh --list` in both scopes and a real installation in a temporary folder that reads back the marker. No automated execution, no claimed savings and no claimed live result.
 ## Risks and cross-layer
 - Renaming the architecture members touches every caller (`sdd-implement`, `sdd-verify`, the SDD README, the architecture README, the root README and the published docs): B1 updates all active producers; archived artifacts keep their historical names.
 - The measurement baseline fails on added or removed identities (`tools/measure-content.mjs:177`): the baseline is recaptured by the user after the commit that includes the new names; the step is listed as a pending user action.
@@ -54,3 +61,7 @@ Manual instruction-following validation for every scenario, as the content check
 - The new packs increase the installed context: one agent per lane, compact descriptions and a measured baseline keep the cost visible.
 - Accessibility level and interface warnings depend on project declarations that may be missing: unknown levels fall back to AA and are reported.
 - The sdd loaded-token reduction gate failed before this change (18.95% against a 30% target) and reaches 11.71% with the new stations, 14530 tokens against a 11519 limit: meeting it needs a dedicated compaction change or a baseline refresh, and `tools/capture-baseline.mjs` is pinned to a fixed source commit and refuses overwrite. This change reports the gate instead of weakening it.
+- The public documentation can drift from the packs again: the content check only proves naming, so RF-20 requires the same-change correction and the stale-reference scenario stays a manual review.
+- The installed-version marker name and path are still open: the installer writes nothing until the user confirms them, and the project scope needs a decision on whether the marker is committed.
+- The site reading the VERSION file couples the build to a repository file: the build fails loudly when the file is missing instead of showing an empty version.
+- A version bump without a published release can mislead: the marker records what was installed, so `--list` shows both versions and never presents the local one as the installed one.
