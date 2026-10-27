@@ -14,7 +14,7 @@ describe('001-english-and-compact: content measurement CLI', () => {
     expectSuccess(result);
     assert.match(result.output, /sdd-sample/);
     assert.match(result.output, /sdd-reader/);
-    assert.match(result.output, /arch-sample/);
+    assert.match(result.output, /architecture-sample/);
     assert.match(result.output, /frontend-sample/);
   });
 
@@ -23,7 +23,7 @@ describe('001-english-and-compact: content measurement CLI', () => {
     const result = measure(dir);
     expectSuccess(result);
     for (const file of [skillPath, agentPath,
-      'packs/architecture/skills/arch-sample/SKILL.md',
+      'packs/architecture/skills/architecture-sample/SKILL.md',
       'packs/frontend/skills/frontend-sample/SKILL.md']) {
       assert.ok(result.output.includes(file), `Missing identity report for ${file}`);
     }
@@ -95,7 +95,7 @@ describe('001-english-and-compact: content measurement CLI', () => {
 
   it('RF-17.F1: a single pack at 29 percent reduction fails despite savings elsewhere', (t) => {
     const dir = temporaryFixture(t, 'measurement');
-    replaceBody(path.join(dir, 'repo/packs/architecture/skills/arch-sample/SKILL.md'), 'x'.repeat(284));
+    replaceBody(path.join(dir, 'repo/packs/architecture/skills/architecture-sample/SKILL.md'), 'x'.repeat(284));
     replaceBody(path.join(dir, 'repo', skillPath), 'x'.repeat(120));
     const result = measure(dir);
     assert.equal(result.status, 1, result.output);

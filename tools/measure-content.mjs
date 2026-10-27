@@ -88,6 +88,8 @@ export function measureRepository(root) {
       kind, pack, path: relative, name, expectedName,
       descriptionCharacters: characters(description),
       loadedTokens: tokens(parts.map((part) => part.content).join('')),
+      packPrefix: name.startsWith(`${pack}-`),
+      roleDeclared: kind === 'agent' ? /top 1%/i.test(body) : null,
     };
     entries.push(entry);
     for (const part of parts) files.push({ path: part.path, tokens: tokens(part.content), entry });
@@ -180,6 +182,12 @@ function compare(current, baseline) {
     }
     if (entry.descriptionCharacters > 300) {
       errors.push(`Description exceeds 300 characters: ${entry.path}: ${entry.descriptionCharacters}`);
+    }
+    if (!entry.packPrefix) {
+      errors.push(`Pack prefix mismatch: ${entry.path}: ${entry.name} does not start with "${entry.pack}-"`);
+    }
+    if (entry.kind === 'agent' && !entry.roleDeclared) {
+      errors.push(`Missing top 1% role: ${entry.path}`);
     }
   }
   for (const rule of current.rules) {

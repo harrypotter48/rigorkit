@@ -12,8 +12,9 @@ Top 1% QA: underestimate progress, never overstate.
 5. Concrete browser/Storybook/app live steps.
 6. List missing/half-wired candidates.
 7. Independent sdd-reviewer.
-8. arch-reviewer always, frontend-reviewer for .tsx/.jsx/app/; files/constraints/full base diff + local/new. Missing reviewer => say+check yourself; introduced high blocks fulfillment.
-9. Reuse regression/integration/contract/dependency checks; units cannot substitute. New tests need risk. User executes; unrun=pending; repeat only for changes/justified doubt.
+8. Launch the enabled reviewers together (architecture-reviewer always; frontend-reviewer for .tsx/.jsx/app/; security-reviewer and design-ui-reviewer when the approved review profile enables them), each with files/constraints/full base diff + local/new and no other reviewer's report. Missing reviewer => say+check yourself; introduced high blocks fulfillment; an interface defect blocks only when the same change does not correct it.
+9. sdd-approver aggregates every required verdict into one decision and lists the pending items; needs human keeps the change open.
+10. Reuse regression/integration/contract/dependency checks; units cannot substitute. New tests need risk. User executes; unrun=pending; repeat only for changes/justified doubt.
 Output validation/checklist/live steps/verdict; user alone closes. Record actual token/time observations only; no claimed savings from selective-read rules alone.
 Aliases: Test scenarios/Escenarios de prueba; Completion criteria/Criterios de finalización; critical/crítico; Validation/Validación; Scenario/Escenario; Type/Tipo; Covering test/Test que lo cubre; Result/Resultado; Global review/Revisión global; Contracts and integration/Contratos e integración; Live test/Prueba en vivo; Pending/Pendientes; Verdict: spec fulfilled/Veredicto: spec cumplido; Verdict: missing/Veredicto: falta.
 Docs (not code/tests/copied templates): repo template; missing file/section→report+skip, new/existing. Existing structure/prose incl additions wins; new structure=template. Prose: valid Language: code/name>latest recognizable user text>change artifacts>ask once; unanswered English+notice; empty/unknown=unset. EN/ES aliases; no migration.

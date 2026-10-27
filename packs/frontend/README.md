@@ -7,7 +7,7 @@ A reference and readonly reviewer for pages, components, hooks and barrels.
 | frontend-reviewer | Diff findings introduced/pre-existing or folder debt by rule/count/worst cases |
 
 Project constitution/AGENTS.md conventions win. Layer direction belongs to [architecture](../architecture/README.md).
-With sdd, implementation/verification passes frontend-reviewer the diff only for .tsx/.jsx/app/ changes. SDD still works without this pack and performs its own relevant checks.
+With sdd, implementation/verification launches the enabled reviewers together and passes frontend-reviewer the diff only for .tsx/.jsx/app/ changes. SDD still works without this pack and performs its own relevant checks.
 Ask for "audita la estructura del front de src/". Requested saved debt uses module baseline Frontend debt (legacy "Deuda de frontend").
 ```bash
 ./install.sh --pack frontend,architecture,sdd --agent claude --project ~/code/my-repo

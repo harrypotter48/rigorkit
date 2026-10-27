@@ -18,7 +18,7 @@ site/                  website only; dependencies/generated files never installe
 
 ## Skills
 - Agent Skills format: `skills/<name>/SKILL.md`, frontmatter `name` and `description`.
-- `name`: lowercase letters/numbers/hyphens, at most 64 characters, matching its folder. Prefix by pack (`sdd-`, `arch-`, `frontend-`); agents use prefixes too.
+- `name`: lowercase letters/numbers/hyphens, at most 64 characters, matching its folder. The name starts with its pack name (`sdd-`, `architecture-`, `frontend-`, `design-`, `security-`); agents and skills follow the same rule.
 - `description`: English, at most 300 characters; purpose, when to use it, and one or two request phrases. Always single-quoted; escape apostrophes as `''`. An unquoted `: ` breaks strict YAML parsers such as OpenCode's.
 - Every skill declares its top 1% role. SDD pairs spec→clarify and plan→tasks without intermediate approval; each pair ends at its user gate. Other skills stop at their declared gate; stricter project/user gates win. Reference skills instead declare `**Type: reference.**`; they have no role/stop of their own and follow the caller.
 - Self-contained: files used by a skill live in its folder; never read another skill's files.
@@ -36,7 +36,7 @@ tier: cheap | strong      # optional, never a concrete model
 <instructions>
 ```
 - Users map tiers per tool in `~/.config/rigorkit/models`; without a mapping, inherit the session model. Explorers use cheap, reviewers strong. Spanish aliases `barato`/`fuerte` remain supported; English keys take precedence.
-- Every agent declares its top 1% role. Reviewers are readonly and cannot run git; callers provide the diff. Review mode distinguishes introduced/pre-existing findings with severity/verdict; audit mode lists folder debt by rule.
+- Every agent declares its top 1% role in its body. Reviewers are readonly and cannot run git; callers provide the diff. Builders write and omit `readonly`. Review mode distinguishes introduced/pre-existing findings with severity/verdict; audit mode lists folder debt by rule.
 - One line per frontmatter field. Extend `install.sh` for missing neutral-format capabilities; never handwrite tool-specific variants.
 
 ## General rules
@@ -44,6 +44,7 @@ tier: cheap | strong      # optional, never a concrete model
 - Generic content only: no work-project code, internal names, business data or secrets.
 - Reference third-party skills from the pack README; do not copy them.
 - Add procedures agents must execute or practices reused across projects.
+- The content check reports a member whose name does not start with its pack name, and an agent whose body omits its top 1% role.
 - Changes to `install.sh` require `--dry-run` in both `--project` and `--global` modes.
 - Never replace user instructions: `install.sh` writes only between `<!-- rigorkit:<pack>:start/end -->` markers and keeps `.bak`.
 - Each `rules.md` must have a token estimate at most 300; global rules cost context every turn.

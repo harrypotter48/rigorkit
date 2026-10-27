@@ -4,9 +4,11 @@ Tool-neutral skills and agents for rigorous AI-assisted work: verify before clai
 | Pack | Contents |
 |---|---|
 | [core](packs/core/README.md) | Global token-economy rules and test/error/JSON summary helpers; --global only |
-| [sdd](packs/sdd/README.md) | Reviewed specs, joint plan/block approval, functional-block delivery and selective context; templates, checks and two readonly agents |
+| [sdd](packs/sdd/README.md) | Reviewed specs, joint plan/block approval, functional-block delivery and selective context; templates, checks, three readonly agents and a builder |
 | [architecture](packs/architecture/README.md) | Layers/hexagonal, plugin registry, architecture review/audit |
 | [frontend](packs/frontend/README.md) | React/Next.js folders/names/routes/barrels, frontend review/audit |
+| [design](packs/design/README.md) | UX flow and UI criteria, accessibility level, capture checklist and advisory interface review |
+| [security](packs/security/README.md) | Threat modeling and secure defaults, security review of designs and diffs |
 
 ## Install
 ```bash
@@ -61,12 +63,14 @@ Change flow:
 6. `sdd-verify` (whole-change integration and live checks)
 7. `sdd-archive`
 
+After the builder, the enabled reviewers run together, each with the same references and no other reviewer's report. `sdd-approver` aggregates their verdicts into approved, needs human or failed, and you close the change. Interface improvements never block; an interface defect blocks only when the same change does not correct it.
+
 You approve WHAT after the spec has been clarified, then HOW after the plan and block tasks are ready. Unresolved decisions come back to you before proceeding. Internal tasks are a checklist: implementation and review cover the approved functional block, with user-run checks and explicit approval for every commit.
 
-Reuse verified context while its source is unchanged; read referenced sections and expand when evidence is missing, dependencies change or risk grows. Whole-change integration, critical-path checks and live verification remain required. See [functional blocks](packs/sdd/README.md#functional-blocks) and [selective context](packs/sdd/README.md#selective-context-global-verification).
+Reuse verified context while its source is unchanged; read referenced sections and expand when evidence is missing, dependencies change or risk grows. Whole-change integration, critical-path checks and live verification remain required. See [functional blocks](packs/sdd/README.md#functional-blocks), [review stations](packs/sdd/README.md#review-stations) and [selective context](packs/sdd/README.md#selective-context-global-verification).
 
 
-Process skills have roles/stops; paired SDD stages share their approval gate. Reference skills (`arch-boundaries`, `frontend-structure`) supply knowledge and follow their caller's stop. Readonly reviewers inspect diffs or audit folder debt. Cross-pack dependencies are soft, by name: absent packs are reported and SDD performs relevant checks itself. Implementation/verification uses architecture reviewer and frontend reviewer for .tsx/.jsx/app/ changes.
+Process skills have roles/stops; paired SDD stages share their approval gate. Reference skills (`architecture-boundaries`, `frontend-structure`, `design-ux-flow`, `design-ui-criteria`, `security-baselines`) supply knowledge and follow their caller's stop. Readonly reviewers inspect diffs or audit folder debt. Cross-pack dependencies are soft, by name: absent packs are reported and SDD performs relevant checks itself. Implementation/verification uses the architecture reviewer and the frontend reviewer for .tsx/.jsx/app/ changes, plus the security reviewer for sensitive paths and the interface reviewer for rendered screens.
 
 Ask for "audita la arquitectura de src/" or "audita la estructura del front". Contribution rules: [AGENTS.md](AGENTS.md).
 

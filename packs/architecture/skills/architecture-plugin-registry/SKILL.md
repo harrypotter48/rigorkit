@@ -1,8 +1,8 @@
 ---
-name: arch-plugin-registry
+name: architecture-plugin-registry
 description: 'Reference for extensible dispatch: registry fallback, equal built-in/extension registration and existing lifecycle. Use for "hacerlo extensible" or "plugins".'
 ---
-# arch-plugin-registry — Open dispatch
+# architecture-plugin-registry — Open dispatch
 **Type: reference.** Caller skill or user controls stage/stop.
 
 Replace a closed switch default with registry lookup; built-ins/extensions register identically. Use existing plugin lifecycle (e.g. onInstall), never invent a new plugin type/loader. First find/reuse a registry/handler-map/plugin precedent, then its registration lifecycle.

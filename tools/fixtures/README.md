@@ -14,7 +14,7 @@ pending T7.
 |---|---:|---:|
 | sdd-sample | 100 | 70 (60 body + 10 guide) |
 | sdd-reader | 100 | 70 |
-| arch-sample | 100 | 70 |
+| architecture-sample | 100 | 70 |
 | frontend-sample | 100 | 70 |
 | core rules | 400 | 300 |
 

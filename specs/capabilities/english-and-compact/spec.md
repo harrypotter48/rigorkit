@@ -239,7 +239,7 @@ Rigorkit distributes English, compact skills, agents, templates and rules for fo
 ### RF-23
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
-| RF-23.H1 | happy [manual] | a Spanish request | `arch-reviewer` finds no layer structure | it says so in Spanish |
+| RF-23.H1 | happy [manual] | a Spanish request | `architecture-reviewer` finds no layer structure | it says so in Spanish |
 | RF-23.E1 | edge [manual] | a Spanish project with English structure | `sdd-reviewer` ends a review | the verdict line follows the structure, the rest is in Spanish |
 | RF-23.F | failure | n/a — failure to determine the language is RF-13 | | |
 | RF-23.S | security | n/a — no permissions involved | | |
@@ -277,6 +277,6 @@ Projects whose templates predate rigorkit's current ones (the 5 work repos: requ
 
 ## Verification references
 
-Current implementations: packs/, install.sh, tools/measure-content.mjs. The immutable measurement reference is specs/archive/001-english-and-compact/baseline.txt. Measurement enforces description <=300 characters, rules <=300 estimated tokens and >=30% loaded-token reduction independently per target pack.
+Current implementations: packs/, install.sh, tools/measure-content.mjs. The immutable measurement reference is specs/archive/001-english-and-compact/baseline.txt. Measurement enforces description <=300 characters, rules <=300 estimated tokens and >=30% loaded-token reduction independently per target pack, and reports a member whose name does not start with its pack name or an agent whose body omits its top 1% role.
 
 Scenario IDs refer to the originating change 001-english-and-compact and tools/test/. Historical evidence and accepted verification exceptions: [archived validation](../../archive/001-english-and-compact/validation.md). Independent review was not performed and live agent behavior checks remain deferred; current contract statements do not imply those checks ran. Future defects are handled in a new change.

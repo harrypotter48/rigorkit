@@ -20,3 +20,4 @@
 - Checks + proposed `<message> (<id> Bn)`; legacy Tn retained unless regrouping approved.
 - Review combined diff architecture/contracts; brief evidence/pending, no spec/plan repeat. [x] only verified; update block/tasks/refs/dependency state. Never close change.
 - Whole change: full spec/plan/diff, architecture/contracts/integration/regression/live checks.
+- Enabled reviewers run together after the builder; the approver aggregates their verdicts into approved/needs human/failed; the owner closes the change.

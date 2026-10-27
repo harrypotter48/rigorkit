@@ -1,8 +1,8 @@
 ---
-name: arch-boundaries
+name: architecture-boundaries
 description: 'Reference for layered/hexagonal architecture: dependencies, ports/adapters and feature order. Use for "dónde va esto" or "arquitectura hexagonal" when planning or implementing.'
 ---
-# arch-boundaries — Layers and boundaries
+# architecture-boundaries — Layers and boundaries
 **Type: reference.** No stage/stop of its own; caller skill or user controls approval.
 
 ## Project first
