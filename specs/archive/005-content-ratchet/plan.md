@@ -12,7 +12,7 @@ References describe the inspected pre-change source, not post-edit line position
 |---|---|---|
 | `tools/measure-content.mjs` | Target declared by the baseline, ratchet over every pack it contains, legacy policy when absent, growth and missing-baseline messages | RF-1, RF-2, RF-3, RF-7 |
 | `tools/capture-baseline.mjs` | Source commit, output path and optional target as arguments; refuses to overwrite; writes no file on invalid input | RF-4, RF-5, RF-6 |
-| `specs/changes/005-content-ratchet/baseline.txt` | Ratchet baseline captured from the commit that closes change 004, with a target of 0% | RF-1, RF-4 |
+| `specs/archive/005-content-ratchet/baseline.txt` | Ratchet baseline captured from the commit that closes change 004, with a target of 0% | RF-1, RF-4 |
 | `tools/fixtures/measurement/baseline-ratchet.txt` and `tools/test/measure-content.test.mjs` | Executable coverage of the ratchet policy, the legacy policy, growth and a pack without baseline | RF-1, RF-2, RF-3 |
 | `tools/test/capture-baseline.test.mjs` | Executable coverage of the capture arguments, the overwrite refusal and the invalid input | RF-4, RF-5, RF-6 |
 | `AGENTS.md` and `specs/capabilities/english-and-compact/spec.md` | Live baseline, command and historical reference | RF-8 |

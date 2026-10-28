@@ -92,8 +92,8 @@ The comparison CLI applies the target declared by the baseline and keeps the ori
 5. Does the capture tool keep a fixed source commit? → No: it takes the commit, the output path and the optional target, and keeps refusing to overwrite.
 6. Is a new pack an error? → Yes: a pack with no baseline is reported, because accepting it is an owner decision that a new baseline records.
 ## Open questions
-- [NEEDS CLARIFICATION] The ratchet baseline lives in the change folder and moves to `specs/archive/005-content-ratchet/` when the change is archived. Confirm that the archive step updates the documented command paths, or choose a stable path outside the change folders.
-- [NEEDS CLARIFICATION] The `sdd` pack already sits at 14530 loaded tokens with the ratchet at that value. Confirm whether the next compaction is a separate change with its own target, or whether this ratchet is the final answer for the pack.
+- [CLOSED by the archive] The ratchet baseline lives in the change folder and moved to `specs/archive/005-content-ratchet/` when the change was archived; the documented command paths were updated in the same step.
+- [OPEN] The `sdd` pack already sits at 14530 loaded tokens with the ratchet at that value. A later compaction of that pack is a separate change with its own target, or this ratchet is the final answer for the pack.
 ## Clarification — round 1 (2026-10-26) · Verdict: ready for plan
 1. Ambiguities: the ratchet target lives in the baseline file, not in the tool; a baseline without the field keeps the original policy; the packs covered are the ones the baseline contains.
 2. Conflicting requirements: the historical 30% requirement of change 001 stays as evidence while the live check stops enforcing it; the same tool reads both.

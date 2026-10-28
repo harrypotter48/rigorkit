@@ -1,6 +1,6 @@
 # Tasks — 004-factory-lanes
 ## Resume state
-Stage: spec amended in round 3 and re-planned; RF-1–RF-16 implemented in commit `88fd948`; blocks B6 and B7 implemented in the working tree; user-run checks reported passing on 2026-10-26.
+Stage: ARCHIVED on 2026-10-26 by explicit user acceptance; RF-1–RF-16 in commit `88fd948` and RF-17–RF-24 in `23d193a`; user-run checks reported passing on 2026-10-26; the live station scenarios stay pending.
 Evidence 2026-10-26: the user ran the website checks (`npm --prefix site run check`, `test:unit`, `test:browser`, `check:site`) and `node --test tools/test/*.test.mjs`, and reported every test passing and the generated site correct. The content measurement on the real repository still reports the identity changes and the sdd reduction gate, and the baseline recapture step is still pending.
 Approvals: design decisions approved by the user, including the six amendment answers (factory framing, README scope, VERSION file, installed marker, manual semver from 0.1.0, unchanged name); spec, plan and block approval for B6 and B7 pending.
 Authorized blocks: none · Current block: none · Current task: user review of the amended spec.md and plan.md and the B6/B7 diff.

@@ -1,6 +1,6 @@
 # Tasks — 005-content-ratchet
 ## Resume state
-Stage: spec, plan and tasks drafted; implementation in the working tree, pending verification.
+Stage: ARCHIVED on 2026-10-26 by explicit user acceptance; implementation in commit `0c01a1e`; 29 executable tests green and the live measurement reports 0 errors.
 Approvals: the owner chose the ratchet over compaction and a relaxed target; spec, plan and block approval pending.
 Authorized blocks: none · Current block: none · Current task: user review of spec.md, plan.md and the diff.
 Pending/blockers: two open questions in spec.md (where the ratchet baseline lives after the archive and whether a later compaction of the `sdd` pack is a separate change); the user-run content measurement and tool tests are pending.

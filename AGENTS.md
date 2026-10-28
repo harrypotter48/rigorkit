@@ -54,7 +54,7 @@ tier: cheap | strong      # optional, never a concrete model
 - Reference third-party skills from the pack README; do not copy them.
 - Add procedures agents must execute or practices reused across projects.
 - The content check reports a member whose name does not start with its pack name, and an agent whose body omits its top 1% role.
-- **Content ratchet**: `node tools/measure-content.mjs --root . --baseline specs/changes/005-content-ratchet/baseline.txt` compares the current content with the ratchet baseline (0% growth over every pack it contains). Growth is a decision, not an accident: capture a new baseline with `node tools/capture-baseline.mjs --source <commit> --output <file> --target 0` after the owner approves it. The archived baseline of change 001 stays the historical evidence of the 30% compaction.
+- **Content ratchet**: `node tools/measure-content.mjs --root . --baseline specs/archive/005-content-ratchet/baseline.txt` compares the current content with the ratchet baseline (0% growth over every pack it contains, and a new pack needs a new baseline). Growth is a decision, not an accident: capture a new baseline with `node tools/capture-baseline.mjs --source <commit> --output <file> --target 0` after the owner approves it. The archived baseline of change 001 stays the historical evidence of the 30% compaction.
 - Changes to `install.sh` require `--dry-run` in both `--project` and `--global` modes.
 - Never replace user instructions: `install.sh` writes only between `<!-- rigorkit:<pack>:start/end -->` markers and keeps `.bak`.
 - Each `rules.md` must have a token estimate at most 300; global rules cost context every turn.
