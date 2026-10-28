@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import {
@@ -166,5 +166,45 @@ describe('001-english-and-compact: content measurement CLI', () => {
     assert.equal(result.status, 1, result.output);
     assert.match(result.stderr, /absent-baseline\.txt/);
     assert.match(result.stderr, /baseline.*(missing|not found|does not exist|ENOENT)|ENOENT.*baseline/i);
+  });
+});
+
+describe('005-content-ratchet: baseline-driven content ratchet', () => {
+  it('RF-1.H1: a baseline with a target ratchets every pack it contains at that target', (t) => {
+    const dir = temporaryFixture(t, 'measurement');
+    const result = measure(dir, path.join(dir, 'baseline-ratchet.txt'));
+    expectSuccess(result);
+    assert.match(result.output, /target>=0%/);
+    for (const pack of ['sdd', 'architecture', 'frontend']) {
+      assert.match(packRow(result.output, pack), /target>=0%\s*PASS/);
+    }
+  });
+
+  it('RF-1.E1: a baseline without a target keeps the 30 percent policy in three packs', (t) => {
+    const dir = temporaryFixture(t, 'measurement');
+    const result = measure(dir, path.join(dir, 'baseline.txt'));
+    expectSuccess(result);
+    assert.match(result.output, /30% reduction in sdd, architecture and frontend/);
+    assert.match(packRow(result.output, 'sdd'), /target>=30%\s*PASS/);
+  });
+
+  it('RF-1.F1: content growth against a ratchet baseline is reported and rejected', (t) => {
+    const dir = temporaryFixture(t, 'measurement');
+    // The fixture baseline holds 200 tokens for sdd; the skill body grows past it.
+    replaceBody(path.join(dir, 'repo', skillPath), 'x'.repeat(600));
+    const result = measure(dir, path.join(dir, 'baseline-ratchet.txt'));
+    assert.equal(result.status, 1, result.output);
+    assert.match(packRow(result.output, 'sdd'), /target>=0%\s*FAIL/);
+    assert.match(result.output, /Content growth for pack sdd/);
+  });
+
+  it('RF-1.S1: a pack with no baseline is reported before content is added to it', (t) => {
+    const dir = temporaryFixture(t, 'measurement');
+    const file = path.join(dir, 'repo/packs/security/skills/security-sample/SKILL.md');
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, "---\nname: security-sample\ndescription: 'Sample.'\n---\n\nBody.\n");
+    const result = measure(dir, path.join(dir, 'baseline-ratchet.txt'));
+    assert.equal(result.status, 1, result.output);
+    assert.match(result.output, /No baseline for pack security/);
   });
 });

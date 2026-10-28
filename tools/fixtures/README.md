@@ -25,6 +25,11 @@ their sizes are exact boundary inputs. They are numeric fixtures, not usable ski
 The escaped description `Read a project''s state.` has 23 decoded characters;
 `Review the change.` has 18.
 
+`measurement/baseline-ratchet.txt` is the same baseline with the optional
+`targetReductionPercent: 0` field: it exercises the ratchet policy, where every pack
+in the baseline must hold that target (0% means no growth) instead of the original
+30% policy in three packs. A baseline without the field keeps the original policy.
+
 Tests mutate only temporary copies to exercise one boundary at a time. Report
 assertions use readable file/pack rows and values without fixing spacing or columns.
 
