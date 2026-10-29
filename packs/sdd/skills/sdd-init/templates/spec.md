@@ -1,11 +1,18 @@
 # Spec <NNN> — <Name>
 > Status: draft | approved · DoD: normal | critical · Owner repo: <repo> · Affected repos: <…>
+> Origin: <backlog id HU-N, or none> — <request that opened the change>
 ## Context and goal
 <Problem/why; 1 paragraph, no stack/files.>
 ## Users / actors
 <Who uses it.>
 ## User stories
 - H1: As <role> I want <action> for <benefit>.
+## Acceptance
+<The observable result of the story, from the owner's view: what exists after the change that did not exist before.>
+## Invariants
+<!-- INV-n: a rule that holds in every case, even when no scenario exercises it.
+     The code that implements one cites its id. "None" when the change has none. -->
+- INV-1: <tenant isolation, permissions, money, migrations: the rule that always holds.>
 ## Functional requirements (EARS)
 ### <Group> (H1)
 - RF-1: WHEN <event>, THE SYSTEM SHALL <response> (<expected result>).

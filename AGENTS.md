@@ -8,6 +8,10 @@ Tool-neutral skills and agents for Claude Code, Codex, Cursor and OpenCode, grou
 - Lanes today: SDD (core, staffed by the `sdd` pack), design (`design` pack) and security (`security` pack). The operation lane is deferred to a later change.
 - `architecture` and `frontend` are specialists the SDD lane calls in its review station; `core` carries global rules instead of a lane.
 - The pack stays the namespace of its members: `<pack>-<role>`. `--pack` and the pack folders keep their names.
+- The factory coordinates stations; SDD remains the method per slice: slice → spec/clarify → design/plan/tasks → tests → build → review/owner acceptance → close/learnings. A HU/ticket describes a useful vertical slice; tasks stay internal. Implement only agreed behavior/constraints, no speculative branches or guessed defaults.
+- Every new technical decision needs owner approval before application. Reused repo/vault decisions must be communicated with their source and applicability; conflicts/uncertainty return to the owner. Accept each slice separately; never infer authority for another slice, commit, push or merge.
+- Consult the configured vault/repo learnings selectively whenever needed at any station; reuse valid context, repo wins. Repo-specific facts stay in the repo, reusable team lessons in specs/learnings/, cross-project vault promotion only with approval.
+- Agents may run existing scoped unit/integration tests. Browser/Docker/e2e need an explicit request; installation/build/lint/typecheck/migrations/seeds/deploy require separate authorization. Missing infrastructure means pending evidence. Stricter project/user gates win.
 - Public documentation describes the factory, its lanes and every member with its current name; a change that adds, renames or removes a member corrects the affected README in the same change.
 - `VERSION` at the repository root is the only copy of the version (semantic versioning, bumped by hand). `install.sh --version` prints it, `--list` shows the local and installed versions, and the installer records the installed version in `.rigorkit-version` at the scope root.
 
@@ -61,7 +65,7 @@ tier: cheap | strong      # optional, never a concrete model
 
 ## Website development
 - Public docs are generated only from the main README and pack Markdown. Never copy internal specs/tools into website pages or search.
-- Author public docs in their repository source. `site/src/content/docs/docs/` is importer-owned generated content; never edit/commit it.
-- Node 24 and all website packages stay in site/. User runs `npm --prefix site run check`, `test:unit`, `test:browser`, `check:site`, build and preview; see site/README.md.
+- Store README illustrations under site/public/images/ and use repository-relative Markdown image links; the importer maps them to raw GitHub source URLs. Author public docs in their repository source. `site/src/content/docs/docs/` is importer-owned generated content; never edit/commit it.
+- Node 24 and all website packages stay in site/. Agents may run the existing test:unit suite; website check/build/browser/check:site/preview and installation stay with the user unless explicitly requested. See site/README.md.
 - Tests run against real production and isolated fixture builds. Upload only the restored/checked normal site/dist output, never fixtures.
 - Feature branches/PRs cannot publish. User confirms Pages settings/default branch and performs push/merge; configuration is not deployment evidence.

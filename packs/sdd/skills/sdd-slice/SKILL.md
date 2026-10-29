@@ -1,0 +1,15 @@
+---
+name: sdd-slice
+description: 'Split an intent or feature into vertical slices and keep the project backlog in git. Use for "divide la feature", "backlog", "historias de usuario" or "qué hago primero".'
+---
+# Entry
+Top 1% product manager turning an intent into ordered vertical slices.
+1. Input: the intent or feature of the owner, and the current `specs/backlog.md` and `specs/changes/`; the constitution when it exists. One question when the intent has no observable outcome; never invent the product. The backlog is the index of the stories; the change of a selected story is written by the triage and the spec stage, never here.
+2. Propose vertical slices: one per observable outcome, from data to interface. Never split by layer, and report why when a layer cut is re-cut vertically. The first slice must be observable on its own (create without list or confirmation is not). Each entry carries id (HU-N), title, why (the value it delivers), feature, size (S/M/L), dependencies and status (`backlog`/`next`/`wip`/`done`).
+3. Keep the index flat and in the order of the owner: at most one `next` and at most one `wip`. When the owner selects a story while another is `wip`, report the one in progress and ask which one to leave. When no `next` is marked, ask; never choose by the CRUD sequence of a feature. A story already delivered by a change is `done`, not a new slice.
+4. Propose before writing: show the table of entries and wait for the approval of the owner. After approval, update `specs/backlog.md` in place (order, status and the open questions of the entries) and preserve the entries the owner did not touch. When the file does not exist, create it from the repo template `specs/templates/backlog.md`; when that template does not exist either, report that the setup has to run and stop. The `Change` cell of an entry belongs to the triage.
+5. When the owner selects a story: apply the guard of step 3, check that the value of the entry still exists, and report the mismatch without writing anything when it does not. Then hand the selection to the triage with the id, title, why, feature, size and dependencies of the entry, and set the status of the entry to `wip`. The triage names the change and writes the `Change` cell; the spec stage writes the spec.
+6. Doubts: a doubt that would need code becomes an open question of the entry or of the change, marked `[NEEDS CLARIFICATION]`; a doubt about the product is one question to the owner.
+Output: the table of the proposed or updated entries with the order of the owner and the stories left pending; stop for approval.
+Aliases: Backlog/Backlog; Vertical slice/Slice vertical; User story/Historia de usuario; Divide the feature/Dividir la feature; Next story/Historia siguiente; Slice the work/Repartir el trabajo; [NEEDS CLARIFICATION]/[NECESITA ACLARIFICACIÓN] (with questions).
+Evidence file:line; no assumptions/flattery; flag blind spots. No install/build/lint/tsc/tests/migrations/seeds/deploy: scoped bash+expected output; await user. Reads only: grep, ls, git status, git diff. No commit chains; no push/merge. Stop for approval. Chat=user; verdict=structure.

@@ -1,6 +1,46 @@
 # rigorkit
 An AI software factory for rigorous, tool-neutral work: lanes of work, each staffed by specialists, with human approval gates and explicit Definition of Done. Supports Claude Code, Codex, Cursor and OpenCode. Install only the packs you need. Current version: 0.1.0 (`VERSION`, `./install.sh --version`).
 
+## From a feature to an accepted slice
+
+![Before and after: one large request and a late review become small slices passing through explicit factory stations, with human approval, tests, a shared brain and learnings.](site/public/images/factory-before-after.png)
+
+The factory coordinates the work; **Spec-Driven Development (SDD) remains the method inside each slice**. A slice is the smallest useful behavior that works across its required layers and repositories. A user story or ticket describes that slice; technical tasks are its internal checklist, not separate deliveries.
+
+| Station | Output and handoff |
+|---|---|
+| 1. Slice the feature | Propose a flat backlog of useful outcomes and dependencies. You choose the next slice. |
+| 2. Specify and clarify | Agree on behavior, acceptance, scenarios, invariants and exclusions. You approve WHAT. |
+| 3. Design and plan | Propose the minimum solution and its tasks. You approve new technical decisions and HOW. |
+| 4. Prepare tests | Turn acceptance into checks that can distinguish the requested behavior from a plausible wrong implementation. |
+| 5. Build | Implement the approved slice, run permitted tests and return evidence. No speculative behavior. |
+| 6. Review and accept | Check spec compliance separately from architecture and applicable specialist concerns. You accept this slice. |
+| 7. Close and learn | Record completion, update repository knowledge and propose reusable learnings. You choose what comes next. |
+
+Each handoff carries the approved scope, relevant decisions and sources, affected consumers, evidence and unresolved items. A station cannot treat the previous agent's claim as proof. Implementation defects return to construction; ambiguous behavior returns to you. Acceptance never silently starts another slice or authorizes a commit, push or merge.
+
+### The brain accompanies every station
+The adopting repository is the source of truth. When configured, the vault is the shared brain for reusable decisions and knowledge, available whenever a station needs it. Search by topic, read the relevant notes and reuse unchanged evidence; do not load the whole vault at every step. Before applying an existing decision, report the decision and its source. Ask about conflicts or uncertain applicability; every new technical decision requires your approval.
+
+Repository-specific findings stay in that repository. Generic team learnings live in `specs/learnings/`; cross-project knowledge is proposed for the vault and promoted only with approval. Later slices consult those lessons instead of starting from scratch.
+
+### Small means useful, not incomplete
+For instance-level form options, a useful first slice is: configure the clear button on a widget instance, preserve it through the existing data path, render that choice, and prove that two instances of the same form can differ. A CMS section can be a separate slice when it is independently usable. "Add a backend field" alone is a task, not a user outcome.
+
+```json
+{
+  "widgetA": { "formId": "contact", "showClearButton": true },
+  "widgetB": { "formId": "contact", "showClearButton": false }
+}
+```
+
+Keep only the behavior and constraints agreed for this slice. Missing information becomes a question, not a guessed default, future option or new abstraction. See the [worked example and Jest checks](packs/sdd/examples.md).
+
+### Execution boundary
+Agents may run existing, scoped unit and integration tests with Jest or equivalent tools. Browser sessions, Docker and end-to-end tests require an explicit request. Installation, build, lint, typecheck, migrations, seeds and deployment are not authorized by this testing permission. If a test requires unavailable services or restricted infrastructure, report it as pending; do not start the infrastructure. Stricter adopting-project rules still apply.
+
+The operating contract above describes the agreed factory. The local `sdd-slice`/backlog work is in progress; frozen-test enforcement, branch-trace checks and tier-based automation remain Factory v2 work, not shipped guarantees. Existing installed copies must be updated explicitly.
+
 ## Lanes and packs
 A **lane** is a track of work with an entry, its specialists, its output and its exit criterion. A **pack** is the set of specialists staffed in a lane and stays their namespace: every member is named `<pack>-<role>`. A pack can also be specialists called from another lane, and the core pack carries global rules instead of a lane.
 
@@ -69,21 +109,21 @@ Legacy barato/fuerte tiers and keys still work; English keys take precedence, ev
 ## SDD and the other lanes
 Install `sdd`, then ask for `sdd-init`. For existing code, continue with `sdd-adopt`. `sdd` is the core lane; `design` and `security` staff their own lanes and join the SDD review station when the change needs them.
 
-Change flow:
+Change flow (the entry stage is being added in the Factory v2 work):
 
-1. `sdd-triage`
+1. `sdd-slice` → owner-selected backlog entry → `sdd-triage` / `sdd-context`
 2. `sdd-spec` → `sdd-clarify` automatically; user approves the clarified spec
 3. `sdd-plan` → `sdd-tasks` automatically; user approves the plan and functional blocks
-4. `sdd-tests` for the selected block; user supplies intended-red evidence
-5. `sdd-implement` (the approved functional block, tasks tracked internally)
-6. `sdd-verify` (whole-change integration and live checks)
+4. `sdd-tests` for the selected slice/block; run permitted tests and record intended-red evidence
+5. `sdd-implement` (the approved slice/block; internal tasks, minimum implementation, scoped unit/integration tests)
+6. `sdd-verify` (spec/architecture/integration evidence; requested live checks, otherwise pending)
 7. `sdd-archive`
 
 After the builder, the enabled reviewers run together, each with the same references and no other reviewer's report. `sdd-approver` aggregates their verdicts into approved, needs human or failed, and you close the change. Interface improvements never block; an interface defect blocks only when the same change does not correct it.
 
-You approve WHAT after the spec has been clarified, then HOW after the plan and block tasks are ready. Unresolved decisions come back to you before proceeding. Internal tasks are a checklist: implementation and review cover the approved functional block, with user-run checks and explicit approval for every commit.
+You approve WHAT after the spec has been clarified, then HOW after the plan and block tasks are ready. Unresolved decisions come back to you before proceeding. Internal tasks are a checklist: implementation and review cover the approved functional block, with scoped unit/integration checks and explicit approval for every commit. Tests outside that boundary remain on request; every slice is accepted separately.
 
-Reuse verified context while its source is unchanged; read referenced sections and expand when evidence is missing, dependencies change or risk grows. Whole-change integration, critical-path checks and live verification remain required. See [functional blocks](packs/sdd/README.md#functional-blocks), [review stations](packs/sdd/README.md#review-stations) and [selective context](packs/sdd/README.md#selective-context-global-verification).
+Reuse verified context while its source is unchanged; read referenced sections and expand when evidence is missing, dependencies change or risk grows. Whole-change integration and critical-path checks remain required; required live verification stays pending until explicitly requested and evidenced. See [functional blocks](packs/sdd/README.md#functional-blocks), [review stations](packs/sdd/README.md#review-stations) and [selective context](packs/sdd/README.md#selective-context-global-verification).
 
 
 Process skills have roles/stops; paired SDD stages share their approval gate. Reference skills (`architecture-boundaries`, `frontend-structure`, `design-ux-flow`, `design-ui-criteria`, `security-baselines`) supply knowledge and follow their caller's stop. Readonly reviewers inspect diffs or audit folder debt. Cross-pack dependencies are soft, by name: absent packs are reported and SDD performs relevant checks itself. Implementation/verification uses the architecture reviewer and the frontend reviewer for .tsx/.jsx/app/ changes, plus the security reviewer for sensitive paths and the interface reviewer for rendered screens.

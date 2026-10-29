@@ -13,9 +13,14 @@
 ## Structure by layer / module
 | Layer / module | Change | RFs covered |
 |---|---|---|
-| `packs/sdd/skills/sdd-slice/SKILL.md` | New entry stage that proposes the vertical slices and keeps the flat backlog | RF-1, RF-2, RF-3 |
+| `packs/sdd/skills/sdd-slice/SKILL.md` | New entry stage that proposes the vertical slices, keeps the flat backlog and hands the selected story to the triage | RF-1, RF-2, RF-3 |
+| `packs/sdd/skills/sdd-triage/SKILL.md` | Reads the selected backlog entry and writes the change id in its `Change` cell; tier and tier-aware profile (block B4) | RF-3, RF-12, RF-14 |
+| `packs/sdd/skills/sdd-spec/SKILL.md` | Writes the origin, the acceptance and the invariants of the spec | RF-3 |
+| `packs/sdd/skills/sdd-init/SKILL.md` | Proposes and creates `specs/backlog.md` from the template | RF-1 |
+| `packs/sdd/skills/sdd-archive/SKILL.md` | Sets the status of the entry of an archived change to `done` | RF-2 |
 | `specs/templates/backlog.md` | New template of the backlog index with the fields of an entry | RF-1, RF-2 |
-| `packs/sdd/skills/sdd-triage/SKILL.md` | Tier classification and tier-aware review profile with the threshold trigger | RF-12, RF-14 |
+| `specs/templates/spec.md` | Origin line, acceptance and invariants sections; tier field (block B4) | RF-3, RF-14 |
+| `specs/templates/AGENTS.md` | The slice stage in the flow of the adopting project | RF-18 |
 | `packs/sdd/skills/sdd-tests/SKILL.md` | Red commit convention, behavioral red, amend rule and the unit-test run | RF-4, RF-5, RF-6, RF-7, RF-17 |
 | `packs/sdd/skills/sdd-implement/SKILL.md` | Green commit convention, minimality, machine checks before the reviewers | RF-6, RF-10, RF-15, RF-16, RF-17 |
 | `packs/sdd/agents/sdd-builder.md` | No test edits, minimality and no claimed green without the run | RF-6, RF-15, RF-16, RF-17 |
@@ -25,7 +30,6 @@
 | `tools/test/check-frozen-tests.test.mjs` | Executable coverage of the frozen-test check | RF-8 |
 | `tools/test/check-branch-trace.test.mjs` | Executable coverage of the branch-trace check | RF-9 |
 | `specs/templates/constitution.md` | New fields: test paths and review threshold, with the defaults | RF-8, RF-12 |
-| `specs/templates/spec.md` | Acceptance and invariants sections, tier in the header | RF-3, RF-14 |
 | `packs/sdd/README.md`, `AGENTS.md` | Documentation of the new stages, the conventions and the command split | RF-18 |
 ## Data model
 The backlog is a markdown index with one entry per story, without a separate data file:
@@ -37,9 +41,13 @@ The backlog is a markdown index with one entry per story, without a separate dat
 | HU-3 | Create project | The owner can register a project and see it | project management | S | — | next | — |
 ```
 
-- The status values are `backlog`, `ready`, `next`, `wip` and `done`; at most one entry is `next` and at most one is `wip`.
-- The `Change` column holds the link to the change of `specs/changes/` once the story is selected.
-- No migration: the backlog is a new file created empty by the template.
+- The status values are `backlog`, `next`, `wip` and `done`; at most one entry is `next` and at most one is `wip`.
+- The `Change` column holds the id of the change of `specs/changes/`; the id names the folder before the archive and the folder in `specs/archive/` after it, so the entry never points to a path that moved.
+- The id of the entry is the backlog id (`HU-N`); the spec of its change records it in `Origin` before the separator (`Origin: HU-3 — <request>`), and the ids of the user stories of the spec (`H1`) are not the backlog ids.
+- The invariants of a spec carry their own ids (`INV-n`) so that the code that implements one can cite it.
+- Ownership of the file: the slice stage writes the entries (order, why, feature, size, dependencies and the status of the selection) and is the only stage that reorders the index, and only on the order of the owner; the triage writes only the `Change` cell; the archive writes only the `Status` cell of the entry it archives.
+- The `why` of an entry is the value in the words of the owner; the `Acceptance` of the spec is the observable result that proves the change delivered that value. An entry without a value leaves the acceptance of the change as an open question.
+- No migration: the backlog is a new file created from the template, with the header and the empty table and no placeholder entry.
 
 The constitution gains two sections:
 
@@ -62,7 +70,7 @@ The constitution gains two sections:
 
 **Branch-trace check** (`tools/check-branch-trace.mjs`):
 1. Read the diff of the change against the base commit.
-2. For every added line that opens a branch (`if`, `else if`, `switch`, `case`, `catch`, `&&`, `||`, `??`, ternary), look for a scenario reference (`RF-n.Xk`) or an invariant marker in the same hunk.
+2. For every added line that opens a branch (`if`, `else if`, `switch`, `case`, `catch`, `&&`, `||`, `??`, ternary), look for a scenario reference (`RF-n.Xk`) or an invariant reference (`INV-n`) in the same hunk or in the line above.
 3. Report every branch without a reference with its location and exit 1; otherwise exit 0.
 
 **Tier classification** (in the triage skill, not in a script): the agent proposes the tier and the owner confirms it. `trivial` has no observable behavior change, `story` is one vertical slice with its own contract, `feature` groups several stories.
@@ -80,6 +88,8 @@ The constitution gains two sections:
 - Two lenses in the base profile over one reviewer with three lenses: a reviewer with a single lens reviews deeper.
 - The threshold in the constitution over a fixed value in the toolkit: 150 lines is a default without data and each repository measures its own.
 - The agent running the unit tests over the owner running everything: the TDD loop needs the result of the test to continue.
+- The slice stage handing the story over to the triage over writing the change itself: the id, the DoD and the spec belong to the triage and to the spec stage, and two members writing the same artifact with different gates is a defect.
+- One cell per writer on the backlog over one writer for the whole file: the slice stage owns the entries, the triage only names the change and the archive only closes the entry, each with an explicit rule.
 ## Constitution
 No violation: the change adds stages and tools inside the existing pack and keeps the member names, the installer, the version file and the content measurement untouched. The rule that the agent does not run commands is narrowed by an explicit owner decision of 2026-10-26 to the unit tests of the affected module, and the rest of the footer stays.
 ## Test strategy
@@ -93,3 +103,5 @@ No violation: the change adds stages and tools inside the existing pack and keep
 - The `sdd-slice` stage writes to `specs/backlog.md`, a file that the other stages never read. Risk: the backlog and the changes drift apart. Mitigation: the entry of a selected story holds the link to its change and the status moves to `done` when the change is archived. Check: the manual scenario RF-3.H1 of the first adoption.
 - The branch-trace check reads a diff and looks for references in the hunk. Risk: false positives on a branch whose scenario reference is in the previous line or in the commit message. Mitigation: the check reports the location and the reviewer or the owner confirms; the reference may sit in the same hunk or in the line above. Check: the unit tests of the check with the three fixtures.
 - The site copies the documentation of the pack. Risk: the published site describes the old ceremony while the pack describes the new one. Mitigation: the documentation block regenerates the site content with `npm --prefix site run prepare:docs` and the site checks run. Check: the site check in the validation.
+- Three stages of the pack touch `specs/backlog.md`. Risk: two stages write the same cell and the index drifts. Mitigation: each stage writes a different cell with the rule written in its skill (the slice stage owns the entries, the triage the `Change` cell, the archive the `Status` cell) and no stage reorders the index. Check: the manual scenarios RF-2.H1 and RF-3.H1 of the first adoption.
+- The new entry stage sits before the triage and needs `specs/` to exist. Risk: the stage is invoked in a repository without the setup and finds neither the backlog nor its template. Mitigation: the setup creates `specs/backlog.md` from the template and the stage creates it from the same template when the file is absent; when the template is absent too, the stage reports that the setup has to run and stops. Check: the manual scenario RF-1.H1 of the first adoption.

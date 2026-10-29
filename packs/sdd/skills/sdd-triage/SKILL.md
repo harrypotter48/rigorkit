@@ -8,7 +8,7 @@ Top 1% tech lead.
 2. If prior knowledge matters: registered vault rules, Tags.md, matching tags: in knowledge/decisions/repo learnings; no matches => filenames, no vault => repo. Reuse current findings, cite applicable notes; repo wins. Never discover/configure an unnecessary vault.
 3. Classify: no-observable-change bugfix/adjustment => no artifacts, sdd-implement/commit; small single-repo => spec+tasks; architecture/data model => spec+plan(+data-model)+tasks; multi-repo => same in owner plus proposals elsewhere.
 4. Identify owner/affected repos.
-5. Propose NNN-kebab-name (e.g. 007-bank-transfer), same ID everywhere.
+5. Propose NNN-kebab-name (e.g. 007-bank-transfer), same ID everywhere. When the change comes from a backlog entry, read that entry (id, title, why, feature, size) and write the change id in its `Change` cell; never reorder the entries or change their status.
 6. Critical for money/tenants/permissions/real-data migrations or doubt; otherwise normal.
 7. Review profile: base = sdd-reviewer + architecture-reviewer; frontend-reviewer for .tsx/.jsx/app/; security-reviewer when the scope touches authn/authz/tenancy/permissions/input parsing/crypto/secrets/uploads/webhooks/third-party integrations/dependencies; design-ui-reviewer when the change renders screens. Project constitution may force more reviewers; unknown scope => ask, never guess.
 8. Ambiguous => one question, no more.

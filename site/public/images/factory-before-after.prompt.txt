@@ -1,0 +1,40 @@
+Create ONE polished English BEFORE / AFTER infographic for the top of the GitHub README of rigorkit, an AI software factory. This is a brand-new landscape image, not an edit. Wide approximately 2:1 composition, high resolution, sharp very legible English typography that remains readable when displayed at 900px width. Friendly sophisticated editorial vector-style illustration with subtle paper texture, warm ivory background, navy text, teal and amber highlights, restrained coral on the before side. Plenty of whitespace, concise text. Not a comic with dialogue, not a technical repository map, not a dashboard, not photorealistic. No vendor logos or code. Accuracy and useful explanation over decoration.
+
+Large top title: "From a big request to small, accepted slices"
+Small subtitle: "The rigorkit software factory"
+
+LEFT THIRD, coral/gray background, heading "BEFORE":
+A human sends one big messy request into a tangled pile of code and arrows, which culminates in an overwhelmed human holding a giant diff and seeing a late bug.
+Only these short labels:
+"One big request"
+"One huge diff"
+"Late surprises"
+"Heavy manual regression"
+Do not claim this describes all teams, zero automation, or any measured benchmark; this is a conceptual contrast.
+
+RIGHT TWO THIRDS, teal/ivory background, heading "AFTER":
+Show a clear miniature factory producing one small coherent software slice along a continuous path through SEVEN numbered mini-stations in two connected rows, four on first row and three on second, with obvious reading direction:
+"1 Slice" (owner chooses a useful small outcome)
+"2 Specify" (document/checklist)
+"3 Design" (blueprint)
+"4 Test" (test bench)
+"5 Build" (friendly robot building one useful component)
+"6 Accept" (human inspecting software and evidence)
+"7 Learn" (book/paper saved back into brain)
+For station6 small accompanying word "Review" integrated into the icon or secondary label is allowed. Human control should appear through clear approval stamps above Specify, Design and Accept. A visible document folder travels with the slice along the stations: agreements and evidence are handed over, not lost.
+Connect the final Learn station back to a BOOK + brain icon band beneath the path, labeled exactly:
+"Repo + vault: decisions, context and learnings"
+The band supplies relevant knowledge to the stations; do not imply reading the whole vault every time.
+One bold concise note under the factory:
+"One useful slice. Evidence at every handoff."
+One small secondary note:
+"New technical decisions need your approval."
+No fake fixed code-size limit, numeric productivity percentages, or claims the factory is a deployed BPM engine.
+
+BOTTOM FULL-WIDTH navy/teal band, very legible:
+"AI specialists do the work. You keep the decisions."
+Then very small but legible supporting text:
+"Unit + integration tests by default · Browser, Docker and E2E only on request"
+Small signature "rigorkit"
+
+Do NOT show automatic deployments, automatic merging or a guarantee that tests prevent every bug. Do not use words like autonomous, bug-free, faster by X%, shipped, fully automated. Do not include file paths, frozen-test enforcement, agent identifiers, pack lists, future-version promises or unapproved tooling choices. Maintain a calm professional README aesthetic and equal conceptual clarity on before/after. The illustration should explain the agreed workflow without implying its pending automation is implemented.

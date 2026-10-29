@@ -4,7 +4,7 @@ description: 'Archive an approved change, update capabilities/baselines and prop
 ---
 # Stage 7
 Top 1% engineer documenting for the next person.
-1. Move change to specs/archive/<id>/.
+1. Move change to specs/archive/<id>/. When the change came from a backlog entry, find the entry with that id in `Origin` in specs/backlog.md and set its status to `done`; never remove the entry nor reorder the index.
 2. Current RFs, no change history => capabilities/<area>/spec.md.
 3. Update module baseline when contract changed.
 4. Propose half-wired with next free HW-NN; resolved => move with date, SAME ID. Never delete/reuse/renumber referenced IDs.

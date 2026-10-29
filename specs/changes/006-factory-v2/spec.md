@@ -35,7 +35,7 @@ The factory of change 004 is slow because the ceremony is fixed: every change pa
 - RF-15: WHEN the builder implements a story, THE SYSTEM SHALL implement only the behavior covered by a scenario or required by an invariant, and SHALL NOT add a branch without one of them.
 - RF-16: WHEN the builder finds that a doubt would require code, THE SYSTEM SHALL record it as an open question of the change instead of implementing it.
 ### Commands (H3)
-- RF-17: WHEN the build stage needs the result of the unit tests of the affected module, THE SYSTEM SHALL run them and SHALL use that result as the green evidence, and SHALL NOT run install, build, lint, typecheck, migrations, seeds or deploy, nor the container, browser and end-to-end suites, without an explicit request of the owner.
+- RF-17: WHEN a station needs scoped unit or integration test results, THE SYSTEM SHALL use the existing project test setup and record the actual results, and SHALL NOT run install, build, lint, typecheck, migrations, seeds, deploy, Docker/container infrastructure, browser or end-to-end suites without an explicit request of the owner. Tests requiring unavailable services SHALL remain pending instead of starting that infrastructure.
 ### Documentation (H3)
 - RF-18: THE SYSTEM SHALL document the commit conventions `test(red):`, `test(green):`, `test(amend):` and `refactor:`, the tier table, the completion criteria of a story, and the split of commands between the agent and the owner.
 ## Non-functional requirements
@@ -158,6 +158,8 @@ All behavior below is manual instruction-following validation; the executable co
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
 | RF-17.H1 | happy [manual] | build stage with unit tests of the affected module | the build stage runs | the agent runs them and uses the result as the green evidence |
+| RF-17.H2 | happy [manual] | existing in-process integration tests without restricted infrastructure | a station needs integration evidence | the agent runs the scoped suite and records its actual result |
+| RF-17.E2 | edge [manual] | an integration suite requires unavailable services or Docker | the station assesses execution | it reports the check as pending and asks; it does not start infrastructure |
 | RF-17.E1 | edge [manual] | owner asks for the browser suite | the build stage runs | the suite runs only on that request and its result is recorded |
 | RF-17.F1 | failure [manual] | build stage about to run install, build, lint, typecheck, migrations, seeds or deploy | the build stage runs | the command is not run and is handed to the owner with its expected output |
 | RF-17.S | n/a — the command split carries no trust boundary | the build stage runs | n/a |
@@ -197,3 +199,6 @@ All behavior below is manual instruction-following validation; the executable co
 - [NEEDS CLARIFICATION] The adoption in an existing repository with a running process is not yet described. Whether the first stories migrate one by one or the whole backlog is written at once is a decision of the owner of that repository.
 ## Clarification — round 1 (2026-10-26) · Verdict: ready for plan
 The design was agreed with the owner in a design session on 2026-10-26 and recorded in the vault note "Factory v2 - vertical slices, backlog en git and frozen tests" of the same date. The questions above close the five repository-specific points that the design session left open. The three open questions are validation items of the first adoption and do not block the plan.
+
+## Owner clarification — 2026-10-28
+The owner confirmed: each slice is the smallest useful end-to-end outcome and is accepted separately; HU/ticket describes that slice and technical tasks stay inside it. Every new technical decision requires approval before application. An applicable existing repo/vault decision can be reused only with explicit communication of its source and applicability; conflicts or uncertain applicability return to the owner. The repo governs; the configured vault and repo learnings are selectively available to every station. Propose reusable learnings and obtain approval before cross-project vault promotion. Implement only agreed behavior/invariants, never guessed defaults or speculative options. Scoped unit AND integration tests are allowed with the existing setup; browser, Docker and e2e remain on explicit request. README/examples/image updates communicate this agreement; draft automation and adoption evidence remain pending. This clarification does not mark this spec or its plan approved.
