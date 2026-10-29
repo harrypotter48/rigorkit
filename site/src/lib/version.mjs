@@ -1,6 +1,4 @@
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
+// Resolve VERSION while bundling; prerendered chunks do not share this source path.
+import version from '../../../VERSION?raw';
 
-const file = fileURLToPath(new URL('../../../VERSION', import.meta.url));
-if (!fs.existsSync(file)) throw new Error('Missing VERSION file at the repository root.');
-export const VERSION = fs.readFileSync(file, 'utf8').trim();
+export const VERSION = version.trim();
