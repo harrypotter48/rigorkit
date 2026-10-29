@@ -1,25 +1,23 @@
 # Tasks — <id>
-
 ## Resume state
-Stage: <…> · Approvals: <spec and plan/blocks evidence or pending>.
-Authorized blocks: <Bn or pending> · Current block: <Bn or none> · Current task: <Tn or none>.
-Pending/blockers: <implemented/unverified work, checks, decisions> · Next step: <…>.
-References: <relevant sections + revision/working-tree state; no copied spec/plan>.
-Dependencies checked: <paths/consumers + revision; invalidate affected entries after edits>.
+Stage: <…> · Approvals: <actual evidence/pending>.
+Authorized blocks: <Bn> · Current block: <Bn> · Current task: <Tn>.
+Pending/blockers: <implemented/unverified/checks/decisions> · Next step: <…>.
+Review stations: <independent verdicts/pending> · Approval decision: <approved|needs human|failed>.
+References: <source sections + working state, no copies>.
+Dependencies checked: <consumers/state; recheck affected edits>.
+Freeze: <confirmed base, owner-approved red hash/test paths or justified exception>.
 
 ## Functional blocks
-### B1 — <Verifiable behavior> (RF-1, RF-2)
-Tasks: T1, T2 · Depends on: <block IDs or none; integration points>.
-Done when: <observable behavior + required green/review evidence>.
-Read: <spec RF/scenarios; plan decisions/contracts if present; initial paths>.
+### B1 — <Useful behavior> (RF-1, RF-2)
+Tasks: T1, T2 · Depends on: <IDs/integration>.
+Done when: <observable result + evidence>.
+Read: <RF/scenarios/decisions/contracts/initial paths>.
 Preserve: <rules/contracts/consumers>.
-Verify: <scenario IDs, regression/integration/architecture/live checks>.
-
+Verify: <scenario/regression/integration/architecture/manual checks>.
+Reviewers: <approved independent profile>.
 - [ ] T1. <Action>. (RF-1) [<layer> · <repo>]
 - [ ] T2. <Action>. (RF-2) [<layer> · <repo>]
-      Read / Preserve / Verify: <task-specific additions/dependencies/completion checks only, if needed>.
+      <Task-specific refs/dependencies/completion exceptions only.>
 
-References guide reading; trace actual dependencies beyond initial paths. Reuse unchanged evidence, recheck affected refs after edits.
-No arbitrary time limit. Continue internal tasks within authorized block; stop for decisions/blockers/user-run checks and block review.
-Mark `[x]` only with sufficient verification/review evidence; implemented without evidence stays pending. Every commit needs explicit approval.
-Whole-change verification still checks full spec/plan/accumulated diff and cross-block integration.
+Trace real dependencies beyond paths; reuse valid evidence. Internal tasks continue, no time-box. Decisions/blockers/restricted checks→owner. [x] only verified; every commit explicit. Final full spec/plan/diff and cross-block checks remain; owner accepts each slice.

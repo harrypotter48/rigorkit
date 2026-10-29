@@ -34,6 +34,9 @@ Open the printed local URL under /rigorkit/. The browser suite builds real and f
 - specs/, tools/, site/ development documents and other repository files are not a published/searchable corpus. Public docs may link to their existing GitHub source without copying their contents. This does not make a public repository private.
 - Markdown examples are displayed, never executed. Source-relative links to public docs become website links; existing non-public targets remain source links. Missing targets or headings block a build check.
 
+## Factory illustrations and examples
+The root README embeds the before/after illustration from `site/public/images/factory-before-after.png`. GitHub resolves the relative image directly; the importer validates the source path and emits its raw GitHub URL for generated documentation. Keep the asset and Markdown reference together. Public code examples live in `packs/sdd/examples.md`, so CI imports/searches them without copying internal specs. The website source copy describes the same slice/approval/brain loop.
+
 ## Publication
 
 The intended public address is https://harrypotter48.github.io/rigorkit/. A local build or configured workflow does not mean it is live.

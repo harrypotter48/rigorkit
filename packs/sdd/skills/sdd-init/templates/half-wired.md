@@ -16,6 +16,11 @@ to "Resolved" with its resolution date and the same ID.
 - What is actually missing: <the absent or disconnected piece>
 - Decision: <who left it this way, when and why, or "undecided">
 
+### HW-NN · Accepted finding · <screen, endpoint or rule> (`<module>`)
+- Where: <file(s) or screen>
+- Finding: <defect or improvement, with severity and the evidence>
+- Accepted by: <who, when, and why it is not corrected in this change>
+
 ## Resolved
 
 ### HW-NN · <Feature> — resolved on <YYYY-MM-DD>

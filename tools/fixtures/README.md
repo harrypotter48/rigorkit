@@ -14,7 +14,7 @@ pending T7.
 |---|---:|---:|
 | sdd-sample | 100 | 70 (60 body + 10 guide) |
 | sdd-reader | 100 | 70 |
-| arch-sample | 100 | 70 |
+| architecture-sample | 100 | 70 |
 | frontend-sample | 100 | 70 |
 | core rules | 400 | 300 |
 
@@ -24,6 +24,11 @@ measurement. Bodies, guide and rules intentionally have no trailing newline, so
 their sizes are exact boundary inputs. They are numeric fixtures, not usable skills.
 The escaped description `Read a project''s state.` has 23 decoded characters;
 `Review the change.` has 18.
+
+`measurement/baseline-ratchet.txt` is the same baseline with the optional
+`targetReductionPercent: 0` field: it exercises the ratchet policy, where every pack
+in the baseline must hold that target (0% means no growth) instead of the original
+30% policy in three packs. A baseline without the field keeps the original policy.
 
 Tests mutate only temporary copies to exercise one boundary at a time. Report
 assertions use readable file/pack rows and values without fixing spacing or columns.

@@ -18,12 +18,12 @@ describe('002-website: real production renderer, navigation and Pagefind', () =>
     assert.ok(await page.locator('a[href="https://github.com/harrypotter48/rigorkit"]').count() > 0);
     assert.equal(await page.locator('h1#_top').count(), 1, 'Landing skip link must target the hero heading');
   });
-  it('RF-2.H1: the production catalog uses all four source summaries and working targets', browserOptions, async t => {
+  it('RF-2.H1: the production catalog uses all six source summaries and working targets', browserOptions, async t => {
     const { page, go } = await website(t, { production: true }); await go('/packs/');
     const body = (await page.locator('main').innerText()).replace(/\s+/g, ' ');
     const source = readFileSync(path.join(repo, 'README.md'), 'utf8');
-    const rows = [...source.matchAll(/^\| \[(core|sdd|architecture|frontend)\]\([^\n]+?\) \| (.+?) \|$/gm)];
-    assert.equal(rows.length, 4);
+    const rows = [...source.matchAll(/^\| \[(core|sdd|architecture|frontend|design|security)\]\([^\n]+?\) \| (.+?) \|$/gm)];
+    assert.equal(rows.length, 6);
     for (const [, pack, summary] of rows) {
       assert.ok(body.includes(summary), `Missing source summary: ${pack}`);
       assert.ok(await page.locator(`main a[href="${base}docs/packs/${pack}/"]`).count() > 0);

@@ -22,8 +22,8 @@
     {
       "kind": "skill",
       "pack": "architecture",
-      "path": "packs/architecture/skills/arch-sample/SKILL.md",
-      "name": "arch-sample",
+      "path": "packs/architecture/skills/architecture-sample/SKILL.md",
+      "name": "architecture-sample",
       "descriptionCharacters": 15,
       "loadedTokens": 100
     },

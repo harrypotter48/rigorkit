@@ -1,14 +1,15 @@
 ---
 title: rigorkit
-description: Rigorous AI-assisted development with clarified specs, functional blocks, selective context and evidence before claims.
+description: An AI software factory that turns feature ideas into small accepted slices, with human decisions, evidence and reusable learnings.
 template: splash
 landing: true
 ---
 import HeroPanel from '../../components/HeroPanel.astro';
 import PackCards from '../../components/PackCards.astro';
 import { REPOSITORY } from '../../lib/urls.mjs';
+import { VERSION } from '../../lib/version.mjs';
 
 <HeroPanel />
 <PackCards />
 
-<footer class="hero-footer"><p>Markdown at the source. Documentation kept in sync.</p><a href={REPOSITORY}>View rigorkit on GitHub ↗</a></footer>
+<footer class="hero-footer"><p>Markdown at the source. Documentation kept in sync. rigorkit {VERSION}</p><a href={REPOSITORY}>View rigorkit on GitHub ↗</a></footer>

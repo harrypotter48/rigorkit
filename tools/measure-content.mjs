@@ -4,7 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ESTIMATOR = 'nfc-codepoints-ceil-div4';
-const REDUCTION_PACKS = new Set(['sdd', 'architecture', 'frontend']);
+const LEGACY_REDUCTION_PACKS = new Set(['sdd', 'architecture', 'frontend']);
+const LEGACY_TARGET_PERCENT = 30;
 const order = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 const characters = (text) => [...text.normalize('NFC')].length;
 const tokens = (text) => Math.ceil(characters(text) / 4);
@@ -88,6 +89,8 @@ export function measureRepository(root) {
       kind, pack, path: relative, name, expectedName,
       descriptionCharacters: characters(description),
       loadedTokens: tokens(parts.map((part) => part.content).join('')),
+      packPrefix: name.startsWith(`${pack}-`),
+      roleDeclared: kind === 'agent' ? /top 1%/i.test(body) : null,
     };
     entries.push(entry);
     for (const part of parts) files.push({ path: part.path, tokens: tokens(part.content), entry });
@@ -129,6 +132,11 @@ function readBaseline(file) {
       typeof baseline.commit !== 'string' || !/^[a-f0-9]{7,40}$/i.test(baseline.commit) ||
       !Array.isArray(baseline.entries) || !Array.isArray(baseline.rules)) {
     invalid('expected version 1, commit, estimator, entries and rules');
+  }
+  if (baseline.targetReductionPercent !== undefined &&
+      (!Number.isSafeInteger(baseline.targetReductionPercent) ||
+       baseline.targetReductionPercent < 0 || baseline.targetReductionPercent > 100)) {
+    invalid('targetReductionPercent must be an integer between 0 and 100');
   }
   const paths = new Set();
   for (const entry of baseline.entries) {
@@ -181,33 +189,51 @@ function compare(current, baseline) {
     if (entry.descriptionCharacters > 300) {
       errors.push(`Description exceeds 300 characters: ${entry.path}: ${entry.descriptionCharacters}`);
     }
+    if (!entry.packPrefix) {
+      errors.push(`Pack prefix mismatch: ${entry.path}: ${entry.name} does not start with "${entry.pack}-"`);
+    }
+    if (entry.kind === 'agent' && !entry.roleDeclared) {
+      errors.push(`Missing top 1% role: ${entry.path}`);
+    }
   }
   for (const rule of current.rules) {
     if (rule.tokens > 300) errors.push(`Rules exceed 300 tokens: ${rule.path}: ${rule.tokens}`);
   }
   const before = packTotals(baseline.entries);
   const after = packTotals(current.entries);
-  const names = new Set([...current.packs, ...before.keys(), ...REDUCTION_PACKS]);
+  // A baseline without a target keeps the original policy: 30% reduction in three packs.
+  // A baseline with a target ratchets every pack it contains at that target, and also
+  // requires a baseline for every pack the repository now measures.
+  const ratchet = Number.isSafeInteger(baseline.targetReductionPercent);
+  const targetPercent = ratchet ? baseline.targetReductionPercent : LEGACY_TARGET_PERCENT;
+  const requiredPacks = ratchet ? new Set([...before.keys(), ...after.keys()]) : LEGACY_REDUCTION_PACKS;
+  const names = new Set([...current.packs, ...before.keys(), ...requiredPacks]);
   const packs = [...names].sort(order).map((name) => {
     const oldTokens = before.get(name) ?? 0;
     const newTokens = after.get(name) ?? 0;
-    const required = REDUCTION_PACKS.has(name);
-    const meetsTarget = oldTokens > 0 && BigInt(newTokens) * 10n <= BigInt(oldTokens) * 7n;
+    const required = requiredPacks.has(name);
+    const meetsTarget = oldTokens > 0 &&
+      BigInt(newTokens) * 100n <= BigInt(oldTokens) * BigInt(100 - targetPercent);
     if (required && !meetsTarget) {
       errors.push(oldTokens === 0
-        ? `Reduction baseline missing or zero for pack ${name}`
-        : `Reduction below 30% for pack ${name}: current=${newTokens} baseline=${oldTokens}`);
+        ? (ratchet
+          ? `No baseline for pack ${name}: capture a new baseline before adding content`
+          : `Reduction baseline missing or zero for pack ${name}`)
+        : (targetPercent === 0
+          ? `Content growth for pack ${name}: current=${newTokens} baseline=${oldTokens} (target>=0%)`
+          : `Reduction below ${targetPercent}% for pack ${name}: current=${newTokens} baseline=${oldTokens}`));
     }
     const reduction = oldTokens > 0 ? `${((1 - newTokens / oldTokens) * 100).toFixed(2)}%` : 'n/a';
-    return { name, oldTokens, newTokens, required, meetsTarget, reduction };
+    return { name, oldTokens, newTokens, required, meetsTarget, reduction, targetPercent };
   });
-  return { errors, packs };
+  return { errors, packs, targetPercent, ratchet };
 }
 
 function report(current, baseline, comparison, baselinePath) {
   const entries = new Map(baseline.entries.map((entry) => [entry.path, entry]));
   const rules = new Map(baseline.rules.map((rule) => [rule.path, rule]));
   console.log(`Baseline: ${baselinePath}; commit=${baseline.commit}; estimator=${ESTIMATOR}`);
+  console.log(`Target: >=${comparison.targetPercent}% loaded-token reduction; policy=${comparison.ratchet ? 'ratchet over every pack in the baseline' : '30% reduction in sdd, architecture and frontend'}.`);
   console.log('Files: current tokens; main files also show loaded entry tokens and description characters.');
   console.log('Auxiliary file baselines are included in their entry totals; file rounding is independent.');
   for (const file of current.files) {
@@ -230,7 +256,7 @@ function report(current, baseline, comparison, baselinePath) {
   }
   console.log('Packs: loaded tokens, excluding frontmatter and NOTICE; reduction tested independently.');
   for (const pack of comparison.packs) {
-    const target = pack.required ? ` target>=30% ${pack.meetsTarget ? 'PASS' : 'FAIL'}` : ' target=n/a';
+    const target = pack.required ? ` target>=${pack.targetPercent}% ${pack.meetsTarget ? 'PASS' : 'FAIL'}` : ' target=n/a';
     console.log(`${pack.name} current=${pack.newTokens} baseline=${pack.oldTokens} reduction=${pack.reduction}${target}`);
   }
   console.log(`Identity and limit checks: ${comparison.errors.length} error(s).`);

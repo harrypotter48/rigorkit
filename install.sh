@@ -6,6 +6,7 @@
 #   ./install.sh --pack core --agent claude,codex,opencode --global   (rules + scripts: --global only)
 #   ./install.sh --uninstall-rules --agent claude,codex,opencode [--dry-run]
 #   ./install.sh --list
+#   ./install.sh --version
 #
 # Skills use the Agent Skills format (<name>/SKILL.md) and are COPIED, not symlinked
 # (symlinked skills are unreliable in Cursor and Codex). Agents are written in a neutral
@@ -18,9 +19,17 @@ PACKS=""; AGENTS=""; SCOPE="project"; DEST="$PWD"; FORCE=0; DRY=0; UNINSTALL=0
 MODELS="${RIGORKIT_MODELS:-$HOME/.config/rigorkit/models}"
 SCRIPTS_DIR="$HOME/.local/share/rigorkit/scripts"
 
-usage() { sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 die() { echo "error: $*" >&2; exit 1; }
 say() { echo "$*"; }
+
+read_version() { if [ -f "$1" ]; then tr -d ' \t\r\n' < "$1"; fi; }
+version_or_none() { local v; v="$(read_version "$1")"; if [ -n "$v" ]; then printf '%s' "$v"; else printf 'none'; fi; }
+VERSION="$(read_version "$ROOT/VERSION")"
+case "$VERSION" in
+  [0-9]*.[0-9]*.[0-9]*) ;;
+  *) die "invalid VERSION file: $ROOT/VERSION" ;;
+esac
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -31,7 +40,10 @@ while [ $# -gt 0 ]; do
     --force) FORCE=1; shift ;;
     --dry-run) DRY=1; shift ;;
     --uninstall-rules) UNINSTALL=1; SCOPE="global"; shift ;;
+    --version) echo "$VERSION"; exit 0 ;;
     --list)
+      echo "rigorkit $VERSION (local)"
+      echo "installed  project: $(version_or_none "$PWD/.rigorkit-version")  global: $(version_or_none "$HOME/.rigorkit-version")"
       echo "all  (every pack below)"
       for p in "$ROOT"/packs/*/; do
         p="$(basename "$p")"; echo "$p"
@@ -53,6 +65,7 @@ esac
 [ -n "$AGENTS" ] || die "--agent is required (claude,codex,cursor,opencode)"
 [ "$SCOPE" = "global" ] || [ -d "$DEST" ] || die "project dir not found: $DEST"
 [ "$SCOPE" = "global" ] && BASE="$HOME" || BASE="$(cd "$DEST" && pwd)"
+MARKER="$BASE/.rigorkit-version"
 
 has_agent() { case ",$AGENTS," in *",$1,"*) return 0 ;; *) return 1 ;; esac; }
 for a in $(echo "$AGENTS" | tr ',' ' '); do
@@ -72,7 +85,8 @@ copy_dir() { # src dst
   say "  copy   $2"
   [ "$DRY" -eq 1 ] && return
   rm -rf "$2"; mkdir -p "$(dirname "$2")"; cp -R "$1" "$2"
-  printf 'installed-by: rigorkit\nsource: %s\ndate: %s\n' "$1" "$(date +%Y-%m-%d)" > "$2/.rigorkit"
+  printf 'installed-by: rigorkit\nsource: %s\ndate: %s\nversion: %s\n' "$1" "$(date +%Y-%m-%d)" "$VERSION" > "$2/.rigorkit"
+  mark_installed_version
 }
 
 write_file() { # dst (content on stdin)
@@ -80,6 +94,21 @@ write_file() { # dst (content on stdin)
   say "  write  $1"
   if [ "$DRY" -eq 1 ]; then cat >/dev/null; return; fi
   mkdir -p "$(dirname "$1")"; cat > "$1"
+  mark_installed_version
+}
+
+mark_installed_version() { # records the rigorkit version that last wrote into this scope
+  [ "$DRY" -eq 1 ] && return
+  [ -n "$MARKER" ] || return
+  if [ "$FORCE" -eq 0 ] && [ -f "$MARKER" ]; then return; fi
+  printf '%s\n' "$VERSION" > "$MARKER"
+}
+
+report_version_difference() {
+  local current; current="$(read_version "$MARKER")"
+  [ -n "$current" ] || return 0
+  [ "$current" = "$VERSION" ] && return 0
+  say "note: installed version $current differs from local $VERSION; reinstall with --force to update."
 }
 
 # --- global rules (between markers, never overwriting the rest of the file) -------
@@ -104,6 +133,7 @@ apply_rules() { # dst new-content-file: shows the diff on --dry-run, keeps a .ba
   mkdir -p "$(dirname "$dst")"
   if [ -f "$dst" ]; then cp "$dst" "$dst.bak"; say "  backup $dst.bak"; fi
   cat "$tmp" > "$dst"; rm -f "$tmp"
+  mark_installed_version
 }
 
 merge_rules() { # pack rules-file dst: replaces the block if present, appends it otherwise
@@ -223,6 +253,7 @@ install_agent() { # neutral agent file
 # --- install -------------------------------------------------------------------
 [ "$DRY" -eq 1 ] && say "(dry run: nothing is written)"
 say "scope: $SCOPE ($BASE) · agents: $AGENTS"
+[ "$FORCE" -eq 0 ] && report_version_difference
 for pack in $(echo "$PACKS" | tr ',' ' '); do
   P="$ROOT/packs/$pack"; [ -d "$P" ] || die "unknown pack: $pack (see --list)"
   say "pack $pack"

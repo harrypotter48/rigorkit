@@ -1,5 +1,5 @@
 ---
-name: arch-reviewer
+name: architecture-reviewer
 description: 'Readonly architecture review or debt audit against inferred project layers. Use after tasks, verification, "revisar la arquitectura" or "auditar la deuda".'
 readonly: true
 tier: strong
