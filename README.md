@@ -39,7 +39,7 @@ Keep only the behavior and constraints agreed for this slice. Missing informatio
 ### Execution boundary
 Agents may run existing, scoped unit and integration tests with Jest or equivalent tools. Browser sessions, Docker and end-to-end tests require an explicit request. Installation, build, lint, typecheck, migrations, seeds and deployment are not authorized by this testing permission. If a test requires unavailable services or restricted infrastructure, report it as pending; do not start the infrastructure. Stricter adopting-project rules still apply.
 
-The operating contract above describes the agreed factory. The local `sdd-slice`/backlog work is in progress; frozen-test enforcement, branch-trace checks and tier-based automation remain Factory v2 work, not shipped guarantees. Existing installed copies must be updated explicitly.
+Local skills/agents now carry this contract; setup includes frozen-test and lexical branch-trace checks. See the [execution and evidence details](packs/sdd/README.md#implemented-factory-checks) and [agency-agents adaptations](packs/sdd/agency-adaptations.md). Owner acceptance, the ratchet-member decision and a real adoption run remain pending. Existing installed copies are unchanged; reviewer defaults require an explicit owner profile decision.
 
 ## Lanes and packs
 A **lane** is a track of work with an entry, its specialists, its output and its exit criterion. A **pack** is the set of specialists staffed in a lane and stays their namespace: every member is named `<pack>-<role>`. A pack can also be specialists called from another lane, and the core pack carries global rules instead of a lane.

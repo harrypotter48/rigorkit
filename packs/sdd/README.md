@@ -48,7 +48,7 @@ Installed copies need reinstall. Existing project templates stay in their struct
 Support: sdd-resume (new session), sdd-change (requirements: spec first), sdd-legacy-review (@legacy), sdd-explain (explain.md summary/Mermaid/walkthrough/RF mapping; archive proposes when warranted). Readonly agents: sdd-explorer for context/adoption; sdd-reviewer for clarification/verification/independent review; sdd-approver for the delivery decision. Writable agent: sdd-builder implements one approved block from a fresh context. Optional [architecture](../architecture/README.md)/[frontend](../frontend/README.md)/[design](../design/README.md)/[security](../security/README.md) reviewers get diff/constraints; frontend only for .tsx/.jsx/app/; missing packs are reported and checks still performed.
 
 ## Review stations
-Triage proposes the review profile of each change: architecture and frontend reviewers, plus the security reviewer for sensitive paths and the interface reviewer for rendered screens; the project constitution can force more. After the builder, the enabled reviewers run together, each with the same references and no other reviewer's report. Their corrections are re-reviewed together once, then the change escalates to the owner. sdd-approver aggregates the verdicts into approved, needs human or failed, and the owner closes the change. Interface improvements never block; an interface defect blocks only when the same change does not correct it.
+Triage proposes the review profile of each change: conformance (`sdd-reviewer`) and quality/architecture (`architecture-reviewer`), plus the frontend reviewer for frontend code, security reviewer for sensitive paths and interface reviewer for rendered screens; the project constitution can force more. After the builder, the enabled reviewers run together, each with the same references and no other reviewer's report. Their corrections are re-reviewed together once, then the change escalates to the owner. sdd-approver aggregates the verdicts into approved, needs human or failed, and the owner closes the change. Interface improvements never block; an interface defect blocks only when the same change does not correct it.
 
 ## Stations and handoffs
 The owner supplies a feature intent; `sdd-slice` proposes stories/tickets that each represent a useful vertical slice. Do not create parallel HU/ticket/slice hierarchies. Setup/adoption precede the first change, and triage/context route the selected slice before its spec.
@@ -89,4 +89,20 @@ Works without one. When configured, the vault is a brain available at EVERY stat
 ## Allowed execution and delivery evidence
 Use existing scoped unit/integration scripts and dependencies; no automatic package installation. Browser, Docker and end-to-end tests require an explicit request. Install/build/lint/typecheck/migrations/seeds/deploy require their own authorization. Integration requiring unavailable services stays pending. Give passing, failing and unrun checks separately with their scope; never present green unit tests as proof of the complete system.
 
-This is the agreed operating contract. Factory v2 implementation is in progress: do not claim automatic frozen-test enforcement, branch-trace enforcement, tier routing or migrated installed copies merely because they are described in a draft. The slice/backlog entry is local work awaiting its delivery evidence.
+The operating contract is implemented in local skills/agents and the checks below; it is not an installed-project migration or a release guarantee. Installation/adopting-project validation and owner slice acceptance remain separate from source delivery. The owner confirmed retaining both base reviewers and the existing token budget; proportional removal of reviewers is deferred.
+
+## Implemented factory checks
+Setup copies self-contained Node >=18 checks into `specs/scripts/`. In this toolkit checkout use `tools/` instead. Declare real test globs (`*`, `**`, `?`) under constitution `Test paths (frozen tests)`; unsupported/missing patterns fail closed. Record the owner-approved change base and red hash in the slice handoff.
+
+```bash
+node specs/scripts/check-frozen-tests.mjs --base <confirmed-base> --red <approved-red>
+node specs/scripts/check-branch-trace.mjs --base <confirmed-base>
+```
+
+Frozen checks pin the constitution test policy to the approved red and inspect intermediate commits and staged/unstaged/untracked tests, including edit/revert and rename/deletion. Only `test(amend):` with an `AMEND-...` or `spec.md#...` citation passes its lexical amendment gate; owner approval and actual amendment remain reviewer responsibilities. Every real commit still needs explicit approval; `test(red):`, `test(green):`, `test(amend):` and `refactor:` are proposed conventions, not automatic actions.
+
+Branch trace flags unexplained branch additions in JS/TS hunks, checking the index and worktree independently and inspecting executable template interpolations. References can be RF scenario IDs or INV IDs; deleted/other-hunk references do not count. This is lexical evidence only, not an AST/semantic proof: explain false positives with the owner and never add meaningless markers to manufacture green. Checks precede reviewers when applicable; no frozen red for an approved trivial/manual-only exception must be explicitly recorded.
+
+Tier proposals: trivial=no observable/contract/critical behavior change, story=one useful slice with a short contract/tests, feature=multiple slices with integrated contracts and owner-requested wider regression. Owner confirms tier/profile; new critical/module/threshold impact returns to that gate. Existing conformance+architecture stays enabled; special security/frontend/interface triggers and stricter project rules remain.
+
+The [agency-agents adaptation map](agency-adaptations.md) identifies reused practices and exclusions. Scripts and unit/in-process fixtures are implemented; installed-project migration and real instruction-following acceptance must be validated in each adopting project.

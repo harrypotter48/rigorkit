@@ -1,7 +1,7 @@
 # Spec 006 — Factory v2: vertical slices, git backlog and frozen tests
-> Status: draft · DoD: normal · Owner repo: rigorkit · Affected repos: rigorkit
+> Status: implementation reviewed; release validation pending · Tier: feature · DoD: normal · Owner repo: rigorkit · Affected repos: rigorkit
 ## Context and goal
-The factory of change 004 is slow because the ceremony is fixed: every change pays for a full specification, three review stations and an approver, whatever its size, and a feature is decomposed into its CRUD operations instead of by value. The agent also writes branches for scenarios that will never happen, because nothing in the flow limits it, and the owner ends up reviewing the whole diff to find out what matters. This change makes the unit of work a vertical slice with its own short specification, keeps a flat backlog of stories in git, freezes the tests in red before the implementation so that the implementation cannot make them pass by changing them, scales the ceremony by tier and lets the machine checks run before the reviewers. The decision, its alternatives and the reasoning are recorded in the vault note "Factory v2 - vertical slices, backlog en git and frozen tests" of 2026-10-26.
+The factory of change 004 is slow because the ceremony has been fixed rather than scaled to the scope of each change, and a feature is decomposed into its CRUD operations instead of by value. The agent also writes branches for scenarios that will never happen, because nothing in the flow limits it, and the owner ends up reviewing the whole diff to find out what matters. This change makes the unit of work a vertical slice with its own short specification, keeps a flat backlog of stories in git, freezes the tests in red before the implementation so that the implementation cannot make them pass by changing them, scales the ceremony by tier and lets the machine checks run before the reviewers. The decision, its alternatives and the reasoning are recorded in the vault note "Factory v2 - vertical slices, backlog en git and frozen tests" of 2026-10-26.
 ## Users / actors
 - The owner, who chooses the next story, approves the contract of a story, decides the amendments and closes the change.
 - The agents: the slicer that proposes the stories, the test writer that freezes the red, the builder that implements the minimum, the reviewers and the approver that aggregates them.
@@ -17,7 +17,7 @@ The factory of change 004 is slow because the ceremony is fixed: every change pa
 - RF-2: THE SYSTEM SHALL keep the backlog as a flat index of stories ordered by owner priority, with at most one story in `next` and at most one in `wip`, and SHALL refuse to start a second story while one is in `wip`.
 - RF-3: WHEN the owner selects a story, THE SYSTEM SHALL create a change whose specification holds requirements, acceptance, scenarios, invariants, out of scope and open questions, and SHALL link that change from the backlog entry.
 ### Frozen tests (H2)
-- RF-4: WHEN the specification of a story is approved, THE SYSTEM SHALL write the failing tests co-located with the source they test and SHALL commit them with a message that starts with `test(red):`.
+- RF-4: WHEN the specification of a story is approved, THE SYSTEM SHALL write the failing tests co-located with the source they test and SHALL propose a `test(red):` commit and record its exact hash only after explicit owner approval; valid reused coverage or a manual-only exception SHALL be evidenced instead of fabricated red.
 - RF-5: THE SYSTEM SHALL freeze the tests at the behavioral red, where the assertion of the scenario fails, and SHALL NOT treat a structural red caused by a missing module as the behavioral red.
 - RF-6: WHEN a commit after the red commit modifies a file that matches the test paths of the repository, THE SYSTEM SHALL require that commit to start with `test(amend):` and SHALL NOT allow any other commit to modify a test path.
 - RF-7: WHEN a frozen test turns out to be wrong, THE SYSTEM SHALL stop and propose the amendment of the specification before any change to the test, and the `test(amend):` commit SHALL cite that amendment.
@@ -27,7 +27,7 @@ The factory of change 004 is slow because the ceremony is fixed: every change pa
 - RF-10: WHEN a change reaches the check stage, THE SYSTEM SHALL run the frozen-test check and the branch-trace check before launching any reviewer, and SHALL NOT launch the reviewers while a machine check fails.
 ### Reviewers (H3)
 - RF-11: WHEN the reviewers of a story run, THE SYSTEM SHALL launch them together, each with a fresh context, the same approved inputs and no report of the others, and SHALL aggregate their verdicts in a final judge that does not close the change.
-- RF-12: WHEN a story diff exceeds the review threshold of the constitution, touches a critical path or creates a new module or layer, THE SYSTEM SHALL add the quality and architecture reviewer to the base profile.
+- RF-12: THE SYSTEM SHALL retain the base conformance (`sdd-reviewer`) and quality/architecture (`architecture-reviewer`) reviewers at every applicable review. WHEN impact reaches an owner-confirmed threshold, touches a critical path or creates a module/layer, THE SYSTEM SHALL reassess the owner-approved profile and reinforced DoD without dropping either base lens; applicable specialist triggers and stricter project rules SHALL remain.
 - RF-13: WHEN a change is verified, THE SYSTEM SHALL record in its validation the verifications that did not run, including the container, browser and end-to-end suites.
 ### Tiers (H3)
 - RF-14: WHEN a change is classified as trivial, story or feature, THE SYSTEM SHALL apply the specification, test, reviewer and verification set of that tier.
@@ -66,7 +66,7 @@ All behavior below is manual instruction-following validation; the executable co
 ### RF-4
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
-| RF-4.H1 | happy [manual] | approved specification of a story | the test stage runs | the failing tests sit next to the source they test and the commit message starts with `test(red):` |
+| RF-4.H1 | happy [manual] | approved specification of a story and explicit red-commit approval | the test stage runs | the failing tests sit next to the source they test and the approved commit message starts with `test(red):` |
 | RF-4.E1 | edge [manual] | a scenario with no unit-level expression | the test stage runs | the scenario is kept as manual with its reason and the rest is written |
 | RF-4.F1 | failure [manual] | a test that cannot fail for the scenario reason | the test stage runs | the test is fixed instead of being committed as the red |
 | RF-4.S | n/a — the location of a test carries no trust boundary | the test stage runs | n/a |
@@ -81,7 +81,7 @@ All behavior below is manual instruction-following validation; the executable co
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
 | RF-6.H1 | happy [manual] | frozen tests and a `test(green):` commit | the commit is inspected | no test path appears in the commit |
-| RF-6.E1 | edge [manual] | a `test(amend):` commit with the cited amendment | the commit is inspected | the change is accepted and the citation is reported |
+| RF-6.E1 | edge [manual] | an owner-approved `test(amend):` commit with a real cited spec amendment | the commit is inspected | the citation and approval are verified; a lexical prefix alone does not accept the slice |
 | RF-6.F1 | failure [manual] | a commit that modifies a test path without the `test(amend):` prefix | the commit is inspected | the commit is rejected and the modified path is reported |
 | RF-6.S | n/a — a commit prefix carries no trust boundary | the commit is inspected | n/a |
 ### RF-7
@@ -94,17 +94,29 @@ All behavior below is manual instruction-following validation; the executable co
 ### RF-8
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
-| RF-8.H1 | happy [manual] | constitution with test paths and a red commit | the frozen-test check runs | it reports no modification and passes |
-| RF-8.E1 | edge [manual] | a `test(amend):` commit after the red | the frozen-test check runs | the amended path is reported as amended and the check passes |
-| RF-8.F1 | failure [manual] | a commit after the red that modifies a test path | the frozen-test check runs | the path is reported and the check fails |
-| RF-8.S | n/a — the check reads paths from the constitution and writes nothing | the frozen-test check runs | n/a |
+| RF-8.H1 | happy | declared patterns and clean pinned red | check runs | clean source changes pass |
+| RF-8.H2 | happy | test(amend) with AMEND reference | check runs | cited paths are reported; owner approval remains separately checked |
+| RF-8.H3 | happy | scripts copied by setup outside this checkout | CLI runs | self-contained frozen check passes |
+| RF-8.E1 | edge | no declared test paths | check runs | fail closed |
+| RF-8.F1 | failure | no red inside the confirmed change | check runs | fail closed |
+| RF-8.F2 | failure | unauthorized edit followed by revert | history checked | violation remains visible |
+| RF-8.F3 | failure | amend prefix without citation | check runs | fail |
+| RF-8.F4 | failure | staged edit hidden by unstaged restoration | check runs | fail |
+| RF-8.F5 | failure | untracked tests or renamed/deleted test paths | check runs | fail |
+| RF-8.S1 | security | hostile revision argument | check runs | no shell interpolation; invalid input fails |
+| RF-8.S2 | security | live test patterns changed to hide an edited test | check runs | frozen red policy still detects the violation |
 ### RF-9
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
-| RF-9.H1 | happy [manual] | added branch with a scenario reference | the branch-trace check runs | it reports no unreferenced branch and passes |
-| RF-9.E1 | edge [manual] | added branch with an invariant reference | the branch-trace check runs | the branch is accepted |
-| RF-9.F1 | failure [manual] | added branch without a reference | the branch-trace check runs | the branch is reported with its location and the check fails |
-| RF-9.S | n/a — a reference carries no trust boundary | the branch-trace check runs | n/a |
+| RF-9.H1 | happy | scenario reference in current hunk | check runs | branch accepted lexically |
+| RF-9.E1 | edge | invariant reference | check runs | accepted |
+| RF-9.E2 | edge | comments/string content or optional chaining | check runs | not mistaken for a branch |
+| RF-9.E3 | edge | untracked source with branches and prose | repo check runs | source included, prose excluded |
+| RF-9.E4 | edge | CLI fixture patch and malformed options | wrappers run | valid patch passes, bad arguments fail |
+| RF-9.F1 | failure | branch without reference | check runs | file:line reported |
+| RF-9.F2 | failure | only a deleted reference | check runs | new branch fails |
+| RF-9.F3 | failure | marker in another hunk | check runs | uncovered hunk fails |
+| RF-9.S | n/a — trace markers do not establish trust or semantic coverage | | | |
 ### RF-10
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
@@ -122,9 +134,9 @@ All behavior below is manual instruction-following validation; the executable co
 ### RF-12
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
-| RF-12.H1 | happy [manual] | story diff below the threshold | the profile is computed | the base profile applies without the quality and architecture reviewer |
-| RF-12.E1 | edge [manual] | story diff of exactly the threshold | the profile is computed | the quality and architecture reviewer joins the profile |
-| RF-12.F1 | failure [manual] | story touches a critical path or creates a module | the profile is computed | the quality and architecture reviewer joins the profile and the reinforced DoD applies |
+| RF-12.H1 | happy [manual] | story diff below the threshold | the profile is computed | both conformance and quality/architecture reviewers remain enabled |
+| RF-12.E1 | edge [manual] | story diff of exactly the threshold | the profile is computed | both base reviewers remain and profile/DoD applicability is reassessed with the owner |
+| RF-12.F1 | failure [manual] | story touches a critical path or creates a module | the profile is computed | both base reviewers remain and profile/DoD applicability is reassessed with the owner and the reinforced DoD applies |
 | RF-12.S | n/a — a threshold carries no trust boundary | the profile is computed | n/a |
 ### RF-13
 | ID | Type | Given | When | Then |
@@ -170,6 +182,14 @@ All behavior below is manual instruction-following validation; the executable co
 | RF-18.E1 | edge [manual] | repository adopting the factory | it reads the documentation | the required constitution fields are named |
 | RF-18.F1 | failure [manual] | documentation that still describes the old ceremony | it is read | the change is not approved while the old ceremony is described as current |
 | RF-18.S | n/a — the documentation carries no trust boundary | the documentation is read | n/a |
+### Additional guard regressions
+| ID | Type | Given | When | Then |
+|---|---|---|---|---|
+| RF-8.E2 | edge | a blank test glob in the frozen policy | frozen check runs | configuration fails closed |
+| RF-8.S3 | security | the live constitution is replaced by an in-repo symlink to an alternate old policy | frozen check runs | the redirected path is rejected |
+| RF-9.F4 | failure | an unexplained branch is staged and the worktree restores old content | trace check runs | the staged violation is reported |
+| RF-9.F5 | failure | an executable conditional in a template interpolation | trace check runs | the uncited branch is reported |
+| RF-9.E5 | edge | template text or a cited interpolation | trace check runs | text is ignored and cited code passes |
 ## Out of scope
 - The implementation of the factory v2 in the repositories that adopt it; this change only ships the toolkit.
 - The installer, the version file, the published site copy and the packs `design`, `security`, `architecture` and `frontend`.
@@ -177,28 +197,34 @@ All behavior below is manual instruction-following validation; the executable co
 - The operation lane, the outcome metrics and the dedicated review of the product decisions.
 - The automatic classification of the tier by the tool; the agent proposes it and the owner confirms it.
 ## Completion criteria
-- All scenarios tested/green; checker none missing.
-- The two new checks run in their own tests under `tools/test/` and the content measurement keeps passing.
-- The pack `sdd` keeps the identity and limit checks of the content measurement within the ratchet of change 005.
-- Manual main-flow demo: one story taken from the backlog through the frozen red, the green, the check and the validation.
-- The published site still builds with the regenerated documentation.
+- Executable guard scenarios and existing toolkit/website source unit suites pass; strict scenario structure/coverage check has no missing executable scenario.
+- Skills, agents and mirrored project templates implement the source contracts RF-1–RF-18; independent conformance and architecture review has no unresolved introduced blocking defect.
+- Register sdd-slice against an immutable committed content baseline without increasing any pack budget; retain the historical 005 baseline.
+- Real documentation import succeeds. Existing PR workflow must complete website build/typecheck/browser/output checks before merge; local unrun checks are not green.
+- Manual instruction-following scenarios are identified as adoption validation, not claimed executed by source inspection or fixture tests. A real adopting repository and installed-project migration remain separate work.
 ## Questions and answers
 1. Where does the backlog live? → In git, in `specs/backlog.md` of the repository, as the flat index of the stories. It is only the index; the written changes keep living in `specs/changes/`.
 2. Does the backlog replace `specs/changes/`? → No. The backlog indexes the stories; each selected story becomes a change in `specs/changes/`.
 3. Who declares the test paths? → The constitution of each repository. The frozen-test check reads them from there.
 4. Which paths count as a test? → The co-located test files of the repository, declared in the constitution as patterns.
 5. Where does the frozen-test check live? → In `tools/` of rigorkit, with the family of scripts that already exist for the tests and the rest of the checks.
-6. What is the threshold that adds the quality and architecture reviewer? → 150 lines by default, declared in the constitution of the repository, which can change it.
+6. What is the threshold that adds the quality and architecture reviewer? → Keep both existing reviewers. A project may confirm its own escalation threshold; 150 is a template proposal, not permission to remove a base reviewer.
 7. Who runs the unit tests? → The agent, in the build loop. The install, build, lint, typecheck, migration, seed and deploy commands and the container, browser and end-to-end suites stay with the owner.
 8. Can the red commit carry a production stub? → No. The red is behavioral; a structural red is reported as structural.
 9. What happens when a frozen test is wrong? → The agent stops and proposes the amendment of the specification. Only a `test(amend):` commit that cites the amendment can touch a test path.
-10. Do the reviewers keep running in parallel with a fresh context? → Yes. The tier changes the profile, not the independence: the base profile is two lenses, conformity and trace, and quality and architecture.
+10. Do the reviewers keep running in parallel with a fresh context? → Yes. The base profile remains two independent lenses: conformance/trace and quality/architecture. The owner approved retaining it on 2026-10-29; tier does not silently remove a reviewer.
 ## Open questions
-- [NEEDS CLARIFICATION] The threshold of 150 lines is a default without data. The first three stories of the first adopting repository must confirm or correct it.
-- [NEEDS CLARIFICATION] The tier is proposed by the agent and confirmed by the owner. The criterion that separates `trivial` from `story` must be written in the triage skill with the first adoption, to avoid two agents reading the same diff differently.
-- [NEEDS CLARIFICATION] The adoption in an existing repository with a running process is not yet described. Whether the first stories migrate one by one or the whole backlog is written at once is a decision of the owner of that repository.
+- Adoption follow-up: each repository confirms its escalation threshold; the 150-line proposal never disables either base reviewer.
+- Resolved in triage: trivial has no observable, contract or critical behavior change; uncertain impact is not trivial. The owner confirms the proposed tier.
+- Adoption follow-up: the adopting owner chooses migration scope/order through sdd-init and sdd-adopt; this toolkit release never rewrites an existing backlog automatically.
 ## Clarification — round 1 (2026-10-26) · Verdict: ready for plan
 The design was agreed with the owner in a design session on 2026-10-26 and recorded in the vault note "Factory v2 - vertical slices, backlog en git and frozen tests" of the same date. The questions above close the five repository-specific points that the design session left open. The three open questions are validation items of the first adoption and do not block the plan.
 
 ## Owner clarification — 2026-10-28
 The owner confirmed: each slice is the smallest useful end-to-end outcome and is accepted separately; HU/ticket describes that slice and technical tasks stay inside it. Every new technical decision requires approval before application. An applicable existing repo/vault decision can be reused only with explicit communication of its source and applicability; conflicts or uncertain applicability return to the owner. The repo governs; the configured vault and repo learnings are selectively available to every station. Propose reusable learnings and obtain approval before cross-project vault promotion. Implement only agreed behavior/invariants, never guessed defaults or speculative options. Scoped unit AND integration tests are allowed with the existing setup; browser, Docker and e2e remain on explicit request. README/examples/image updates communicate this agreement; draft automation and adoption evidence remain pending. This clarification does not mark this spec or its plan approved.
+
+## Implementation adaptation — 2026-10-29 (before delivery approval below)
+The owner requested implementation using selected agency-agents guidance. Handoffs, requirement/consumer/evidence matrices and bounded review were adapted with MIT attribution; upstream tool permissions, mandatory screenshots and speculative features were excluded. Test-integrity CLI examines every commit since the recorded red plus index/worktree/untracked paths; a cited amendment prefix is not proof of owner approval. Branch trace is a conservative lexical gate, not semantic coverage. The two-reviewer existing profile remains until the owner selects the proportional profile; the pending question does not authorize changing reviewer defaults. No production commits/installation/baseline replacement are authorized by this implementation request.
+
+## Delivery decisions — 2026-10-29
+The owner explicitly approved retaining both existing reviewers and registering sdd-slice without increasing the token budget. The earlier proportional-routing proposal is deferred, not a release blocker. Source implementation and toolkit validation are distinct from installation, real adopting-project behavior and owner slice acceptance. Each real commit, push and merge retains its own authorization boundary. See implementation-validation.md and release-checklist.md.

@@ -21,4 +21,4 @@ Keep @legacy keyword; rest follows project structure language (specs/templates/s
 4. Used again => remove tag.
 5. Dead but bad timing => update date/reason.
 Deletion is a change: propose, await approval, never autonomously delete.
-Evidence file:line; no assumptions/flattery; flag blind spots. No install/build/lint/tsc/tests/migrations/seeds/deploy: scoped bash+expected output; await user. Reads only: grep, ls, git status, git diff. No commit chains; no push/merge. Stop for approval. Chat=user; verdict=structure.
+Evidence file:line; no invented facts/flattery. Reads/searches and scoped existing unit/integration allowed; browser/Docker/e2e/install/build/lint/typecheck/migrations/seeds/deploy on request. Missing services=pending; stricter rules win. No commit chains/push/merge. Stop for approval; chat=user, verdict=structure.

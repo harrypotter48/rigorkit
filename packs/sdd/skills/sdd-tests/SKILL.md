@@ -1,16 +1,12 @@
 ---
 name: sdd-tests
-description: 'Write scenario tests before implementation and validate the intended red result from user output. Use for "tests primero" or "TDD".'
+description: 'Write and run scoped scenario tests, establish behavioral red and request an approved frozen-test boundary. Use for "tests primero" or "TDD".'
 ---
 # Stage 4.5
-Top 1% testing engineer.
-1. Full instructions/constitution once per unchanged context; approved plan/tasks + authorized block scenario/strategy/contract refs. Reuse valid sources; search/read missing ranges only, expand uncertainty/new impact. No plan => spec/conventions. Legacy Tn stays single-task unless regrouping approved.
-2. One test/scenario at approved level; n/a/manual excluded, manual goes live. Implement NOTHING.
-3. ID starts title (RF-4.F1), change ID in file/describe; explicit then assertions, no conditional asserts/empty tests.
-4. Missing/unverifiable scenario => STOP for sdd-change; invent none. Reuse valid identified coverage; real producer/consumer interactions for contract risk, not implementation-shaped mocks. Existing architectural/dependency checks; missing strategy returns to plan/tasks before scope growth.
-5. Write tests for selected block only; give run commands, intended-red reason and `node specs/scripts/check-scenarios.mjs specs/changes/<id>/spec.md`. Account for EVERY selected-block scenario; checker gaps in later blocks are pending, not current-block failures or permission to skip final coverage.
-6. User output: new/changed unimplemented behavior red for missing implementation, not import/config/test errors; fix tests otherwise. Preserve regressions; never force reused valid tests red.
-Pure visual UI is [manual], verified live by sdd-verify, not forced into unit tests.
-DoD: user verifies intended red/existing coverage for selected block; no missing block scenarios. Whole-change checker must have none missing at final verification. Await user evidence/approval, never invent red or execute tests.
+Top 1% testing engineer. Approved rules/slice/design/block/scenario/consumer refs once; selective repo/vault lessons, report reused sources, new choices→owner.
+Existing test setup/locations, ID-titled scenarios and change ID in file/describe. Assertions distinguish requested behavior from plausible wrong scope/default/ownership; instance requirements need independent consumers. Reuse valid coverage; no product implementation, guessed defaults or implementation-shaped mocks. n/a/manual excluded, requested live remains pending.
+Run scoped unit/integration only; command/state/result/failing assertion/expected cause. Import/config/module errors are structural, not behavioral red; fix harness or propose approved minimal scaffolding. Never force valid reused tests red; missing/wrong behavior→sdd-change. Unavailable infrastructure→pending, restricted commands on request.
+Propose test(red): <HU/change> <behavior>; STOP for commit approval. Record exact approved hash/base/test paths/scenarios; freeze paths, never infer implementation authority. Wrong frozen test=>owner-approved spec amendment + separate approved test(amend): citing it; builder never edits tests. No auto-commits.
+Project scenario checker: all selected-block scenarios covered, later-block gaps pending, final coverage complete. DoD: behavioral red or evidenced reused/manual/owner exception, frozen boundary recorded or explicit exception. Report evidence/pending; stop at owner gate.
 Aliases: Test scenarios/Escenarios de prueba; Given/Dado, When/Cuando, Then/Entonces; edge/borde, failure/falla, security/seguridad.
-Evidence file:line; no assumptions/flattery; flag blind spots. No install/build/lint/tsc/tests/migrations/seeds/deploy: scoped bash+expected output; await user. Reads only: grep, ls, git status, git diff. No commit chains; no push/merge. Stop for approval. Chat=user; verdict=structure.
+Evidence file:line; no invented facts/flattery. Reads/searches and scoped existing unit/integration allowed; browser/Docker/e2e/install/build/lint/typecheck/migrations/seeds/deploy on request. Missing services=pending; stricter rules win. No commit chains/push/merge. Stop for approval; chat=user, verdict=structure.

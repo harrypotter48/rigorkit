@@ -1,23 +1,14 @@
 # AGENTS.md — <project>
 ## Project
-<2–3 sentences: purpose/architecture/tech.>
-## Commands (the user runs them, never the agent)
-- Run: `<command>`
-- Tests: `<command>` (scoped: `<per-package command>`)
-- Lint / typecheck: `<command>`
-## Style and conventions
-<Language version/names/code/message language.>
+<Purpose, architecture and conventions.>
+## Commands
+- Unit/integration: `<existing scoped command>`.
+- Other: `<owner-run build/lint/typecheck/dev commands>`.
 ## Rules
-- Before code: full instructions/constitution once per unchanged context; approved block RF/scenario/decision/contract refs. Reuse valid findings; search/read ranges, expand missing/stale context.
-- Check consumers/boundaries; expand doubt/impact; changed approval→gate.
-- Cross-cutting doubts: topic-matched learnings/vault, reuse; repo wins. Current-stage skill only.
-- Top 1% architect/QA/product role; no flattery, flag blind spots.
-- SDD: spec→clarify, approve spec; plan→tasks, approve plan+blocks; no intermediate stop. Ask unresolved user decisions; stricter project/user gates win.
-- No command execution; give commands, await user. Reads only grep/ls/git status/diff.
-- Internal tasks continue within approved block; stop for user checks/block review. Every commit explicitly approved; NEVER chain/push/merge.
-- <Project boundaries/required approvals.>
-## After every functional block
-- Checks + proposed `<message> (<id> Bn)`; legacy Tn retained unless regrouping approved.
-- Review combined diff architecture/contracts; brief evidence/pending, no spec/plan repeat. [x] only verified; update block/tasks/refs/dependency state. Never close change.
-- Whole change: full spec/plan/diff, architecture/contracts/integration/regression/live checks.
-- Enabled reviewers run together after the builder; the approver aggregates their verdicts into approved/needs human/failed; the owner closes the change.
+- Top 1% role; facts need file:line. Full rules once; current skill + RF/scenario/decision/contract refs, expand stale/missing impact. Trace actual writers/readers/instances, not only changed files.
+- Vault/repo lessons at every station: topic search, reuse valid evidence; repo wins. Report reused decisions/source/applicability; every new technical decision requires approval.
+- Setup/adopt→owner-selected slice/backlog→triage/context→spec+clarify approval→design/plan+tasks approval→tests→build→review/owner acceptance→archive/learnings. Tasks internal, minimum agreed behavior, no guessed defaults. Each slice accepted separately; no automatic next.
+- Existing scoped unit/integration only; record command/state/result. Browser/Docker/e2e and install/build/lint/typecheck/migrations/seeds/deploy require explicit request; unavailable services→pending.
+- Record confirmed base/approved test(red) hash/test paths; builder never changes frozen tests. Wrong test→approved spec amendment + separately approved test(amend) citing it. Every commit explicit; never chain/push/merge.
+- Applicable machine checks before reviewers; missing/failed=>stop. RF/INV→all consumers→implementation→evidence/gap. Required unrun checks remain pending, never green; lexical references do not prove behavior.
+- Combined slice review, original refs independently; one correction round then owner. Mark complete only with evidence; owner accepts/closes. Whole-change integration/architecture/critical checks remain. Propose learnings, vault promotion only with approval.

@@ -1,5 +1,5 @@
 # Spec <NNN> — <Name>
-> Status: draft | approved · DoD: normal | critical · Owner repo: <repo> · Affected repos: <…>
+> Status: draft | approved · Tier: trivial | story | feature · DoD: normal | critical · Owner repo: <repo> · Affected repos: <…>
 > Origin: <backlog id HU-N, or none> — <request that opened the change>
 ## Context and goal
 <Problem/why; 1 paragraph, no stack/files.>
@@ -40,3 +40,6 @@
 1. <Question> → <answer>
 ## Open questions
 - [NEEDS CLARIFICATION] <specific question>
+
+## Delivery evidence
+<Test/red hash, approved amendments, affected consumers, executed unit/integration commands/results, unrun browser/container/e2e and other checks; pending is not green. Owner accepts each slice separately.>
