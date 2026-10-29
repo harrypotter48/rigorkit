@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "commit": "b291c9b76115be9c2d5599179610d1c1b1cdd8c3",
+  "estimator": "nfc-codepoints-ceil-div4",
+  "entries": [
+    {
+      "kind": "agent",
+      "pack": "architecture",
+      "path": "packs/architecture/agents/architecture-reviewer.md",
+      "name": "architecture-reviewer",
+      "descriptionCharacters": 155,
+      "loadedTokens": 569
+    },
+    {
+      "kind": "skill",
+      "pack": "architecture",
+      "path": "packs/architecture/skills/architecture-boundaries/SKILL.md",
+      "name": "architecture-boundaries",
+      "descriptionCharacters": 176,
+      "loadedTokens": 726
+    },
+    {
+      "kind": "skill",
+      "pack": "architecture",
+      "path": "packs/architecture/skills/architecture-plugin-registry/SKILL.md",
+      "name": "architecture-plugin-registry",
+      "descriptionCharacters": 158,
+      "loadedTokens": 328
+    },
+    {
+      "kind": "agent",
+      "pack": "design",
+      "path": "packs/design/agents/design-ui-reviewer.md",
+      "name": "design-ui-reviewer",
+      "descriptionCharacters": 202,
+      "loadedTokens": 666
+    },
+    {
+      "kind": "skill",
+      "pack": "design",
+      "path": "packs/design/skills/design-ui-criteria/SKILL.md",
+      "name": "design-ui-criteria",
+      "descriptionCharacters": 210,
+      "loadedTokens": 608
+    },
+    {
+      "kind": "skill",
+      "pack": "design",
+      "path": "packs/design/skills/design-ux-flow/SKILL.md",
+      "name": "design-ux-flow",
+      "descriptionCharacters": 208,
+      "loadedTokens": 565
+    },
+    {
+      "kind": "agent",
+      "pack": "frontend",
+      "path": "packs/frontend/agents/frontend-reviewer.md",
+      "name": "frontend-reviewer",
+      "descriptionCharacters": 161,
+      "loadedTokens": 573
+    },
+    {
+      "kind": "skill",
+      "pack": "frontend",
+      "path": "packs/frontend/skills/frontend-structure/SKILL.md",
+      "name": "frontend-structure",
+      "descriptionCharacters": 150,
+      "loadedTokens": 635
+    },
+    {
+      "kind": "agent",
+      "pack": "sdd",
+      "path": "packs/sdd/agents/sdd-approver.md",
+      "name": "sdd-approver",
+      "descriptionCharacters": 149,
+      "loadedTokens": 348
+    },
+    {
+      "kind": "agent",
+      "pack": "sdd",
+      "path": "packs/sdd/agents/sdd-builder.md",
+      "name": "sdd-builder",
+      "descriptionCharacters": 166,
+      "loadedTokens": 348
+    },
+    {
+      "kind": "agent",
+      "pack": "sdd",
+      "path": "packs/sdd/agents/sdd-explorer.md",
+      "name": "sdd-explorer",
+      "descriptionCharacters": 175,
+      "loadedTokens": 227
+    },
+    {
+      "kind": "agent",
+      "pack": "sdd",
+      "path": "packs/sdd/agents/sdd-reviewer.md",
+      "name": "sdd-reviewer",
+      "descriptionCharacters": 156,
+      "loadedTokens": 577
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-adopt/SKILL.md",
+      "name": "sdd-adopt",
+      "descriptionCharacters": 155,
+      "loadedTokens": 430
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-archive/SKILL.md",
+      "name": "sdd-archive",
+      "descriptionCharacters": 149,
+      "loadedTokens": 929
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-change/SKILL.md",
+      "name": "sdd-change",
+      "descriptionCharacters": 146,
+      "loadedTokens": 414
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-clarify/SKILL.md",
+      "name": "sdd-clarify",
+      "descriptionCharacters": 152,
+      "loadedTokens": 541
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-context/SKILL.md",
+      "name": "sdd-context",
+      "descriptionCharacters": 137,
+      "loadedTokens": 389
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-explain/SKILL.md",
+      "name": "sdd-explain",
+      "descriptionCharacters": 164,
+      "loadedTokens": 500
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-implement/SKILL.md",
+      "name": "sdd-implement",
+      "descriptionCharacters": 176,
+      "loadedTokens": 740
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-init/SKILL.md",
+      "name": "sdd-init",
+      "descriptionCharacters": 168,
+      "loadedTokens": 3877
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-legacy-review/SKILL.md",
+      "name": "sdd-legacy-review",
+      "descriptionCharacters": 151,
+      "loadedTokens": 344
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-plan/SKILL.md",
+      "name": "sdd-plan",
+      "descriptionCharacters": 145,
+      "loadedTokens": 520
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-resume/SKILL.md",
+      "name": "sdd-resume",
+      "descriptionCharacters": 132,
+      "loadedTokens": 492
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-slice/SKILL.md",
+      "name": "sdd-slice",
+      "descriptionCharacters": 170,
+      "loadedTokens": 470
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-spec/SKILL.md",
+      "name": "sdd-spec",
+      "descriptionCharacters": 158,
+      "loadedTokens": 572
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-tasks/SKILL.md",
+      "name": "sdd-tasks",
+      "descriptionCharacters": 142,
+      "loadedTokens": 567
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-tests/SKILL.md",
+      "name": "sdd-tests",
+      "descriptionCharacters": 141,
+      "loadedTokens": 481
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-triage/SKILL.md",
+      "name": "sdd-triage",
+      "descriptionCharacters": 146,
+      "loadedTokens": 516
+    },
+    {
+      "kind": "skill",
+      "pack": "sdd",
+      "path": "packs/sdd/skills/sdd-verify/SKILL.md",
+      "name": "sdd-verify",
+      "descriptionCharacters": 150,
+      "loadedTokens": 1122
+    },
+    {
+      "kind": "agent",
+      "pack": "security",
+      "path": "packs/security/agents/security-reviewer.md",
+      "name": "security-reviewer",
+      "descriptionCharacters": 215,
+      "loadedTokens": 490
+    },
+    {
+      "kind": "skill",
+      "pack": "security",
+      "path": "packs/security/skills/security-baselines/SKILL.md",
+      "name": "security-baselines",
+      "descriptionCharacters": 235,
+      "loadedTokens": 764
+    }
+  ],
+  "rules": [
+    {
+      "path": "packs/core/rules.md",
+      "tokens": 278
+    }
+  ],
+  "targetReductionPercent": 0
+}

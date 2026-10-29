@@ -1,5 +1,5 @@
 # Implementation validation — 006-factory-v2
-Date: 2026-10-29 · Verdict: source reviewed; baseline packaging and owner/CI release gates pending.
+Date: 2026-10-29 · Verdict: source reviewed and baseline packaged; owner/CI release gates pending.
 
 ## Scope and decisions
 Owner requested source implementation and completion for PR/production integration. Retain BOTH existing base reviewers and register sdd-slice without increasing token budgets, explicitly approved on 2026-10-29. Proportional reviewer removal is deferred. Selected MIT agency-agents practices are attributed in packs/sdd/agency-adaptations.md and NOTICE.md. Installation and real adopting-project execution remain separate scope.
@@ -13,7 +13,8 @@ Owner requested source implementation and completion for PR/production integrati
 | `node tools/check-branch-trace.mjs --base 46177ea` | PASS: 0 issues, current combined sources/index/untracked |
 | Real documentation import to fresh temporary output | PASS: 60 documents, 6 packs; internal specs/tools excluded; generated source tree not edited |
 | `git diff --check` | PASS |
-| Historical 005 content ratchet | Pack sizes and member limits PASS; identity check still rejects added sdd-slice until new immutable baseline is registered |
+| Active 006 content ratchet | PASS: all identities and limits; immutable baseline from b291c9b registers sdd-slice |
+| Budget comparison against archived 005 | PASS: no pack budget increased; SDD tightens from 14,530 to 14,404 |
 
 Earlier guard implementation had 12 expected assertion failures before green. During final independent review, four additional behavioral regressions failed before fixes: live symlink policy redirection, blank frozen-test glob, staged trace hidden by worktree restoration and ignored executable template interpolation. After corrections, all 22 targeted guard tests and the full toolkit suite passed. No real repo red/amend/green history was fabricated; fixture histories live only in temporary repositories.
 
@@ -30,7 +31,7 @@ Trace checks JS/TS hunks in both index and worktree plus untracked source, inclu
 The frozen checker was not declared green for this real branch: this implementation predates a pinned approved red/configuration. Its actual behavior is covered by isolated Git fixtures. Source inspection is not a retrospective frozen boundary or executed manual adoption.
 
 ## Unrun and remaining gates
-- New immutable identity baseline/active reference pending approved source commit packaging.
+- Baseline packaging complete: baseline.txt records full source commit b291c9b76115be9c2d5599179610d1c1b1cdd8c3; AGENTS.md points to the active 006 baseline. Archived 005 was not modified.
 - No local full website build/typecheck, browser/Docker/e2e, installation, migrations, seeds, deployment, push or merge. Existing GitHub PR workflow must pass its checks before owner merge. Pages publishes on main, not an unconfigured production branch.
 - Model instruction-following/manual scenarios and real adopting-project installation/acceptance remain unexecuted. Each adopting owner approves scope, decisions, paths/thresholds and each slice.
-- Owner release acceptance and each real delivery commit remain explicit gates. See release-checklist.md.
+- Owner explicitly authorized both local delivery commits. Source commit b291c9b contains the reviewed implementation; the second packages this baseline and delivery state. Owner release acceptance/PR review/CI remain pending. See release-checklist.md.

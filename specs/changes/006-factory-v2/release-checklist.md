@@ -5,7 +5,7 @@ Date: 2026-10-29 · Branch: feat/004-factory-lanes
 - English spec/plan/tasks, README/examples, editable workflow references in the vault, all SDD skills/agents/templates and MIT attribution are prepared.
 - Two independent base reviewers retained; selective context and current token budgets preserved.
 - Guards/regression fixes and public-source import validated; see implementation-validation.md.
-- Packaging gate: immutable baseline from an approved actual source commit, then activate it and run ratchet. Historical baseline remains unchanged.
+- Packaging complete: immutable baseline.txt from approved source commit b291c9b; active AGENTS.md reference updated and ratchet passes. No pack budget increased; historical 005 remains unchanged.
 
 ## Proposed pull request
 Title: feat(sdd): deliver vertical-slice factory with frozen-test and trace guards
@@ -18,7 +18,7 @@ Adds self-contained frozen-test/branch-trace guards, copied-script/history/index
 Validation: toolkit and website source unit suites, strict scenario coverage structure, branch trace, public documentation import and whitespace checks pass. Full website build/browser/output checks remain for the existing PR workflow. Real adopting-project instruction-following and installed-project migration are not claimed tested.
 
 ## Owner upload/merge
-1. Review the source diff and authorize delivery commits. Never invent historical red commits to package this change.
+1. Both local delivery commits were explicitly authorized. Source commit b291c9b contains the reviewed change; the baseline commit records its immutable content measurement. No historical red commit was fabricated.
 2. Confirm actual target branch. Local main exists and existing Pages publication targets main; no production branch was present during preparation. No workflow target was changed.
 3. Push branch and open PR against the intended protected branch. This task does not authorize agent push/merge.
 4. Require existing GitHub checks to pass, review actual diff and accept the source delivery before merge. CI configuration alone is not deployment evidence.
