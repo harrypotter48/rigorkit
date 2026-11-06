@@ -1,9 +1,9 @@
 # Validation — 007-project-processes
 Date: 2026-11-06 · Branch: feature/project-processes · Base: 2156383005754118b0f06b35dded47228a8720f8.
-Verdict: source implementation reviewed; immutable baseline registration and owner delivery/adoption acceptance pending.
+Verdict: source implementation reviewed and immutable baseline registered; owner delivery/adoption acceptance and recorded unrun checks remain pending.
 
 ## Approved scope
-Owner approved software-first spec, then plan D1–D6/B1 with "adelante". Two new core members and <=1,200 estimated loaded tokens approved; other pack limits stay unchanged. No approval of real commits, target-project migrations, installation/build/browser/infrastructure/push/merge was inferred.
+Owner approved software-first spec, then plan D1–D6/B1 with "adelante". Two new core members and <=1,200 estimated loaded tokens approved; other pack limits stay unchanged. The owner subsequently explicitly approved both named local delivery commits with "adelante". No target-project migration, installation/build/browser/infrastructure/push/merge approval was inferred.
 
 ## Implementation and RF trace
 | Requirement | Actual source consumers |
@@ -29,14 +29,15 @@ No new parser, engine or executable command behavior was added. New configuratio
 | Branch trace from confirmed base | PASS: 0 issues; no new executable JS/TS branches |
 | Whitespace check | PASS |
 | Strict scenario structure checker | PASS structure only; all 32 requirements scenarios remain manual, not 32 executed passes |
-| Active historical 006 ratchet | FAIL only on core-init/core-context identities and previously unpopulated core budget; recorded delivery gate, never waived as green |
+| Historical 006 ratchet before registration | Expected FAIL on two approved new identities/unpopulated core; preserved historical evidence |
+| Active 007 ratchet after immutable capture | PASS: all 33 member identities, pack budgets and global-rule limits; no errors |
 
 The shared existing test-summary helper uses one log path: concurrent initial suite invocations collided in that summary log. Both suites were rerun sequentially into separate logs; counts/results above use those clean runs, not the colliding log.
 
 ## Token evidence
 Core: 1,134 estimated loaded tokens across both new skills, below approved 1,200. SDD: 14,401 <= unchanged 14,404. Architecture 1,623; design 1,839; frontend 1,208; security 1,254: unchanged. Global core rules 278 <=300, unchanged.
 Compaction removed repeated prose and duplicate example layouts while preserving project-template fields, four scenario types, language aliases, mandatory review, test and command/approval gates. All measured auxiliary Markdown is included. These are static NFC-codepoint estimates, not measured runtime savings.
-No baseline was forged, relaxed or replaced. Register the approved core identities through immutable capture from an owner-authorized actual source commit, then update the active reference and validate the complete ratchet. Preserve historical 006 evidence; every real commit needs approval.
+Immutable baseline.txt was captured with --target 0 from approved real source commit a192a3afa91c39ed7fa56684826e3774d1864c2b. AGENTS.md now points to 007; the complete identity/content ratchet passes. Core stays below its approved 1,200 allocation, SDD tightens by 3 tokens and other budgets/global rules remain unchanged. Historical 006 was not edited; no baseline/commit was forged.
 
 ## Independent review and bounded behavior
 Conformance and architecture agents reviewed the same original spec/plan/current sources and full tracked diff with new files supplied separately, without peer reports. Both source verdicts: no introduced high/medium findings in reviewed scope. They did not run tests or certify model behavior/release. Final narrow re-review covered the two clarifications below.
@@ -88,5 +89,5 @@ All rows have source support from the RF trace above. Observations below disting
 - Native-host project setup/adoption, actual custom-capability execution, missing-core/no-config distribution and all unobserved manual scenarios remain explicitly unexecuted. No real project instructions, installed copies or work were changed.
 - Installer project/global dry-runs or temporary real installs were NOT requested/run. Public docs explain existing discovery, not proof of those executions. No installer source change.
 - Full website build/typecheck/rendered browser verification, Docker/e2e and deployment were NOT requested/run. Source import and unit suites do not substitute for them.
-- Two delivery commits would be needed for implementation then immutable baseline/active-reference packaging; each requires explicit owner approval. Until that, the full ratchet is not green.
+- Both local delivery commits explicitly authorized: a192a3a contains reviewed source; the second packages its immutable baseline, active reference and current evidence. The full 007 ratchet is green. Commit approval does not imply native/adoption evidence, push/merge or release acceptance.
 - Owner accepts this software slice after reviewing evidence/gaps. No archive, next prompt slice, push, merge or release is automatic.

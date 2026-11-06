@@ -1,11 +1,11 @@
 # Tasks — 007-project-processes
 
 ## Resume state
-Stage: source reviewed; delivery gates pending · Approvals: owner approved spec with "go ahead", then plan D1–D6/B1 with "adelante" on 2026-11-06.
-Authorized blocks: B1 · Current block: B1 · Current task: T7 delivery baseline/owner gate.
+Stage: source committed and baseline registered; owner upload/review pending · Approvals: owner approved spec with "go ahead", then plan D1–D6/B1 with "adelante" on 2026-11-06.
+Authorized blocks: B1 · Current block: B1 · Current task: owner review of recorded T6 evidence gaps.
 Branch: feature/project-processes · Scope owner: rigorkit only.
-Pending/blockers: immutable baseline from approved real source commit, owner slice acceptance; native-host/installation/manual gaps in validation.md. Core members/<=1,200-token allocation approved, capture not fabricated.
-Next step: owner reviews evidence and authorizes any delivery commits; registration remains pending.
+Pending: owner slice acceptance and native-host/installation/manual gaps in validation.md. Both local delivery commits approved; immutable baseline captured from a192a3a, all active identity/budget checks pass.
+Next step: owner uploads the branch/opens PR and reviews evidence/unrun checks; no push/merge or installation authority inferred.
 Review stations: independent conformance + architecture source audits and narrow re-review found no introduced high/medium; three bounded behavior exercises recorded · Approval decision: needs human.
 References: approved spec RF-1–RF-8 / INV-1–INV-5, 32 manual scenarios; plan D1–D6, schema/contracts/risks/test strategy.
 Dependencies checked: installer skill discovery, core global-only docs, SDD init/adopt/context/resume/entry/handoff behavior, copied AGENTS template, active 006 ratchet, public-source importer.
@@ -26,10 +26,13 @@ Reviewers: independent sdd-reviewer + architecture-reviewer on the SAME original
 - [x] T4. Add self-contained core-context reference skill and connect applicable SDD entry/context/resume/handoff consumers. Reuse current sources, preserve specialist triggers and handle missing/duplicate capability, fallback, invalid config and required independence explicitly. (RF-1, RF-3, RF-4, RF-6–RF-8) [core/sdd · rigorkit]
 - [x] T5. Update project AGENTS template and its mirror with configuration/departments and unchanged precedence/gates; keep runtime state in existing change artifacts. Do not overwrite any real project's instructions. (RF-1, RF-3–RF-8) [templates · rigorkit]
 - [ ] T6. Verify actual discriminating fixture/manual cases, source→config→consumer→handoff→acceptance trace and existing regressions. No executed model/installation claim from static wording or template checks. Record each manual scenario as observed or pending. (RF-1–RF-8) [tests/validation · rigorkit]
-- [ ] T7. Align English root/core/sdd/design/security docs with implemented terminology, entries, installation scope and deferred capabilities. Measure full loaded content (including auxiliary Markdown), preserve D5 limits, exercise real public-source import without generated-source edits. New baseline capture and active-reference change require an approved real source commit. (RF-1–RF-8) [docs/content · rigorkit]
-- [ ] T8. Perform full accumulated-diff and cross-consumer verification with independent reviewers, correct in-scope findings and re-review once. Write current validation/evidence gaps and present THIS slice for owner acceptance and any explicit commit request; do not archive or start prompts automatically. (RF-1–RF-8) [review/delivery · rigorkit]
+- [x] T7. Align English root/core/sdd/design/security docs with implemented terminology, entries, installation scope and deferred capabilities. Measure full loaded content (including auxiliary Markdown), preserve D5 limits, exercise real public-source import without generated-source edits. New baseline capture and active-reference change require an approved real source commit. (RF-1–RF-8) [docs/content · rigorkit]
+- [x] T8. Perform full accumulated-diff and cross-consumer verification with independent reviewers, correct in-scope findings and re-review once. Write current validation/evidence gaps and present THIS slice for owner acceptance and any explicit commit request; do not archive or start prompts automatically. (RF-1–RF-8) [review/delivery · rigorkit]
 
 Internal tasks continue within an approved B1; tasks are not separate slices. Mark [x] only with sufficient real evidence. Spec/behavior/design changes return to their owner gate. Installation/dry-run/build/lint/typecheck/browser/Docker/e2e/deploy and each real commit retain their separate authorization requirements. Never push/merge or rewrite archived baseline evidence.
 
 ## Current evidence
-T1–T5 checked for implemented/source-reviewed contracts, not universal model compliance. Existing suites: 53 toolkit +15 website tests pass; 14 mirrored templates match; 62-doc import and trace pass. Core1,134<=1,200, SDD14,401<=14,404; all other budgets/global rules unchanged. No new executable feature/test-freeze changes. Three isolated agent exercises, with A refined/repeated; full observation matrix and remaining gaps in validation.md. T6–T8 remain open for their pending native/manual/registration/owner-delivery evidence; no missing evidence is marked green.
+T1–T5 checked for implemented/source-reviewed contracts, not universal model compliance. Existing suites: 53 toolkit +15 website tests pass; 14 mirrored templates match; 62-doc import and trace pass. Core1,134<=1,200, SDD14,401<=14,404; all other budgets/global rules unchanged. No new executable feature/test-freeze changes. Three isolated agent exercises, with A refined/repeated; full observation matrix and remaining gaps in validation.md. T7 source/docs/baseline registration and T8 source review/report are complete; owner acceptance remains separate. T6 stays open for unobserved native/manual evidence in validation.md; no missing evidence is marked green.
+
+## Delivery packaging
+Owner approved both named local commits on 2026-11-06. Source: a192a3a. Immutable baseline.txt captures that full source hash; AGENTS.md active reference updated. All 33 identities and content limits pass; prior 006 unchanged. No additional skills/budget changes, real project updates, installation, build, push or merge performed.
