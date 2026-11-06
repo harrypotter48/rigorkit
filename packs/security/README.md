@@ -1,7 +1,7 @@
 # security — Application security
 Reference for threat modeling and secure defaults, plus a readonly security reviewer.
 
-Lane: security. It runs before the plan when a change introduces a trust boundary or a new data flow, and in the review station when the change touches sensitive paths.
+Specialist capability in the software lane, not a separate work-domain lane. It contributes to Understand/Design before the plan for new trust boundaries/data flows and to Verify for sensitive paths. Existing member names and triggers remain.
 
 | Item | Purpose |
 |---|---|

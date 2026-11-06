@@ -1,7 +1,7 @@
 # architecture — Layers and extensibility
 Reference skills for planning/implementation, plus readonly architecture review.
 
-Lane: none of its own. These are specialists the SDD lane calls in its review station.
+Lane: none of its own. These are specialists the software lane calls in Verify, using its existing SDD triggers.
 
 | Item | Purpose |
 |---|---|
