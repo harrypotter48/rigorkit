@@ -12,16 +12,7 @@ ALL 4 types/RF, normal/critical; never happy-only. Only justified n/a, audited b
 ## IDs
 Scenario RF-<n>.<type><k> (RF-3.H1/RF-3.E2); n/a: no k, reason required. Test title STARTS ID: RF-3.F2: no duplicate discount. File needs change ID (describe('007-coupons',…)); no cross-change RF-1.H1 matches. Pure-visual [manual]: no test, mandatory live check.
 ## Spec format
-```md
-### RF-3
-| ID | Type | Given | When | Then |
-|---|---|---|---|---|
-| RF-3.H1 | happy | order 120, valid 10% coupon | apply | total 108 |
-| RF-3.E1 | edge | exact coupon minimum | apply | discount applies |
-| RF-3.F1 | failure | unknown code | apply | rejected, order unchanged |
-| RF-3.F2 | failure | coupon already applied | reapply | no duplicate discount |
-| RF-3.S | security | n/a — coupon independent of user/tenant | | |
-```
+RF-n heading and ID | Type | Given | When | Then table; spec.md supplies four typed rows. Put justified n/a and its reason in Type.
 ## Checklist for edges and failures
 - Boundaries: 0/min/max/just below/above.
 - Empty: null/text/list/missing field.

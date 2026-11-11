@@ -1,5 +1,5 @@
 # rigorkit
-An AI software factory for rigorous, tool-neutral work: lanes of work, each staffed by specialists, with human approval gates and explicit Definition of Done. Supports Claude Code, Codex, Cursor and OpenCode. Install only the packs you need. Current version: 0.1.0 (`VERSION`, `./install.sh --version`).
+A factory for rigorous, tool-neutral work: common departments, specialized processes and human approval gates. The software lane is available today. Supports Claude Code, Codex, Cursor and OpenCode. Install only the packs you need. Current version: 0.1.0 (`VERSION`, `./install.sh --version`).
 
 ## From a feature to an accepted slice
 
@@ -39,28 +39,54 @@ Keep only the behavior and constraints agreed for this slice. Missing informatio
 ### Execution boundary
 Agents may run existing, scoped unit and integration tests with Jest or equivalent tools. Browser sessions, Docker and end-to-end tests require an explicit request. Installation, build, lint, typecheck, migrations, seeds and deployment are not authorized by this testing permission. If a test requires unavailable services or restricted infrastructure, report it as pending; do not start the infrastructure. Stricter adopting-project rules still apply.
 
-Local skills/agents now carry this contract; setup includes frozen-test and lexical branch-trace checks. See the [execution and evidence details](packs/sdd/README.md#implemented-factory-checks) and [agency-agents adaptations](packs/sdd/agency-adaptations.md). Owner acceptance, the ratchet-member decision and a real adoption run remain pending. Existing installed copies are unchanged; reviewer defaults require an explicit owner profile decision.
+Local skills/agents now carry this contract; setup includes frozen-test and lexical branch-trace checks. See the [execution and evidence details](packs/sdd/README.md#implemented-factory-checks) and [agency-agents adaptations](packs/sdd/agency-adaptations.md). Per-project adoption and actual model instruction-following need their own evidence. Existing installed copies require reinstall; both base reviewers remain enabled.
 
-## Lanes and packs
-A **lane** is a track of work with an entry, its specialists, its output and its exit criterion. A **pack** is the set of specialists staffed in a lane and stays their namespace: every member is named `<pack>-<role>`. A pack can also be specialists called from another lane, and the core pack carries global rules instead of a lane.
+## Departments, lanes and packs
+A **department** is a common responsibility. A **lane** adapts those responsibilities to a work type. A **pack** distributes reusable skills and agents under `<pack>-<role>` names; it is neither a department nor an execution instance.
 
-| Lane | Specialists | Entry | Output | Exit |
-|---|---|---|---|---|
-| SDD (core) | `sdd` pack | A change to specify | Approved spec, plan, functional blocks, reviewed diff | The owner closes the change |
-| design | `design` pack | A change with rendered screens | UX criteria, UI criteria, interface verdict | Defects corrected or registered |
-| security | `security` pack | A change with sensitive paths or a new data flow | Threat model, secure defaults, security verdict | Findings fixed or escalated |
-| operation | deferred to a later change | — | — | — |
+| Department | Software work |
+|---|---|
+| Understand | Triage, select a useful slice, context, spec and clarification; approve WHAT |
+| Design | Technical choices, plan and tasks; approve HOW |
+| Build | Prepare discriminating tests and implement the agreed slice |
+| Verify | Checks, regression/integration and independent reviewers; owner accepts this slice |
+| Learn | Archive and approved learning capture/promotion |
 
-`architecture` and `frontend` are specialists the SDD lane calls in its review station; `core` provides global token-economy rules for every session.
+These are responsibilities, not a rigid waterfall. TDD prepares tests before code; verification can return work to an earlier department. Earlier slice/triage/test-commit gates remain. Software is the only implemented lane; prompt processes, distributable plugins and a workflow engine are deferred. `design`, `security`, `architecture` and `frontend` remain specialists with their existing names and mandatory triggers.
+
+### Initialize or adopt a project
+Install `core,sdd` or `all`, then ask your agent to run **core-init**. It interviews you about outcomes, existing work, constraints and evidence, then proposes the department mapping and exact configuration/instructions diff for approval. Existing work and custom rules are preserved. An unfamiliar domain gets questions and a draft, not invented expertise or a runnable process.
+
+The minimal project-owned `.rigorkit/project.yaml` is:
+
+```yaml
+schema: 1
+lane: software
+```
+
+Optional department adjustments belong in that same file and ADD to existing responsibilities; they never remove required tests/reviewers/approvals. See [core-context](packs/core/skills/core-context/SKILL.md) for the schema, named-capability references and limits. For example, if `team-contract-evaluation` really exists and applies:
+
+```yaml
+schema: 1
+lane: software
+departments:
+  verify:
+    skills:
+      - team-contract-evaluation
+```
+
+Configuration is interpreted by the agent, not enforced by a new parser or runtime. A file alone is not approval or proof a referenced capability ran. Missing/duplicate capabilities and invalid settings are explicit gaps; required independent review cannot become self-review. Runtime status/spec/plan/evidence stays in `specs/`, not YAML. Private brain paths stay in unversioned local instructions.
+
+**Already using SDD?** Existing `sdd-init` and other SDD names remain valid. Without configuration, keep the legacy flow. With core available, `sdd-init` can offer `core-init` in configuration-only mode, which never calls back into SDD setup. You approve the migration diff; Rigorkit does not rewrite ongoing changes, personalizations or installed copies automatically. Without core, SDD still works and reports requested configuration capabilities it cannot apply.
 
 | Pack | Contents |
 |---|---|
-| [core](packs/core/README.md) | Global token-economy rules and test/error/JSON summary helpers; --global only |
-| [sdd](packs/sdd/README.md) | Reviewed specs, joint plan/block approval, functional-block delivery and selective context; templates, checks, three readonly agents and a builder |
+| [core](packs/core/README.md) | Project initialization/context skills; global-only token-economy rules and test/error/JSON helpers |
+| [sdd](packs/sdd/README.md) | Software process: specs, plan/tasks, test/build/review and learnings; templates/checks, three readonly agents and a builder |
 | [architecture](packs/architecture/README.md) | Layers/hexagonal, plugin registry, architecture review/audit |
 | [frontend](packs/frontend/README.md) | React/Next.js folders/names/routes/barrels, frontend review/audit |
-| [design](packs/design/README.md) | UX flow and UI criteria, accessibility level, capture checklist and advisory interface review |
-| [security](packs/security/README.md) | Threat modeling and secure defaults, security review of designs and diffs |
+| [design](packs/design/README.md) | UX/UI criteria, accessibility, capture checklist and advisory interface review |
+| [security](packs/security/README.md) | Threat modeling, secure defaults and security review |
 
 ## Install
 ```bash

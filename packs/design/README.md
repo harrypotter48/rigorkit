@@ -1,7 +1,7 @@
 # design — Interface quality and usability
-Reference skills for the design lane, plus a readonly interface reviewer.
+Design specialist references and a readonly interface reviewer for the software lane.
 
-Lane: design. It runs before the plan (UX criteria become requirements) and after the builder (interface review).
+Specialist capability, not a separate work-domain lane. It contributes to Understand/Design before the plan and to Verify after Build; existing member names and triggers remain.
 
 | Item | Purpose |
 |---|---|
@@ -11,7 +11,7 @@ Lane: design. It runs before the plan (UX criteria become requirements) and afte
 
 References follow their caller's stage/stop. Project constitution/AGENTS.md wins, including the accessibility level it declares.
 
-With sdd installed, the lane runs before the plan (UX criteria become requirements) and after the builder (interface review). Findings are defects or improvements: an improvement is a warning that never blocks, and a defect blocks only when the same change does not correct it. The human produces the captures; the reviewer never runs the application.
+With sdd installed, design work runs before the plan (UX criteria become requirements) and after the builder (interface review). Findings are defects or improvements: an improvement is a warning that never blocks, and a defect blocks only when the same change does not correct it. The human produces the captures; the reviewer never runs the application.
 
 Ask for "revisa la interfaz de la pantalla de login" or "audita los criterios de accesibilidad".
 ```bash

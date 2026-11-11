@@ -3,10 +3,12 @@
 ## Project
 Tool-neutral skills and agents for Claude Code, Codex, Cursor and OpenCode, grouped in `packs/<topic>/`. Markdown plus a Bash installer (`install.sh`); the toolkit needs no build. The isolated Astro/Starlight website lives in `site/` and has its own npm build/test commands.
 
-## Factory and lanes
-- rigorkit is an AI software factory. A **lane** is a track of work with an entry, its specialists, its output and its exit criterion; a **pack** is the set of specialists staffed in a lane, never a lane itself.
-- Lanes today: SDD (core, staffed by the `sdd` pack), design (`design` pack) and security (`security` pack). The operation lane is deferred to a later change.
-- `architecture` and `frontend` are specialists the SDD lane calls in its review station; `core` carries global rules instead of a lane.
+## Factory departments, lanes and packs
+- Rigorkit organizes verified work through Understand, Design, Build, Verify and Learn. Departments are responsibilities, not a rigid waterfall: test preparation can precede code and findings can return to earlier work.
+- A lane adapts departments to a work type; software is the only implemented lane. Prompts and executable plugin/workflow engines remain deferred.
+- A pack distributes named capabilities. sdd provides software activities; design/security/architecture/frontend remain specialists with unchanged triggers and member names. core adds optional project initialization/context alongside unchanged global-only rules/scripts.
+- .rigorkit/project.yaml is a project-owned declarative agreement, not execution/approval state. Invoke core-context when available; absent read approved project refs and report routing gaps; no config means legacy SDD. Configuration never grants authority or weakens mandatory reviewers/checks/gates.
+- core-init interviews/proposes before approved writes; configuration-only never calls sdd-init. Direct sdd-init/adopt stay usable without core; no auto-migration/installation or project rewriting.
 - The pack stays the namespace of its members: `<pack>-<role>`. `--pack` and the pack folders keep their names.
 - The factory coordinates stations; SDD remains the method per slice: slice → spec/clarify → design/plan/tasks → tests → build → review/owner acceptance → close/learnings. A HU/ticket describes a useful vertical slice; tasks stay internal. Implement only agreed behavior/constraints, no speculative branches or guessed defaults.
 - Every new technical decision needs owner approval before application. Reused repo/vault decisions must be communicated with their source and applicability; conflicts/uncertainty return to the owner. Accept each slice separately; never infer authority for another slice, commit, push or merge.
@@ -32,7 +34,7 @@ site/                  website only; dependencies/generated files never installe
 
 ## Skills
 - Agent Skills format: `skills/<name>/SKILL.md`, frontmatter `name` and `description`.
-- `name`: lowercase letters/numbers/hyphens, at most 64 characters, matching its folder. The name starts with its pack name (`sdd-`, `architecture-`, `frontend-`, `design-`, `security-`); agents and skills follow the same rule.
+- `name`: lowercase letters/numbers/hyphens, at most 64 characters, matching its folder. The name starts with its pack name (`core-`, `sdd-`, `architecture-`, `frontend-`, `design-`, `security-`); agents and skills follow the same rule.
 - `description`: English, at most 300 characters; purpose, when to use it, and one or two request phrases. Always single-quoted; escape apostrophes as `''`. An unquoted `: ` breaks strict YAML parsers such as OpenCode's.
 - Every skill declares its top 1% role. SDD pairs spec→clarify and plan→tasks without intermediate approval; each pair ends at its user gate. Other skills stop at their declared gate; stricter project/user gates win. Reference skills instead declare `**Type: reference.**`; they have no role/stop of their own and follow the caller.
 - Self-contained: files used by a skill live in its folder; never read another skill's files.
@@ -59,7 +61,7 @@ tier: cheap | strong      # optional, never a concrete model
 - Reference third-party skills from the pack README; do not copy them.
 - Add procedures agents must execute or practices reused across projects.
 - The content check reports a member whose name does not start with its pack name, and an agent whose body omits its top 1% role.
-- **Content ratchet**: `node tools/measure-content.mjs --root . --baseline specs/changes/006-factory-v2/baseline.txt` compares the current content with the ratchet baseline (0% growth over every pack it contains, and a new pack needs a new baseline). Growth is a decision, not an accident: capture a new baseline with `node tools/capture-baseline.mjs --source <commit> --output <file> --target 0` after the owner approves it. The archived baselines of changes 001 and 005 remain historical evidence; the active 006 baseline registers sdd-slice and tightens SDD to 14,404 estimated tokens without increasing any pack budget.
+- **Content ratchet**: `node tools/measure-content.mjs --root . --baseline specs/changes/007-project-processes/baseline.txt` compares the current content with the ratchet baseline (0% growth over every pack it contains, and a new pack needs a new baseline). Growth is a decision, not an accident: capture a new baseline with `node tools/capture-baseline.mjs --source <commit> --output <file> --target 0` after the owner approves it. Historical baselines remain unchanged, including 006. The active 007 baseline registers approved core-init/core-context at 1,134 estimated tokens (approved ceiling 1,200), tightens SDD to 14,401 and preserves all other pack/global-rule budgets.
 - Changes to `install.sh` require `--dry-run` in both `--project` and `--global` modes.
 - Never replace user instructions: `install.sh` writes only between `<!-- rigorkit:<pack>:start/end -->` markers and keeps `.bak`.
 - Each `rules.md` must have a token estimate at most 300; global rules cost context every turn.

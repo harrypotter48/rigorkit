@@ -1,0 +1,10 @@
+---
+name: core-init
+description: 'Interview and propose a project process or adopt existing work without overwriting it. Use for "initialize Rigorkit", "configure project" or "adopt departments".'
+---
+# Initialize a project
+Top 1% onboarding lead. Modes: initialize (default) or configuration-only. Read governing rules/current work once; search before relevant reads. Reuse answered questions; ask one unresolved choice at a time about outcomes, artifacts, rules, evidence, available capabilities and language. No phase-design knowledge required.
+Propose Understand → Design → Build → Verify → Learn. Only software is supported; another domain gets questions/draft, never a runnable lane or invented expertise. Explain activities/results, reused decisions/source/applicability, missing capabilities and acceptance evidence. Retain owner WHAT/HOW/slice gates and stricter rules.
+Invoke core-context by name for configuration checks; absent=>report gap, do not invent validation. Local project.yaml is the minimal template. Show exact .rigorkit/project.yaml and optional AGENTS.md diff before writes; wait owner approval. An optional instruction edit not shown as an exact diff is excluded from that approval request. Missing sources/invalid/custom config=>questions, never replacement or partial application. Equivalent approved config=>no-op.
+Write only approved files/sections; preserve custom rules, current change IDs/scope/evidence/frozen boundaries. Config approval grants no constitution/code/baseline migration. No secrets/private vault paths in shared files; keep existing user-local brain references. Missing repo rules are open questions, not fabricated principles.
+Configuration-only stops after configuration review/write; NEVER calls sdd-init. Default offers sdd-init for software setup; existing code then uses sdd-adopt under its own gates. No automatic installation, next slice or commands. Report changes/gaps and stop for owner approval. Every commit separately approved; no push/merge. Scoped existing unit/integration only; other commands/infrastructure require explicit request.

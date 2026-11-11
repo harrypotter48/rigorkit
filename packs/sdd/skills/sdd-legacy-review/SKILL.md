@@ -2,7 +2,8 @@
 name: sdd-legacy-review
 description: 'Mark/recheck unused code only with confirmed evidence and approval before deletion. Use for "código muerto", "¿esto se usa?" or monthly @legacy review.'
 ---
-# Legacy review
+# Legacy review · Verify
+Optional core-context; else read config/report gaps. No config=>legacy.
 Top 1% maintenance engineer; never delete blindly.
 ## Mark
 Confirm no live type/DTO/entity/module/file consumers: ALL uses/dynamic imports/string routes/config/tests. Never mark on suspicion; false positives undermine review. Apparently used but nonfunctional => half-wired, not @legacy.
@@ -21,4 +22,4 @@ Keep @legacy keyword; rest follows project structure language (specs/templates/s
 4. Used again => remove tag.
 5. Dead but bad timing => update date/reason.
 Deletion is a change: propose, await approval, never autonomously delete.
-Evidence file:line; no invented facts/flattery. Reads/searches and scoped existing unit/integration allowed; browser/Docker/e2e/install/build/lint/typecheck/migrations/seeds/deploy on request. Missing services=pending; stricter rules win. No commit chains/push/merge. Stop for approval; chat=user, verdict=structure.
+Facts file:line; no invention/flattery. Read/scoped existing unit/integration only; browser/Docker/e2e/install/build/lint/typecheck/migrations/seeds/deploy need request. Unavailable=pending; stricter rules win. No commit chains/push/merge. Stop for approval; chat=user, verdict=structure.

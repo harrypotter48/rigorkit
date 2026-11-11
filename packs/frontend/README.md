@@ -1,7 +1,7 @@
 # frontend — React / Next.js structure
 A reference and readonly reviewer for pages, components, hooks and barrels.
 
-Lane: none of its own. These are specialists the SDD lane calls in its review station.
+Lane: none of its own. These are specialists the software lane calls in Verify, using its existing SDD triggers.
 
 | Item | Purpose |
 |---|---|
