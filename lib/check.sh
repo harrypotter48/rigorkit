@@ -31,6 +31,7 @@ kill "$watchdog" 2>/dev/null
 
 newest=$prev
 if [ "$rc" -eq 0 ]; then
+  declined=   # RF-3: a successful check is a new chance to ask; a failed one keeps the previous answer
   newest=$(LC_ALL=C awk -F'\t' '
     $2 ~ /^refs\/tags\/v/ { v = substr($2, 12)
       if (v !~ /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/) next
