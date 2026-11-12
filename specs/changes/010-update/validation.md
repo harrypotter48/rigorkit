@@ -10,7 +10,7 @@ Date: 2026-11-12 · Branch: feat/010-update · Diff reviewed: `git diff fa96562`
 | Scenario checker | 202 scenarios, none missing (184 with tests, 18 justified n/a) |
 | `node tools/generate-man.mjs --check` | PASS (commands, options, man page, changelog section for 0.3.0) |
 | Content ratchet vs `specs/changes/010-update/baseline.txt` | PASS; entry skills +30 estimated tokens each, global rules 271 ≤ 300 |
-| Linux CI | pending (runs on the owner's push) |
+| Linux CI (GitHub Actions) | green on `d7a0ac0` (owner, 2026-11-12), after two fixes found only on Linux: `c24b1cf` (a successful check clears the previous no, RF-3.E1) and `d7a0ac0` (the detached check ignores SIGHUP before the fork, RF-1.H1) |
 
 ## Scenarios
 | Scenario | Type | Covering test | Result |
@@ -237,4 +237,4 @@ Corrections (`fe8532a` plus the round-8 spec fixes): H1 (skipped questions kept 
 - Demo: one-line install from the branch is not possible before a release; after merge (release `v0.3.0`), a 0.2.0 clone moves by the README commands, then `rigorkit update --dry-run` and `rigorkit update` in a terminal.
 - Confirm the delegated choices (spec answer 4), the review corrections (answer 5) and the ratchet baseline.
 
-Verdict: spec fulfilled on macOS; pending Linux CI and the owner's manual checks above.
+Verdict: spec fulfilled (macOS and Linux CI); pending the owner's manual checks and acceptance above.
