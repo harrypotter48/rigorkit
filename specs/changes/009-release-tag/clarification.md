@@ -9,3 +9,8 @@ Round 2 (2026-11-12): not ready, 0 high, 1 medium (B1), 6 low. Fixed: B1 RF-5 st
 Independent sdd-reviewer; 0 high, 0 medium, 6 low. All round-2 resolutions hold. Lows carried to the plan (spec not edited): C1 RF-6 only after tests pass (tests run first in the job); C2 race: pre-existing tags unchanged, competing v<Version> not replaced; C3 merging 009 with VERSION 0.1.0 would publish v0.1.0 (owner decision on bumping); C4 remote tags read anonymously (public repo); C5 static: only refs/tags/v<Version> pushed, no git commit; C6 only checkout/setup-node v6, Node 24.
 Pending: owner approval before plan.
 Owner approved the spec on 2026-11-12 (round 3 ready) and chose (C3) to bump VERSION to 0.2.0 in this change, so the first release is v0.2.0.
+
+## Amendment — answer 9 (2026-11-12)
+Security review of the implementation found M1 (actions in the write job get the token; pinned by @v6) and M2 (test code runs before the push step in the same job). Owner chose A: split into a read-only test job and a tag job without actions. Spec edited: INV-3, RF-5, RF-1.S1, RF-5.H1/F1, NFR credentials and actions. Round 4 audits the amendment.
+Round 4 (2026-11-12): not ready, 0 high, 2 medium (D1, D2), 3 low. Fixed: D1 RF-1.S3 same commit; D2 workflow-level concurrency (RF-7, RF-7.H1); D3 Node: preinstalled for tag (>= 18), 24 for test; D4 RF-1.S1 scoped + SHA pinning; D5 to plan (remote passed explicitly, work tree at the fetched commit).
+Round 5 (2026-11-12): ready, 0 high, 0 medium, 3 low (E1 only checkout/setup-node, E2 Node versions, E3 token never in URL/argv/log) carried to the plan and the amended static tests. Owner pre-approved this amendment (answer 9, autonomous work).
