@@ -343,11 +343,11 @@ test('RF-6.E1: a remote that never answers: the shell is not delayed and the che
 });
 
 test('RF-6.F1: a remote answering garbage keeps the previous result silently', { skip: NEED_PTY }, t => {
-  const s = remoteSetup(t, { state: { checked: hoursAgo(30), newest: '0.3.5' } });
+  const s = remoteSetup(t, { state: { checked: hoursAgo(30), newest: '0.3.0' } });
   const env = sshStub(s, "printf 'garbage\\n\\001\\002'");
   const t0 = now();
   assert.equal(shellStart(s, { env }).out.trim(), '');
-  assert.equal(checkedAfter(s, t0).newest, '0.3.5');
+  assert.equal(checkedAfter(s, t0).newest, '0.3.0');
 });
 
 test('RF-6.S1: a remote asking for a password: no prompt, terminal not read, previous result kept', { skip: NEED_PTY }, t => {

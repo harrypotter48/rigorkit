@@ -31,7 +31,7 @@ def main(argv):
         left = deadline - time.time()
         if left <= 0:
             os.kill(pid, 9); os.waitpid(pid, 0)
-            sys.stdout.write(out.decode('utf-8', 'replace')); return 124
+            sys.stdout.write(out.replace(b'^D\x08\x08', b'').decode('utf-8', 'replace')); return 124
         r, _, _ = select.select([fd], [], [], min(left, 0.2))
         if r:
             try: chunk = os.read(fd, 4096)
@@ -39,6 +39,7 @@ def main(argv):
             if not chunk: break
             out += chunk
     _, status = os.waitpid(pid, 0)
+    out = out.replace(b'^D\x08\x08', b'')   # the terminal's echo of the end-of-input we typed
     sys.stdout.write(out.decode('utf-8', 'replace'))
     return os.waitstatus_to_exitcode(status) if hasattr(os, 'waitstatus_to_exitcode') else (status >> 8)
 
