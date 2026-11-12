@@ -59,7 +59,7 @@ Rigorkit distributes English, compact skills, agents, templates and rules for fo
 ### Compaction (H2)
 - RF-16: The system shall keep every skill and agent `description` at 300 characters or fewer.
 - RF-17: When this change ends, the token estimate of what is loaded on use shall be at least 30% lower than its baseline in each of the packs `sdd`, `architecture` and `frontend`.
-- RF-18: The system shall keep the token estimate of each `rules.md` at or below 300.
+- RF-18: The system shall keep the token estimate of each `rules.md` at or below 300, as committed and as rendered with a 100-character clone path (008 RF-29.S1).
 - RF-19: The system shall have a measurement script in `tools/` that, for a repository root and a baseline file given as arguments (`--root`, `--baseline`), reports per file and per pack the token estimate, the description lengths, the comparison with the baseline, the skill and agent names that differ from the baseline list, and every `name` that differs from its folder, and exits with an error when the baseline is missing or RF-2, RF-16, RF-17 or RF-18 is not met.
 - RF-20: The system shall keep every invariant of every skill and agent.
 
