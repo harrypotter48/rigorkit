@@ -29,10 +29,10 @@ function git(root, args, { env = {} } = {}) {
   return { status: r.status, stdout: (r.stdout ?? '').trim(), stderr: (r.stderr ?? '').trim() };
 }
 
-const parts = v => v.split('.').map(Number);
+const parts = v => v.split('.').map(BigInt);   // exact for any length of digits
 function compare(a, b) {
   const x = parts(a), y = parts(b);
-  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] - y[i];
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;
   return 0;
 }
 
@@ -65,10 +65,15 @@ function main() {
     'tag', '-a', tag, '-m', `rigorkit ${version}`, 'HEAD']);
   if (created.status !== 0) fail(`cannot create tag ${tag}: ${created.stderr}`);
 
+  // Credential through git's environment config, never argv (no process-listing exposure); the encoded
+  // header is masked in GitHub logs too.
   const token = process.env.RK_PUSH_TOKEN || '';
-  const auth = token ? ['-c', `http.extraheader=AUTHORIZATION: basic ${Buffer.from(`x-access-token:${token}`).toString('base64')}`] : [];
-  const pushed = git(root, [...auth, 'push', '--', remote, `refs/tags/${tag}`]);
-  if (pushed.status !== 0) fail(`cannot push tag ${tag}: ${pushed.stderr.split(token || '\u0000').join('***')}`);
+  const basic = token ? Buffer.from(`x-access-token:${token}`).toString('base64') : '';
+  if (basic && process.env.GITHUB_ACTIONS === 'true') console.log(`::add-mask::${basic}`);
+  const auth = basic ? { GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'http.extraheader', GIT_CONFIG_VALUE_0: `AUTHORIZATION: basic ${basic}` } : {};
+  const pushed = git(root, ['push', '--', remote, `refs/tags/${tag}`], { env: auth });
+  const redact = text => [token, basic].filter(Boolean).reduce((t, secret) => t.split(secret).join('***'), text);
+  if (pushed.status !== 0) fail(`cannot push tag ${tag}: ${redact(pushed.stderr)}`);
   console.log(`published ${tag}`);
 }
 

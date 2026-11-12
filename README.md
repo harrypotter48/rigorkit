@@ -121,6 +121,7 @@ cd rigorkit
 | --dry-run | Show planned actions, rule diff; no writes |
 | --version | Print the local version |
 | --uninstall-rules | Remove only rigorkit global rule blocks |
+
 Releases: bump `VERSION` in a pull request; after the merge, CI runs the toolkit tests and publishes the tag `v<VERSION>` (`.github/workflows/release-tag.yml`), which the one-line installer downloads.
 
 Update with git pull, then reinstall --force. --pack all --force replaces installed packs and adds new ones.
