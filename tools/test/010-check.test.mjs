@@ -210,7 +210,7 @@ test('RF-3.E1: the next due check finding the same version asks again', { skip: 
   writeState(s.h.HOME, { ...st, checked: hoursAgo(30) });
   const t0 = now();
   shellStart(s, { eof: true, timeout: 3 });
-  checkedAfter(s, t0);
+  assert.ok(waitFor(() => { const x = readState(s.h.HOME); return x && Number(x.checked) >= t0 && !existsSync(path.join(STATE(s.h.HOME), 'check.lock')); }, 30000), 'the due check finished');
   assert.match(shellStart(s, { eof: false, timeout: 2 }).out, /Update now\?/);
 });
 
@@ -361,10 +361,11 @@ test('RF-6.S1: a remote asking for a password: no prompt, terminal not read, pre
 
 test('RF-7.H1: reminder every 7 days: a check 3 days old is not due, 8 days old is', { skip: NEED_PTY }, t => {
   const cfg = 'update_mode = reminder\nupdate_days = 7\n';
-  const s = remoteSetup(t, { state: { checked: now() - 3 * DAY, newest: '0.4.0' }, config: cfg });
+  const at = now() - 3 * DAY;
+  const s = remoteSetup(t, { state: { checked: at, newest: '0.4.0' }, config: cfg });
   assert.ok(shellStart(s).out.includes(line('0.4.0', '0.3.0')));
   waitFor(() => false, 1500);
-  assert.equal(readState(s.h.HOME).checked, String(now() - 3 * DAY).slice(0, -1) + readState(s.h.HOME).checked.slice(-1));
+  assert.equal(readState(s.h.HOME).checked, String(at));
   writeState(s.h.HOME, { checked: now() - 8 * DAY, newest: '' });
   const t0 = now();
   shellStart(s);
