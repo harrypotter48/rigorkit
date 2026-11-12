@@ -16,7 +16,7 @@ Tool-neutral skills and agents for Claude Code, Codex, Cursor and OpenCode, grou
 - Agents may run existing scoped unit/integration tests. Browser/Docker/e2e need an explicit request; installation/build/lint/typecheck/migrations/seeds/deploy require separate authorization. Missing infrastructure means pending evidence. Stricter project/user gates win.
 - Pin owner-approved test(red) hash/base/test paths; builder never edits frozen tests. Amendments need owner approval and cited test(amend); applicable integrity/trace checks precede reviewers. Missing or stale evidence is pending, not green; owner alone accepts each slice.
 - Public documentation describes the factory, its lanes and every member with its current name; a change that adds, renames or removes a member corrects the affected README in the same change.
-- `VERSION` at the repository root is the only copy of the version (semantic versioning, bumped by hand). `install.sh --version` prints it, `--list` shows the local and installed versions, and the installer records the installed version in `.rigorkit-version` at the scope root.
+- `VERSION` at the repository root is the only copy of the version (semantic versioning, bumped by hand in a pull request; after the merge `.github/workflows/release-tag.yml` publishes `v<VERSION>` once the toolkit tests pass; never tag by hand). `install.sh --version` prints it, `--list` shows the local and installed versions, and the installer records the installed version in `.rigorkit-version` at the scope root.
 
 ## Layout
 ```

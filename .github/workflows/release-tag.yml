@@ -1,0 +1,46 @@
+# Publishes the release tag v<VERSION> on main when it is not released yet (009-release-tag, HU-4).
+# Bump VERSION in a pull request; after the merge the read-only `test` job runs the toolkit tests and
+# the `tag` job, which runs no action and no test code, publishes the tag with the workflow token.
+name: Release tag
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-tag
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+      - name: Toolkit tests
+        run: node --test tools/test/*.test.mjs
+
+  tag:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Fetch the pushed commit (anonymous, no action)
+        run: |
+          git init -q .
+          git fetch -q --depth 1 "https://github.com/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q FETCH_HEAD
+      - name: Publish the release tag
+        run: node tools/release-tag.mjs --remote "https://github.com/$GITHUB_REPOSITORY.git"
+        env:
+          RK_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
