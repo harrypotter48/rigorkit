@@ -1,0 +1,59 @@
+# Tasks — 008-updater (HU-1 Install rigorkit with one line)
+
+## Resume state
+Stage: design (plan + tasks drafted) · Approvals: spec WHAT + threat model approved by owner 2026-11-11 (clarification round 14 ready); plan D1–D12 and blocks B1–B3 approved by owner 2026-11-11.
+Authorized blocks: none yet · Current block: — · Current task: —.
+Branch: feat/008-updater · Scope owner: rigorkit only.
+Pending/blockers: who runs installation-type tests (D3, `AGENTS.md:16`) not answered: owner runs them until authorized; red commits need separate approval.
+Next step: B1 T1 tests first.
+Review stations: sdd-reviewer + architecture-reviewer + security-reviewer (approved profile, threat-model.md §6) · Approval decision: plan approved 2026-11-11; implementation reviews pending.
+References: spec.md RF-1–RF-65 (34 RFs), INV-1/3/4, scenario tables; threat-model.md PC-1–PC-4; clarification.md Q1–Q10, R6/R9/R10, S-round, V5, round 13, X1/X2; plan.md (algorithms, contracts, decisions, test strategy, risks, plan-note table).
+Dependencies checked: `install.sh:17-287` consumers; `packs/core/rules.md`; `tools/measure-content.mjs` rules cap; CI step `.github/workflows/pages.yml` "Existing toolkit regression"; `AGENTS.md`, `specs/constitution.md`, `packs/core/README.md`, `README.md`, `site/scripts/prepare-docs.mjs` (imports `rules.md`); capability specs `factory-lanes`, `english-and-compact` (archive time).
+Freeze: proposed test paths `tools/test/008-*.test.mjs`, `tools/test/rigorkit-fixture.mjs`, `tools/fixtures/baseline-0.1.0/`; base/red hashes recorded per block after approved `test(red)` commits.
+
+## Functional blocks
+### B1 — `rigorkit` command with help, manual page and helper scripts (RF-25, RF-26, RF-27, RF-28, RF-47, RF-61 repository check)
+Tasks: T1–T5 · Depends on: plan approval (D1, D2, D3, D5, D6).
+Done when: from any clone, `rigorkit`, `help`, `--help`, `-h`, `help <command>`, `<command> --help` and `man -l man/man1/rigorkit.1` show the same documented content; `rigorkit script <name>` resolves custom → custom packs → official (byte order) and `exec`s with unchanged args; the repository checks fail on help/command/option/man drift and on any extra file in `bin/`.
+Read: spec RF-25–RF-28, RF-47, RF-61, Definitions (Commands, Manual page, Custom area); plan §Algorithms `bin/rigorkit`, §Contracts, D1/D2/D5/D6, PC-4; `install.sh:34-58` (options the drift check parses).
+Preserve: `install.sh` behavior (B2 owns its changes); no `eval`; POSIX `sh` only; `LC_ALL=C`; custom area read-only (INV-3).
+Verify: `008-rigorkit-cli.test.mjs` (RF-47.*, RF-25.*, RF-26.*, RF-27.H1/E1/F1) and `008-repo-checks.test.mjs` (RF-28.*, RF-61.F1, PC-4) red then green; existing `node --test tools/test/*.test.mjs` green; static banned-construct grep; scenario checker shows B1 IDs covered, later IDs pending.
+Reviewers: sdd + architecture + security.
+- [ ] T1. Write `tools/test/rigorkit-fixture.mjs` (temp HOME/TMPDIR, isolated git config, toolbox PATH with stubs, local bare remote builder, snapshot, skip guards) and the B1 tests; run red for behavioral reasons; propose `test(red): HU-1 rigorkit command, help and scripts`; stop for commit approval. (RF-25–RF-28, RF-47, RF-61) [tests · rigorkit]
+- [ ] T2. Write `help/rigorkit.txt`, `help/install.txt` (every current `install.sh` option, examples, files it can write; R9 note per D12), `help/script.txt`, `help/help.txt`. (RF-25, RF-26) [help · rigorkit]
+- [ ] T3. Implement `bin/rigorkit` (dispatch, symlink-safe root, help, `script` resolution and checks, `exec`). Mode 755; only file in `bin/`. (RF-25, RF-26, RF-47, RF-61) [cli · rigorkit]
+- [ ] T4. Implement `tools/generate-man.mjs` (+ `--check`) and commit the generated `man/man1/rigorkit.1`; wire the drift assertions (commands from the dispatch `case`, options from `install.sh`'s `case "$1"`). (RF-27, RF-28) [tooling · rigorkit]
+- [ ] T5. Green run of B1 tests and existing suites; record results and skipped (D4) cases as pending. (RF-25–RF-28, RF-47, RF-61.F1) [verify · rigorkit]
+
+### B2 — `rigorkit install` with custom packs, clone-run scripts and rendered rules (RF-3, RF-19, RF-29, RF-33, RF-46, RF-49, RF-57, RF-59, RF-62 for rules files)
+Tasks: T6–T12 · Depends on: B1 (`bin/rigorkit` is the rendered target and `help/install.txt` is the `--help` source).
+Done when: `rigorkit install` and `install.sh` behave identically and match Baseline 0.1.0 except the RF-3 exceptions; custom packs install/list/shadow per RF-19/33/57/59; global rules carry `'<clone>/bin/rigorkit'` and stay ≤ 300 tokens committed and rendered with a 100-character clone path; backups are `<real file>.rigorkit.bak` with the original mode; no script is copied.
+Read: spec RF-3, RF-19, RF-29, RF-33, RF-46, RF-47 (call contract), RF-49, RF-57, RF-59, RF-62, INV-1/3/4; plan §Algorithms `install.sh` deltas, §Rules text and budget, D8–D10, Q3/Q5–Q8/Q10, D-R10; `install.sh:2-22,34-64,124-188,257-279`.
+Preserve: option set and messages of `install.sh` (RF-3), `.rigorkit` stamps and `.rigorkit-version`, marker format `<!-- rigorkit:<pack>:start/end -->`, bash 3.2 compatibility, content ratchet identities/totals, user files outside markers and user `.bak`.
+Verify: `008-rigorkit-install.test.mjs` and the budget/static parts of `008-repo-checks.test.mjs` red then green; Critical DoD 1–3 and 5 (plan §Test strategy); `node tools/measure-content.mjs --root . --baseline specs/changes/007-project-processes/baseline.txt` 0 errors; owner runs `site` `npm run test:unit` for the `rules.md` import.
+Reviewers: sdd + architecture + security.
+- [ ] T6. Vendor `tools/fixtures/baseline-0.1.0/install.sh` from `3ee339e` (D8) and write B2 tests (baseline runner with normalization, custom-pack fixtures, path fixtures with space/`$`/backtick/`\`/`'`/newline, dry-run snapshots); run red; propose `test(red): HU-1 rigorkit install`; stop for approval. (RF-3, RF-19, RF-29, RF-33, RF-46, RF-49, RF-57, RF-59, RF-62.S1) [tests · rigorkit]
+- [ ] T7. `install.sh`: `--help` pre-scan from `help/install.txt`, temp-file trap, custom discovery with RF-59 warnings, `pack_dir`, `all` union, `--list` marks, shadow report lines, uninstall over official ∪ custom rules and new message. (RF-3, RF-19, RF-33, RF-46, RF-57, RF-59) [installer · rigorkit]
+- [ ] T8. `install.sh`: remove script copying (`SCRIPTS_DIR`, `install_script`); clone-run note; rules rendering via `ENVIRON` awk, every occurrence; `'`/newline refusal before any write (Q3 scope); Cursor printed block (D10). (RF-29, RF-49) [installer · rigorkit]
+      Depends on T7 (shared pack loop).
+- [ ] T9. `install.sh` `apply_rules`: resolve the real file, `backup()` with `umask 077` + `cp -p` + `mv -f`, failure dies before the write, write-through kept. (RF-3, RF-62, INV-4) [installer · rigorkit]
+- [ ] T10. `packs/core/rules.md` text per plan D9 (committed 271, rendered 296 tokens); budget test via `measureRepository`; `.gitignore` `/custom/`. (RF-29, RF-47, RF-49, NFR §8, Q9) [content · rigorkit]
+- [ ] T11. Docs: `packs/core/README.md` (script call, rendered rules, Cursor printed block, `.rigorkit.bak`, old folder left as is), `AGENTS.md:4,26-29,65-66` (layout `bin/`, `help/`, `man/`, `custom/`; `.rigorkit.bak`; dry-run rule extended to `bin/rigorkit`), `specs/constitution.md` §7. (NFR docs/constitution, answer 36) [docs · rigorkit]
+- [ ] T12. Green run: B2 tests, existing suites, Critical DoD 1–3 and 5 in temp HOMEs (authorized runs only); record evidence and pending items. (RF-3, RF-46, RF-29.S1) [verify · rigorkit]
+
+### B3 — One-line installer into `~/.rigorkit` with startup blocks (RF-1, RF-2, RF-42, RF-43, RF-44, RF-45, RF-48, RF-50, RF-51, RF-52, RF-53, RF-54, RF-55, RF-56, RF-58, RF-60, RF-61, RF-62, RF-63, RF-64, RF-65, RF-27.E2)
+Tasks: T13–T18 · Depends on: B1 (clone must contain `bin/rigorkit`, `help/`, `man/` for RF-53 and the live shells), B2 (`.gitignore` for clean `git status`; final message targets `rigorkit install`).
+Done when: `sh -c "$(cat tools/install-remote.sh)"` with a local `RIGORKIT_REMOTE` in a temp HOME produces every outcome of the RF-1…RF-65 scenario tables, each refusal/failure leaves the documented state (no tmp folder, no half clone, startup files byte-equal), and new zsh/bash shells find `rigorkit` and `man rigorkit` with system commands and pages first.
+Read: spec One-line installation RFs, INV-1/3/4, Definitions (Clone, Rigorkit clone, Startup block, `.zshrc`, Loads `.bashrc`, Default shell, Newest release tag); threat-model PC-1–PC-3, T4/T7/T15/T16; plan §Algorithms installer, §Data model block, D-PC1–3, D-R10, D-sym, D-noGit, D-order, D7, plan-note table.
+Preserve: POSIX `sh` only; nothing from the clone runs; no git inside an existing `~/.rigorkit`; custom area never modified (INV-3); content outside markers (INV-4).
+Verify: `008-install-remote.test.mjs`, `008-startup-files.test.mjs`, PC-1/PC-2 static red then green; Critical DoD 4; scenario checker none missing; live demo (manual) on the owner's macOS.
+Reviewers: sdd + architecture + security (input parsing, remote code, file permissions).
+- [ ] T13. Write B3 tests (remote fixtures with `v0.1.0` without `bin/`, `v0.2.0`, `v0.10.0`, marker `main`; git/chmod stubs; umask control; non-root and shell/man guards; HOME listing after every failure; X1, X2, round-13, D7, D-sym, D-noGit cases); run red; propose `test(red): HU-1 one-line installer`; stop for approval. (all B3 RFs) [tests · rigorkit]
+- [ ] T14. `tools/install-remote.sh` skeleton: header, helpers, `backup()`, `resolve_link()`, `loads_bashrc()`, block heredoc, `main "$@"` last line; `GIT_ALLOW_PROTOCOL`; traps. (PC-1, PC-2, PC-3, RF-62, RF-55) [installer · rigorkit]
+- [ ] T15. State classification and existing-clone path: RF-45 refusal, RF-58 warnings, RF-53 existing check, `write_blocks` with RF-42/43 targets, RF-55 links, RF-62 backups, RF-2 report, RF-44 partial, RF-50 continue-and-exit, RF-52 message, RF-54 hint; MANPATH contingency only if RF-27.E2 fails on a platform (stays within spec). (RF-2, RF-27.E2, RF-42, RF-43, RF-44, RF-45, RF-50, RF-52, RF-53, RF-54, RF-55, RF-58, RF-61, RF-62) [installer · rigorkit]
+- [ ] T16. New-clone path: RF-48/RF-60 validation, git presence, `ls-remote` ref resolution, temp clone with `--no-hardlinks`, RF-53 check (X1), RF-63 fix, RF-51 top-folder fix (X2) and RF-64 warnings, D7 conflict check, move with rollback (round 13), RF-65 folders, next-step message. (RF-1, RF-48, RF-50, RF-51, RF-53, RF-56, RF-60, RF-63, RF-64, RF-65) [installer · rigorkit]
+      Depends on T15 (`write_blocks`).
+- [ ] T17. Constitution critical-path rows for `tools/install-remote.sh` and `bin/rigorkit`; `README.md` install section with the one line, `rigorkit` commands and the existing-0.1.0 note (D11); list capability-spec updates for archive. (NFR constitution/docs) [docs · rigorkit]
+- [ ] T18. Full verification: all 008 tests + existing suites, scenario checker, ratchet, Critical DoD 1–5, live demo evidence in `validation.md`; independent sdd/architecture/security reviews on the same full diff; one correction round; present the slice for owner acceptance. (all RFs) [verify/review · rigorkit]
+
+Internal tasks continue inside an approved block; blocks are not separate slices. Mark [x] only with real evidence; skipped platform cases stay pending. Spec/behavior changes return to the spec gate; new technical choices to the owner. Installation-type test runs, each `test(red)`/implementation commit, CI workflow changes, push and merge keep their own authorization.
