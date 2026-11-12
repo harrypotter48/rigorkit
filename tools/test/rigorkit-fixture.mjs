@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 export const repo = fileURLToPath(new URL('../../', import.meta.url));
 // Files a clone needs at runtime (what the one-line installer clones).
-export const CLONE_ENTRIES = ['VERSION', 'install.sh', 'bin', 'help', 'man', 'packs', '.gitignore'];
+export const CLONE_ENTRIES = ['VERSION', 'install.sh', 'bin', 'help', 'man', 'packs', '.gitignore', 'lib', 'CHANGELOG.md'];
 
 // A fresh test root with HOME and TMPDIR inside it (TMPDIR outside HOME).
 export function home(t, { name = 'home' } = {}) {
