@@ -2,6 +2,7 @@ Usage: rigorkit <command> [args]
 
 Commands:
   install [options]      Install packs into your coding agents (same as install.sh)
+  update [--dry-run]     Move to the newest release and refresh your global scope
   script <name> [args]   Run a helper script, custom first, then official
   help [<command>]       Show this list, or the help of one command
 

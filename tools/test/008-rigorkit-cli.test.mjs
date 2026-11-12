@@ -5,7 +5,7 @@ import { readFileSync, appendFileSync } from 'node:fs';
 import path from 'node:path';
 import { home, cloneCopy, put, stubScript, toolbox, run, snapshot, has, repo } from './rigorkit-fixture.mjs';
 
-const COMMANDS = ['install', 'script', 'help'];
+const COMMANDS = ['install', 'update', 'script', 'help'];
 
 function setup(t, { clonePath } = {}) {
   const h = home(t);

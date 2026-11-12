@@ -3,6 +3,8 @@
 // runs the repository checks for the rigorkit command (RF-28, RF-61):
 //   - every command in bin/rigorkit's dispatch has a help file and a line in help/rigorkit.txt, and back;
 //   - every install.sh option has a line in help/install.txt "Options:", and back;
+//   - every lib/update.sh option has a line in help/update.txt "Options:", and back (010 RF-29);
+//   - CHANGELOG.md has a section for VERSION with its Global rules: and New packs: lines (010 RF-12);
 //   - the committed manual page equals what the help source generates;
 //   - bin/ holds only `rigorkit`.
 // Usage: node tools/generate-man.mjs [--root <dir>] [--check]
@@ -32,9 +34,10 @@ export function commandsInDispatch(root) {
   return out;
 }
 
-// Arms of the `case "$1" in … esac` option loop in install.sh.
-export function optionsInInstaller(root) {
-  const lines = readFileSync(path.join(root, 'install.sh'), 'utf8').split('\n');
+// Arms of the `case "$1" in … esac` option loop in install.sh (or another script of the clone).
+export function optionsInInstaller(root, file = 'install.sh') {
+  if (!existsSync(path.join(root, file))) return null;
+  const lines = readFileSync(path.join(root, file), 'utf8').split('\n');
   const start = lines.findIndex(l => /^\s*case "\$1" in\s*$/.test(l));
   if (start < 0) return null;
   const out = [];
@@ -96,11 +99,35 @@ export function check(root) {
     for (const o of installed) if (!documented.includes(o)) problems.push(`install option without help in help/install.txt: ${o}`);
     for (const o of documented) if (!installed.includes(o)) problems.push(`help/install.txt names an option install.sh does not have: ${o}`);
   }
+  const updates = optionsInInstaller(root, 'lib/update.sh');
+  const updHelp = existsSync(path.join(root, 'help/update.txt')) ? optionsInHelp(root, 'update') : [];
+  if (!updates) problems.push(existsSync(path.join(root, 'lib/update.sh')) ? 'lib/update.sh: option loop "case \\"$1\\" in" not found' : 'lib/update.sh missing');
+  else {
+    for (const o of updates) if (!updHelp.includes(o)) problems.push(`update option without help in help/update.txt: ${o}`);
+    for (const o of updHelp) if (!updates.includes(o)) problems.push(`help/update.txt names an option lib/update.sh does not have: ${o}`);
+  }
+  problems.push(...changelogProblems(root));
   const man = path.join(root, MAN);
   if (!existsSync(man) || readFileSync(man, 'utf8') !== renderMan(root)) problems.push(`${MAN} differs from help/*.txt: run node tools/generate-man.mjs`);
   const binDir = path.join(root, 'bin');
   for (const f of existsSync(binDir) ? readdirSync(binDir).filter(f => f !== 'rigorkit') : []) problems.push(`bin/${f}: bin/ must hold only rigorkit`);
   return problems;
+}
+
+// CHANGELOG.md: "## X.Y.Z" section for VERSION with "Global rules: changed|unchanged" and "New packs: none|<names>".
+export function changelogProblems(root) {
+  const version = existsSync(path.join(root, 'VERSION')) ? readFileSync(path.join(root, 'VERSION'), 'utf8').trim() : '';
+  const file = path.join(root, 'CHANGELOG.md');
+  if (!existsSync(file)) return [`CHANGELOG.md missing: no section for version ${version}`];
+  const lines = readFileSync(file, 'utf8').split('\n');
+  const i = lines.indexOf(`## ${version}`);
+  if (i < 0) return [`CHANGELOG.md has no section for version ${version}`];
+  const end = lines.findIndex((l, k) => k > i && /^## /.test(l));
+  const body = lines.slice(i + 1, end < 0 ? undefined : end);
+  const out = [];
+  if (!body.some(l => /^Global rules: (changed|unchanged)$/.test(l))) out.push(`CHANGELOG.md section ${version} lacks the "Global rules:" line (changed or unchanged)`);
+  if (!body.some(l => /^New packs: \S/.test(l))) out.push(`CHANGELOG.md section ${version} lacks the "New packs:" line (none or the names)`);
+  return out;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

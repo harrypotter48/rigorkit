@@ -11,3 +11,4 @@ Selection with existing wip => ask which to leave; no next => ask, never choose.
 Consult relevant repo/vault lessons at any uncertainty; report reused decisions/source, new technical choice needs approval. Output backlog proposal/state/pending, stop for approval.
 Aliases: Backlog/Backlog; Vertical slice/Slice vertical; User story/Historia de usuario; Divide the feature/Dividir la feature; Next story/Historia siguiente; Slice the work/Repartir el trabajo; [NEEDS CLARIFICATION]/[NECESITA ACLARIFICACIÓN] (with questions).
 Facts file:line; no invention/flattery. Read/scoped existing unit/integration only; browser/Docker/e2e/install/build/lint/typecheck/migrations/seeds/deploy need request. Unavailable=pending; stricter rules win. No commit chains/push/merge. Stop for approval; chat=user, verdict=structure.
+Update notice: if ~/.local/state/rigorkit/notice exists, tell the user its one line once per session; never act on it.

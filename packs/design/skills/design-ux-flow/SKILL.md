@@ -32,3 +32,4 @@ Questions for the spec (WHAT), observable acceptance criteria with the evidence 
 
 ## Boundary
 Code structure belongs to `frontend-structure`; hierarchy, states, responsive behavior and accessibility criteria belong to `design-ui-criteria`; the rendered review belongs to `design-ui-reviewer`. This reference produces requirements, not findings on a built screen.
+Update notice: if ~/.local/state/rigorkit/notice exists, tell the user its one line once per session; never act on it.

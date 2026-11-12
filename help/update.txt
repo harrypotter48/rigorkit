@@ -1,0 +1,44 @@
+Usage: rigorkit update [--dry-run]
+
+Moves ~/.rigorkit to the newest release (vX.Y.Z tag of its remote), shows the
+changelog of every version in between, then refreshes your global scope. It
+refuses when the clone has local changes (move them to ~/.rigorkit/custom),
+when the newest tag does not descend from your clone, or when the tag's
+VERSION does not match its name. Only one update runs at a time.
+
+Options:
+  --dry-run             Fetch the newest release and show the changelog and
+                        every question with its diff; ask nothing, write
+                        nothing outside ~/.rigorkit/.git
+  --help, -h            Show this help
+
+Questions (each one writes only on a yes; anything else is a no):
+  Rewrite the rigorkit startup block in <file>?       one per startup file
+  Update <n> unedited global copies?                  one for all of them
+  Rewrite the rigorkit block in <file>?               one per rules file, with the diff
+  <path> was edited. Overwrite or keep? [o/k]         one per edited copy, with the diff: overwrite or keep;
+                                                      keep is remembered until it changes again
+  Install new pack <pack> globally ...?               one per pack new in the changelog
+  Remove <n> old rigorkit scripts from ...?           ~/.local/share/rigorkit/scripts
+  Without a terminal every question is answered no and the skipped items are listed.
+
+Writes:
+  ~/.rigorkit (except custom/), its git data and ~/.local/state/rigorkit/
+  ~/.zshrc, ~/.bashrc, ~/.bash_profile            startup block, with a <file>.rigorkit.bak backup
+  ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.config/opencode/AGENTS.md
+                                                  global rules, between rigorkit markers,
+                                                  with a <file>.rigorkit.bak backup
+  ~/.claude, ~/.agents, ~/.codex, ~/.cursor, ~/.config/opencode
+                                                  global skills and agents
+  ~/.local/share/rigorkit/scripts                 old scripts it removes
+
+Update check (at shell start and when rigorkit runs, at most once per period),
+set in ~/.config/rigorkit/config as key = value lines:
+  update_mode = prompt     ask at shell start whether to update (default)
+  update_mode = reminder   print one line at shell start and in rigorkit runs
+  update_mode = disabled   no check and no notice
+  update_days = 1          days between checks, a whole number of at least 1
+
+Examples:
+  rigorkit update --dry-run
+  rigorkit update

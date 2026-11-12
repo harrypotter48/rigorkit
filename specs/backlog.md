@@ -11,7 +11,7 @@ Flat owner-ordered index: one HU/story/ticket per useful vertical slice, never a
 | ID | Title | Why (value) | Feature | Size | Depends on | Status | Change |
 |---|---|---|---|---|---|---|---|
 | HU-1 | Install rigorkit with one line | A new machine gets `~/.rigorkit`, the `rigorkit` command, its help and manual page, helper scripts inside the installation and a custom area, without manual steps | updater | M | — | done | 008-updater |
-| HU-2 | Learn about new versions and update the global scope | Daily check with terminal and agent notices, and `rigorkit update` for the clone and the global scope (changelog, global rules, edited copies, new packs, old script location), like `omz update` | updater | L | HU-1 | backlog | |
+| HU-2 | Learn about new versions and update the global scope | Daily check with terminal and agent notices, and `rigorkit update` for the clone and the global scope (changelog, global rules, edited copies, new packs, old script location), like `omz update` | updater | L | HU-1 | wip | 010-update |
 | HU-3 | Update projects and migrate 0.1.0 installs | Installation registry, project and development-install updates, scan of 0.1.0 installs and `rigorkit doctor`, so no installation is forgotten | updater | M | HU-2 | backlog | |
 | HU-4 | Release tag on merge | A merge that changes `VERSION` publishes `v<VERSION>` after the toolkit tests pass, so the one-line installer gets releases without manual tagging | release | S | HU-1 | done | 009-release-tag |
 
