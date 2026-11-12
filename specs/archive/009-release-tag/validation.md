@@ -32,3 +32,6 @@ Corrections applied (2026-11-12): push credential moved from argv to `GIT_CONFIG
 ## Pending (owner)
 - GitHub: tag ruleset on `v*` restricting updates and deletions (answer 10; no bypass possible for Actions in a personal repo) and `main` PR-only, before merge. Residual: push access can create new `v*` tags.
 - Live: after merge, `v0.2.0` published by the workflow; the one-line installer installs it (resolves HW-01); manual rows RF-2.E1/F1, RF-7.E1/F1.
+
+## Live evidence and acceptance
+2026-11-12: after merging PR #7, the `Release tag` workflow published the annotated tag `v0.2.0` (object `08adb7d`, commit `09a6878`). The one-line installer from `main` installed `v0.2.0` in a scratch HOME: `rigorkit install --version` → `0.2.0`, `man -w rigorkit` resolves. Owner accepted HU-4 the same day ("todo verde … listo"). Manual rows RF-2.E1/F1 and RF-7.E1/F1 not exercised separately.
