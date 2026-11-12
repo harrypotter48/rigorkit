@@ -1,5 +1,5 @@
 # Spec 009 — Release tag on merge (HU-4)
-> Status: amended 2026-11-12 (answer 9, security review), clarifying (round 5) · Tier: story · DoD: critical (publishes the version the one-line installer downloads) · Owner repo: rigorkit · Affected repos: rigorkit
+> Status: delivered 2026-11-12 (v0.2.0 published) · Tier: story · DoD: critical (publishes the version the one-line installer downloads) · Owner repo: rigorkit · Affected repos: rigorkit
 > Origin: HU-4 — owner request of 2026-11-12: create the release tag automatically instead of by hand (follow-up of 008-updater, answer 26; resolves HW-01).
 
 ## Context and goal
@@ -134,4 +134,4 @@ Tag logic runs against local git repositories with a local bare remote; workflow
 - None.
 
 ## Delivery evidence
-Pending.
+See `validation.md`: tests, three reviews, security re-review, live `v0.2.0`.
