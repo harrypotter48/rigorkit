@@ -100,6 +100,24 @@ rigorkit install --pack core,sdd --agent claude --global
 ```
 Your own packs and scripts go in `~/.rigorkit/custom/packs` and `~/.rigorkit/custom/scripts`; a custom pack or script replaces the official one with the same name. Helper scripts are no longer copied: global rules call them with `rigorkit script <name>`. An existing 0.1.0 install keeps working; its old copies in `~/.local/share/rigorkit/scripts` are left as they are. If `rigorkit` runs an older copy, check `command -v rigorkit`.
 
+### Update
+Once a day, when you open a terminal or run `rigorkit`, rigorkit checks in the background for a newer release. In `prompt` mode (the default) the next terminal asks whether to update; `reminder` prints one line instead and `disabled` turns the check off (`update_mode` and `update_days` in `~/.config/rigorkit/config`). Agents that use an entry skill mention a new version once per session.
+```bash
+rigorkit update --dry-run
+rigorkit update
+```
+`rigorkit update` moves `~/.rigorkit` to the newest release, prints the changelog of every version in between, and then asks before it rewrites your startup block, global rules, global skills and agents (edited copies one by one, with the diff), installs new packs or removes old scripts. A global install made before 0.3.0 has no record: run `rigorkit install --global --pack <packs> --agent <agents>` once (without `--force`) so updates can manage it.
+
+### Update from 0.2.0
+0.2.0 has no `rigorkit update`. Move the clone to 0.3.0 once by hand; if git refuses because you edited a file in `~/.rigorkit`, move that edit to the custom area (`~/.rigorkit/custom`) first:
+```bash
+git -C ~/.rigorkit fetch --tags origin
+```
+```bash
+git -C ~/.rigorkit checkout v0.3.0
+```
+Then open a new shell and run `rigorkit update` to refresh the startup block.
+
 From any clone, `install.sh` stays available:
 ```bash
 git clone <repository-url> rigorkit

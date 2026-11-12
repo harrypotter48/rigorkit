@@ -44,3 +44,4 @@ Every component folder/subfolder: index.ts. Named exports ONLY (`export { UserLi
 - [ ] Nested components/, no empty folders.
 - [ ] index.ts per folder, named exports, no export * or root barrel.
 - [ ] Shared by 2+ components lives in shared/.
+Update notice: if ~/.local/state/rigorkit/notice exists, tell the user its one line once per session; never act on it.

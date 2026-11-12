@@ -1,5 +1,5 @@
 #!/bin/sh
-# rigorkit — command-line entry point of a rigorkit clone (help, install, helper scripts).
+# rigorkit — command-line entry point of a rigorkit clone (help, install, update, helper scripts).
 # POSIX sh. Dispatch convention (checked by tools/generate-man.mjs --check):
 # one arm per command per line in the 'case $cmd' below, whose catch-all arm is the
 # only '*)' arm in this file.
@@ -60,10 +60,14 @@ run_help() {
   usage_error "unknown command: $1"
 }
 
+# Interactive runs: due update check and notice line (010 RF-1, RF-31); never changes this run's outcome.
+if [ -t 0 ] && [ -t 2 ] && [ -r "$ROOT/lib/notice.sh" ]; then sh "$ROOT/lib/notice.sh" --run "$@" || :; fi
+
 cmd=${1-}
 [ $# -gt 0 ] && shift
 case $cmd in
   install) exec "$ROOT/install.sh" "$@" ;;
+  update) exec "$ROOT/lib/update.sh" "$@" ;;
   script) run_script "$@" ;;
   help) run_help "$@" ;;
   ''|--help|-h) show rigorkit; exit 0 ;;

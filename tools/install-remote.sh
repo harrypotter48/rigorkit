@@ -24,6 +24,7 @@ print_block() { # the startup block, byte-exact; $HOME stays literal (expanded b
 # rigorkit:start
 case ":$PATH:" in *":$HOME/.rigorkit/bin:"*) ;; *) export PATH="$PATH:$HOME/.rigorkit/bin" ;; esac
 case ":${MANPATH-}:" in *":$HOME/.rigorkit/man:"*) ;; *) export MANPATH="${MANPATH-}:$HOME/.rigorkit/man" ;; esac
+if [ -r "$HOME/.rigorkit/lib/startup.sh" ]; then . "$HOME/.rigorkit/lib/startup.sh"; fi
 # rigorkit:end
 EOF
 }

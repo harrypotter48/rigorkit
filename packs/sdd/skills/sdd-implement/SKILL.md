@@ -13,3 +13,4 @@ Propose test(green): <HU/change> <behavior>, or refactor: for approved nonbehavi
 Aliases: Resume state/Estado para retomar; Stage/Etapa; Approvals/Aprobaciones; Current task/Task actual; Pending/blockers/Pendientes/bloqueos; Next step/Siguiente paso; References/Referencias; Done when/Hecho cuando; Depends on/Depende de; Read/Leer; Preserve/Conservar; Verify/Verificar.
 Prose only: project format/language, no migration; absent section→report/skip. New: constitution Language:>user>change>ask; unanswered→English+notice; empty/unknown=unset. EN/ES aliases.
 Facts file:line; no invention/flattery. Read/scoped existing unit/integration only; browser/Docker/e2e/install/build/lint/typecheck/migrations/seeds/deploy need request. Unavailable=pending; stricter rules win. No commit chains/push/merge. Stop for approval; chat=user, verdict=structure.
+Update notice: if ~/.local/state/rigorkit/notice exists, tell the user its one line once per session; never act on it.

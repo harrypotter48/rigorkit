@@ -42,3 +42,4 @@ Domain: pure unit; application: fake-repository unit; infrastructure: HTTP/DB in
 - [ ] Implementations satisfy port interfaces.
 - [ ] UI calls controllers and uses domain types; no direct network.
 - [ ] Entity naming consistent across layers with project conventions.
+Update notice: if ~/.local/state/rigorkit/notice exists, tell the user its one line once per session; never act on it.

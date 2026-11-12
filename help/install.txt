@@ -30,4 +30,5 @@ Writes:
   ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.config/opencode/AGENTS.md
                                                   global rules, between rigorkit markers,
                                                   with a <file>.rigorkit.bak backup
+  ~/.local/state/rigorkit/global                  with --global: what was installed, for rigorkit update
   <scope> is the project folder, or your home folder with --global.

@@ -35,3 +35,4 @@ Exploitable now, with a path from an untrusted input to the harm, is a blocker. 
 
 ## Boundary
 This reference produces requirements and checks. `security-reviewer` reports findings on a design or a diff; the project's scanners and pipelines stay the source of tool findings.
+Update notice: if ~/.local/state/rigorkit/notice exists, tell the user its one line once per session; never act on it.
