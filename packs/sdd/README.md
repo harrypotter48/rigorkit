@@ -101,7 +101,7 @@ node specs/scripts/check-frozen-tests.mjs --base <confirmed-base> --red <approve
 node specs/scripts/check-branch-trace.mjs --base <confirmed-base>
 ```
 
-Frozen checks pin the constitution test policy to the approved red and inspect intermediate commits and staged/unstaged/untracked tests, including edit/revert and rename/deletion. Only `test(amend):` with an `AMEND-...` or `spec.md#...` citation passes its lexical amendment gate; owner approval and actual amendment remain reviewer responsibilities. Every real commit still needs explicit approval; `test(red):`, `test(green):`, `test(amend):` and `refactor:` are proposed conventions, not automatic actions.
+Frozen checks pin the constitution test policy to the approved red and inspect intermediate commits and staged/unstaged/untracked tests, including edit/revert and rename/deletion. Only `test(amend):` with an `AMEND-...` or `spec.md#...` citation passes its lexical amendment gate; owner approval and actual amendment remain reviewer responsibilities. Every real commit still needs explicit approval; `test(red):`, `test(green):`, `test(amend):` and `refactor(<id>):` are proposed conventions, not automatic actions.
 
 Branch trace flags unexplained branch additions in JS/TS hunks, checking the index and worktree independently and inspecting executable template interpolations. References can be RF scenario IDs or INV IDs; deleted/other-hunk references do not count. This is lexical evidence only, not an AST/semantic proof: explain false positives with the owner and never add meaningless markers to manufacture green. Checks precede reviewers when applicable; no frozen red for an approved trivial/manual-only exception must be explicitly recorded.
 
