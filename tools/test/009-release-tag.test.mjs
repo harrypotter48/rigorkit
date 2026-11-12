@@ -263,6 +263,15 @@ function runLines() {
   }
   return out;
 }
+// Text of one job (from `  <name>:` under `jobs:` to the next job or end).
+function job(name) {
+  const ls = lines(), start = ls.findIndex(l => l === `  ${name}:`);
+  if (start < 0) return '';
+  let end = start + 1;
+  while (end < ls.length && !/^ {2}\S/.test(ls[end]) && !/^\S/.test(ls[end])) end++;
+  return ls.slice(start, end).join('\n');
+}
+const jobNames = () => { const ls = lines(), i = ls.indexOf('jobs:'); return ls.slice(i + 1).filter(l => /^ {2}[A-Za-z0-9_-]+:\s*$/.test(l)).map(l => l.trim().slice(0, -1)); };
 
 test('RF-2.H1: triggers only on push to main; no PR, workflow_run or tag triggers', () => {
   const text = wf();
@@ -270,18 +279,29 @@ test('RF-2.H1: triggers only on push to main; no PR, workflow_run or tag trigger
   for (const bad of ['pull_request', 'pull_request_target', 'workflow_run', 'workflow_dispatch', 'schedule', 'tags:']) assert.ok(!text.includes(bad), bad);
 });
 
-test('RF-1.S1: read-only default, write only on the tag job, GITHUB_TOKEN only in the push step env, no persisted credentials', () => {
-  const text = wf();
+test('RF-1.S1: read-only default, write only in job tag (no actions there), one GITHUB_TOKEN in the push step env, SHA-pinned actions only in job test', () => {
+  const text = wf(), tag = job('tag'), tst = job('test');
   assert.match(text, /^permissions:\s*\n\s+contents:\s*read\s*$/m);
   assert.equal((text.match(/contents:\s*write/g) || []).length, 1);
-  assert.match(text, /persist-credentials:\s*false/);
-  const secrets = text.match(/secrets\.[A-Za-z_]+/g) || [];
-  assert.deepEqual([...new Set(secrets)], ['secrets.GITHUB_TOKEN']);
-  assert.equal(secrets.length, 1);
-  const ls = lines(), i = ls.findIndex(l => l.includes('secrets.GITHUB_TOKEN'));
-  const block = ls.slice(Math.max(0, i - 6), i + 1).join('\n');
-  assert.match(block, /env:/); assert.match(block, /release-tag\.mjs/);
+  assert.match(tag, /contents:\s*write/);
+  assert.ok(!/uses:/.test(tag), 'job tag runs no action');
+  assert.match(tst, /persist-credentials:\s*false/);
+  const secrets = text.match(/(secrets\.[A-Za-z_]+|github\.token)/g) || [];
+  assert.deepEqual(secrets, ['secrets.GITHUB_TOKEN']);
+  const ls = tag.split('\n'), i = ls.findIndex(l => l.includes('secrets.GITHUB_TOKEN'));
+  const step = ls.slice(ls.slice(0, i + 1).map((l, k) => (/^\s*- /.test(l) ? k : -1)).filter(k => k >= 0).at(-1), i + 1).join('\n');
+  assert.match(step, /env:/); assert.match(step, /release-tag\.mjs/);
+  const uses = (text.match(/uses:\s*\S+/g) || []).map(u => u.replace(/uses:\s*/, ''));
+  assert.ok(uses.length >= 1);
+  for (const u of uses) assert.match(u, /^actions\/(checkout|setup-node)@[0-9a-f]{40}$/, u);
   assert.ok(!/git\s+(commit|push)/.test(runLines().join('\n')), 'no git commit/push in run scripts');
+});
+
+test('RF-1.S3: both jobs work on the pushed commit; the tag job fetches $GITHUB_SHA from $GITHUB_REPOSITORY', () => {
+  const tst = job('test'), tag = job('tag');
+  assert.ok(!/\bref:/.test(tst), 'test checkout has no ref: override');
+  assert.match(tag, /git fetch[^\n]*"https:\/\/github\.com\/\$GITHUB_REPOSITORY\.git"[^\n]*"\$GITHUB_SHA"/);
+  assert.match(tag, /node tools\/release-tag\.mjs --remote "https:\/\/github\.com\/\$GITHUB_REPOSITORY\.git"/);
 });
 
 test('RF-1.S2: no expressions or Version text inside run scripts; failures are never ignored', () => {
@@ -292,11 +312,14 @@ test('RF-1.S2: no expressions or Version text inside run scripts; failures are n
   assert.ok(!/\|\|\s*true/.test(run));
 });
 
-test('RF-5.H1: the tag step runs after the toolkit tests, in the same job', () => {
-  const text = wf();
-  const tests = text.indexOf('node --test tools/test/*.test.mjs'), tag = text.indexOf('node tools/release-tag.mjs');
-  assert.ok(tests > 0 && tag > tests, `tests ${tests}, tag ${tag}`);
-  assert.equal((text.match(/^\s{2}[A-Za-z0-9_-]+:\s*$/gm) || []).filter(l => !/^\s{2}(push|contents)/.test(l)).length, 1, 'one job');
+test('RF-5.H1: job test (read-only) runs the toolkit tests; job tag needs it and runs no tests', () => {
+  assert.deepEqual(jobNames(), ['test', 'tag']);
+  const tst = job('test'), tag = job('tag');
+  assert.match(tst, /node --test tools\/test\/\*\.test\.mjs/);
+  assert.ok(!/contents:\s*write/.test(tst));
+  assert.match(tag, /needs:\s*test/);
+  assert.ok(!/node --test/.test(tag));
+  for (const j of [tst, tag]) assert.match(j, /runs-on:\s*ubuntu-latest/);
 });
 
 test('RF-5.F1: a failed test step stops the job before tagging', () => {
@@ -305,16 +328,17 @@ test('RF-5.F1: a failed test step stops the job before tagging', () => {
   assert.ok(!/if:.*(always\(\)|failure\(\)|!\s*cancelled\(\))/.test(text), 'no if: that runs after a failure');
 });
 
-test('RF-7.H1: one fixed concurrency group without cancel-in-progress', () => {
+test('RF-7.H1: one fixed workflow-level concurrency group without cancel-in-progress', () => {
   const text = wf();
-  assert.match(text, /concurrency:\s*\n\s+group:\s*release-tag\s*\n\s+cancel-in-progress:\s*false/);
+  assert.match(text, /^concurrency:\s*\n\s+group:\s*release-tag\s*\n\s+cancel-in-progress:\s*false/m);
+  assert.equal((text.match(/concurrency:/g) || []).length, 1);
 });
 
-test('C5/C6: the script pushes only refs/tags, never commits or forces; only checkout and setup-node v6, Node 24', () => {
+test('C5/C6: the script pushes only refs/tags, never commits or forces; Node 24 in job test; token never in argv', () => {
   const src = readFileSync(SCRIPT, 'utf8');
   assert.match(src, /refs\/tags\//);
   for (const bad of ["'commit'", '"commit"', "'--force'", "'-f'", "'-d'", "'--delete'"]) assert.ok(!src.includes(bad), bad);
-  const uses = (wf().match(/uses:\s*\S+/g) || []).map(u => u.replace(/uses:\s*/, ''));
-  assert.deepEqual([...new Set(uses)].sort(), ['actions/checkout@v6', 'actions/setup-node@v6']);
-  assert.match(wf(), /node-version:\s*24/);
+  assert.match(job('test'), /node-version:\s*24/);
+  assert.ok(!/http\.extraheader=/.test(src), 'token header not passed on the command line');
+  assert.match(src, /GIT_CONFIG_COUNT/);
 });
