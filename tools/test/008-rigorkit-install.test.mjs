@@ -145,6 +145,7 @@ test('RF-62.S1: the backup of a 600 rules file is 600, also when an older backup
   assert.equal(mode(s.claude() + '.rigorkit.bak'), '600');
   chmodSync(s.claude() + '.rigorkit.bak', 0o644);
   writeFileSync(s.claude(), readFileSync(s.claude(), 'utf8') + 'more\n'); chmodSync(s.claude(), 0o600);
+  writeFileSync(path.join(s.clone, 'packs/core/rules.md'), readFileSync(path.join(s.clone, 'packs/core/rules.md'), 'utf8') + 'Changed rule.\n');
   assert.equal(s.rk(['--pack', 'core', '--agent', 'claude', '--global', '--force']).status, 0);
   assert.equal(mode(s.claude() + '.rigorkit.bak'), '600');
 });
