@@ -30,7 +30,7 @@ const version = s => read(path.join(s.clone, 'VERSION')).trim();
 const newPack = dir => put(path.join(dir, 'packs/backend/skills/backend-x/SKILL.md'), "---\nname: backend-x\ndescription: 'x'\n---\n");
 const log = (v, packs = 'none') => `## ${v}\nGlobal rules: unchanged\nNew packs: ${packs}\n\nTest release ${v}.\n`;
 
-test('review H1 (RF-19, RF-30): a skipped question in a non-interactive run keeps the recorded version; the next interactive update offers it', { skip: SKIP }, t => {
+test('RF-30.E2: review H1 (RF-19): a skipped question in a non-interactive run keeps the recorded version; the next interactive update offers it', { skip: SKIP }, t => {
   const s = setup(t, { install: { packs: 'core', agents: 'claude' }, later: [['0.4.0', newPack, { changelog: log('0.4.0', 'backend') }]] });
   const o = nonTty(s);
   assert.equal(version(s), '0.4.0', o.out);
@@ -45,7 +45,7 @@ test('review sdd M2 (INV-1): a dry run removes its temporary folder', { skip: SK
   assert.deepEqual(readdirSync(s.h.TMPDIR).sort(), before);
 });
 
-test('review security M1 (INV-1): a dry run never runs code from the downloaded release', { skip: SKIP }, t => {
+test('RF-14.S2: review security M1: a dry run never runs code from the downloaded release', { skip: SKIP }, t => {
   const pwned = 'touch "$HOME/pwned"\n';
   const s = setup(t, { install: { packs: 'core', agents: 'claude' }, later: [['0.4.0', d => {
     for (const f of ['lib/update.sh', 'install.sh', 'lib/common.sh']) writeFileSync(path.join(d, f), read(path.join(d, f)).replace(/\n/, `\n${pwned}`));
@@ -55,7 +55,7 @@ test('review security M1 (INV-1): a dry run never runs code from the downloaded 
   assert.equal(existsSync(s.f('pwned')), false);
 });
 
-test('review security M2 (INV-3): a release that tracks files under custom/ is refused; the custom area is untouched', { skip: SKIP }, t => {
+test('RF-38.H1, RF-38.S1: review security M2: a release that tracks files under custom/ is refused; the custom area is untouched', { skip: SKIP }, t => {
   const s = setup(t);
   s.r.release('0.4.0', undefined, { tag: null });
   put(path.join(s.r.work, 'custom/scripts/test-summary'), 'from release\n');
@@ -106,12 +106,16 @@ test('review sdd M5 (RF-37): a failed move leaves no file of the new release beh
   assert.equal(existsSync(path.join(s.clone, 'aaa-new')), false);
 });
 
-test('review architecture M4: a global install from a development clone writes no record', t => {
+test('RF-18.E8: review architecture M4: a global install from a development clone writes no record', t => {
   const h = home(t);
   const dev = runtimeCopy(path.join(h.root, 'dev'));
   const o = run('bash', [path.join(dev, 'install.sh'), '--global', '--pack', 'core', '--agent', 'claude'], { env: envFor(h) });
   assert.equal(o.status, 0, o.out);
   assert.equal(existsSync(RECORD(h.HOME)), false);
+  const existing = 'rigorkit-global-record 1\nversion\t0.3.0\npair\tsdd\tclaude\n';
+  put(RECORD(h.HOME), existing);
+  assert.equal(run('bash', [path.join(dev, 'install.sh'), '--global', '--pack', 'core', '--agent', 'claude', '--force'], { env: envFor(h) }).status, 0);
+  assert.equal(read(RECORD(h.HOME)), existing);
 });
 
 test('review architecture M3: install.sh and lib/common.sh keep identical fingerprint and record helpers', () => {
@@ -149,4 +153,17 @@ test('review architecture L9: a pack that fails to stage is reported with its re
   assert.match(o.out, /cannot prepare pack sdd/);
   assert.match(o.out, /agent without name/);
   assert.doesNotMatch(o.out, /no longer shipped/);
+});
+
+test('RF-38.E1: --dry-run refuses a release that tracks files under custom/', { skip: SKIP }, t => {
+  const s = setup(t);
+  s.r.release('0.4.0', undefined, { tag: null });
+  put(path.join(s.r.work, 'custom/scripts/x'), 'from release\n');
+  git(s.r.work, ['add', '-f', 'custom/scripts/x']);
+  git(s.r.work, ['commit', '--quiet', '-m', 'tracks custom']);
+  git(s.r.work, ['tag', '-a', 'v0.4.0', '-m', 'rigorkit 0.4.0']);
+  git(s.r.work, ['push', '--quiet', 'origin', '+HEAD:refs/heads/main', '--tags']);
+  const o = upd(s, [], ['--dry-run']);
+  assert.notEqual(o.status, 0);
+  assert.match(o.out, /custom/);
 });

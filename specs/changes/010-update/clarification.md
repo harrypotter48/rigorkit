@@ -51,3 +51,11 @@ Approval: owner delegated (answer 4); spec, plan and delegated choices are confi
 
 ## Review corrections (2026-11-12)
 Three independent reviews (sdd: 1 high, 5 medium; architecture: 0 high, 5 medium; security: 0 high, 2 medium) and one correction round. Spec edits: RF-18 scope (clone at `~/.rigorkit`), out-of-scope line for development clones, answer 5. Regression tests: `tools/test/010-review.test.mjs`. Round 8 re-audits these edits.
+
+## Clarification — 010-update, round 8 (2026-11-12) · Verdict: not ready
+Independent sdd-reviewer on the review-correction edits; 0 high, 3 medium, 2 low.
+Resolved (round 9 re-audits): new RF-38 (release tracking `custom/` refused, also in a dry run; RF-16 and RF-26 list it); RF-35 and RF-36 scoped to the clone at `~/.rigorkit`; RF-18.E8 (development clone records nothing); RF-14 and RF-14.S2 (a dry run runs no code from the fetched release); RF-30.E2 (a skipped question keeps the recorded version). Tests: `tools/test/010-review.test.mjs`.
+
+## Clarification — 010-update, round 9 (2026-11-12) · Verdict: ready
+Independent sdd-reviewer; 0 high, 0 medium, 5 low. Round-8 closures hold; no scenario lost (8 added, 0 removed).
+Accepted low, no spec edit: RF-26.E5 without an RF-38 case (same code path as the other refusals); RF-35/RF-36 development-clone scope covered by the shared guard and RF-18.E8; RF-38 "change nothing" reads with RF-14's `.git` exception; RF-30.E2 assumes the global record its test creates; K7 above cites RF-18.E4, now RF-36.H1.

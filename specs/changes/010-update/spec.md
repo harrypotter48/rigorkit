@@ -63,9 +63,9 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 - RF-11: WHEN the clone moved to a newer version, THE SYSTEM SHALL print safely the changelog section of every version greater than the previous clone version and not greater than the new one, in ascending order, taken from the new clone's changelog; a missing section is reported for that version and the update continues (dRF-31).
 - RF-12: IF `VERSION` has no changelog section, or its section lacks the `Global rules:` or the `New packs:` line, THEN THE SYSTEM SHALL fail the repository's automated checks naming the version and the missing part (dRF-38).
 - RF-13: IF the clone has changes to tracked files other than the execute bit of official helper scripts, or untracked files that are not git-ignored, THEN `rigorkit update` (also with `--dry-run`) SHALL refuse before moving the clone, list those files, suggest the custom area and change nothing (dRF-16; K2, K17).
-- RF-14: WHERE `--dry-run` is given, THE SYSTEM SHALL fetch the newest release, show the changelog and every question the update would ask with its diffs, ask nothing and write nothing outside `~/.rigorkit/.git` (dRF-17; answer 3).
+- RF-14: WHERE `--dry-run` is given, THE SYSTEM SHALL fetch the newest release, show the changelog and every question the update would ask with its diffs, ask nothing, write nothing outside `~/.rigorkit/.git` and run no code from the fetched release (dRF-17; answer 3, 5).
 - RF-15: IF the newest release tag's version differs from the `VERSION` inside that tag, THEN THE SYSTEM SHALL refuse to move the clone and report both values, showing a value that is not a valid version as "invalid" instead of its content (dRF-18).
-- RF-16: WHEN the clone version is equal to or greater than the newest release tag, THE SYSTEM SHALL say the clone is up to date (or newer than the newest release), not move it, and continue with the global refresh (RF-19). A refusal by RF-10, RF-13, RF-15 or RF-32, a failure to reach or read the remote, or a failed clone move (RF-37), ends the update with a non-zero status, without startup-block rewrite or global refresh (L5).
+- RF-16: WHEN the clone version is equal to or greater than the newest release tag, THE SYSTEM SHALL say the clone is up to date (or newer than the newest release), not move it, and continue with the global refresh (RF-19). A refusal by RF-10, RF-13, RF-15, RF-32 or RF-38, a failure to reach or read the remote, or a failed clone move (RF-37), ends the update with a non-zero status, without startup-block rewrite or global refresh (L5).
 - RF-17: WHEN `rigorkit update` ends without a refusal (RF-16), with or without a global record, THE SYSTEM SHALL, for each startup file of capability `installer` RF-1 that holds a rigorkit startup block different from the current one, print safely its difference and rewrite that block only after a yes for that file, with a backup (INV-4) (L4).
 - RF-30: WHILE `rigorkit update` is not an interactive run, THE SYSTEM SHALL answer every question no, list every item it skipped and still move the clone (delegated G14).
 - RF-32: IF another `rigorkit update` is running, THEN THE SYSTEM SHALL refuse saying so and change nothing (K9).
@@ -73,8 +73,8 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 
 ### Global refresh (H4)
 - RF-18: WHEN `rigorkit install --global` of the clone (`~/.rigorkit`) writes, skips or finds identical an installed copy or rules block, THE SYSTEM SHALL record the pack/agent pair, the version and the fingerprint as it is on disk after the install (a skipped differing copy without a fingerprint, keeping the fingerprint and declined content it already had, M6); writing a copy clears its declined content (N1); the recorded global version is set only when the scope had no record (a later install keeps it, L7); `--dry-run` records nothing; a project install never changes the record (dRF-20, dRF-34 for the global scope).
-- RF-35: IF `rigorkit install --global` without `--dry-run` or `--uninstall-rules` finds the global record unreadable, THEN THE SYSTEM SHALL rename it to `<record>.corrupt` (replacing an older one), start a new record with this install and say so (L1).
-- RF-36: WHEN `--uninstall-rules` removes a rules block, THE SYSTEM SHALL remove that block from the global record.
+- RF-35: IF `rigorkit install --global` of the clone (`~/.rigorkit`) without `--dry-run` or `--uninstall-rules` finds the global record unreadable, THEN THE SYSTEM SHALL rename it to `<record>.corrupt` (replacing an older one), start a new record with this install and say so (L1).
+- RF-36: WHEN `--uninstall-rules` of the clone (`~/.rigorkit`) removes a rules block, THE SYSTEM SHALL remove that block from the global record.
 - RF-19: WHEN `rigorkit update` ends without a refusal and the global record exists and is readable, THE SYSTEM SHALL run the global refresh for the recorded pack/agent pairs (RF-20–RF-23, RF-27, RF-28) and set the recorded global version to the clone version only when no question of the refresh was answered no or left unanswered (RF-30) and no item failed; a keep answer (RF-22) is not a no.
 - RF-20: THE SYSTEM SHALL ask one confirmation for all unedited installed copies whose content differs from the clone's, plus missing recorded copies and copies that a recorded pack/agent pair now ships whose path holds nothing, naming how many; a new copy whose path already holds a file, folder or link is handled as an edited copy without fingerprint (RF-22, M2); and write and record them only on a yes (dRF-32).
 - RF-21: WHEN a recorded rules block on disk differs from the block the clone would write, or is missing from its recorded file, THE SYSTEM SHALL show safely the difference for that file and rewrite or add the block only after a yes for that file (dRF-12).
@@ -82,11 +82,12 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 - RF-23: WHEN a pack named in the `New packs:` line of a version greater than the recorded global version and not greater than the clone version is not in the global record and has a valid pack name, THE SYSTEM SHALL offer to install it into the global scope for the recorded agents, one question per pack, and install and record it only on a yes; any other listed name that is not recorded is reported, printed safely, and not offered (dRF-13; delegated G23; L3).
 - RF-24: IF the global scope has a `~/.rigorkit-version` but no global record, or the record cannot be read, THEN THE SYSTEM SHALL change nothing in the global scope and say how to record it: `rigorkit install --global --pack <packs> --agent <agents>` (without `--force`, so differing copies are kept and asked one by one at the next update); for an unreadable record it names the file and says the install moves it aside (RF-35).
 - RF-25: WHEN a custom pack or script has the name of an official one, `rigorkit update` SHALL warn that it shadows the official one (dRF-19).
-- RF-26: IF an official helper script in the clone is not executable, THEN `rigorkit update` SHALL make it executable after every refusal check (RF-10, RF-13, RF-15, RF-32) and the remote read passed, before moving the clone (or when the clone is up to date), and report it in one line; with `--dry-run` it only reports it (M1); a custom script that is not executable SHALL only be reported (dRF-41).
+- RF-26: IF an official helper script in the clone is not executable, THEN `rigorkit update` SHALL make it executable after every refusal check (RF-10, RF-13, RF-15, RF-32, RF-38) and the remote read passed, before moving the clone (or when the clone is up to date), and report it in one line; with `--dry-run` it only reports it (M1); a custom script that is not executable SHALL only be reported (dRF-41).
 - RF-27: WHEN the old script location holds old rigorkit scripts and no recorded rules block names that location, THE SYSTEM SHALL offer once to remove them, remove only those files and only on a yes, and leave every other entry there untouched and listed; when Cursor is a recorded agent, the question says that Cursor's hand-pasted rules must be pasted again first (dRF-30, dRF-40; delegated G1, G21; SR-5).
 - RF-28: IF a recorded installed copy is no longer shipped by its pack, THEN THE SYSTEM SHALL report it and leave it as it is; a recorded copy missing on disk is reported and included in the RF-20 confirmation.
 - RF-29: THE SYSTEM SHALL document `update`, its options, the questions it can ask, the files it can write and the configuration keys in `rigorkit help update` and `man rigorkit` (capability `installer` RF-6).
 - RF-37: IF moving the clone fails, THEN THE SYSTEM SHALL leave the clone at its previous commit, report the git error printed safely and end per RF-16 (Q3).
+- RF-38: IF the newest release tracks files under `custom/`, THEN `rigorkit update` (also with `--dry-run`) SHALL refuse before moving the clone, saying that updates never touch the custom area, and change nothing (INV-3; answer 5).
 - RF-34: THE SYSTEM SHALL give, in the 0.3.0 changelog section and the README, the commands that move a 0.2.0 clone to the first release with `rigorkit update`, since 0.2.0 has no update command (K6).
 
 ## Non-functional requirements
@@ -216,6 +217,7 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 | RF-14.E1 | edge | clone up to date and global scope current | `--dry-run` | says there is nothing to do |
 | RF-14.F1 | failure | remote unreachable | `--dry-run` | error naming the remote; nothing changed |
 | RF-14.S1 | security | the fetched tag's changelog and a changed skill hold escape sequences | `--dry-run` | everything printed safely; nothing written outside `~/.rigorkit/.git` |
+| RF-14.S2 | security | the fetched release's `lib/update.sh`, `lib/common.sh` and `install.sh` would create a file in HOME when run | `--dry-run` | the file does not exist |
 ### RF-15
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
@@ -245,6 +247,7 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 |---|---|---|---|---|
 | RF-30.H1 | happy | newer version, changed rules, standard input not a terminal | `rigorkit update` | clone moved; no global or startup file written; every skipped item listed |
 | RF-30.E1 | edge | nothing to ask | non-interactive update | clone moved, no skipped list |
+| RF-30.E2 | edge | the changelog names new pack `backend`, standard input not a terminal | `rigorkit update`, then an interactive update | recorded global version unchanged; the interactive update offers `backend` |
 | RF-30.F | failure | n/a — same failures as RF-10 | | |
 | RF-30.S1 | security | an agent runs `rigorkit update` | run | no global file written (INV-1) |
 ### RF-32
@@ -271,6 +274,7 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 | RF-18.E5 | edge | record at 0.3.0, clone 0.4.0, `rigorkit install --global --pack core --agent codex` | install | recorded global version stays 0.3.0; codex added |
 | RF-18.E6 | edge | a kept copy (declined content recorded), then `rigorkit install --global` without `--force` skips it | install | its fingerprint and declined content unchanged; the next update does not ask about it |
 | RF-18.E7 | edge | a kept copy is later overwritten (update or `--force` install), then edited again | next update, no official change | not asked (declined content cleared) |
+| RF-18.E8 | edge | `install.sh --global` from a development clone | install | no record written; an existing record byte-equal |
 | RF-18.F1 | failure | the record cannot be written | install | install proceeds; one warning that updates cannot manage the global scope |
 | RF-18.S1 | security | record contents | — | only paths, pack and agent names, versions and fingerprints; no file contents, no secrets |
 | RF-18.S2 | security | project install (`--project`) | install | global record unchanged |
@@ -396,6 +400,13 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 | RF-37.E1 | edge | another git process holds the clone's index lock | `rigorkit update` | same as H1 |
 | RF-37.F1 | failure | the git error text holds an escape sequence | `rigorkit update` | printed safely |
 | RF-37.S | security | n/a — the clone stays at the commit the user already runs; nothing else is written |  |  |
+### RF-38
+| ID | Type | Given | When | Then |
+|---|---|---|---|---|
+| RF-38.H1 | happy | the newest release tracks `custom/scripts/test-summary`; the user has their own `custom/scripts/test-summary` | `rigorkit update` | refused naming the custom area, non-zero status, clone unchanged |
+| RF-38.E1 | edge | same | `rigorkit update --dry-run` | same refusal |
+| RF-38.F | failure | n/a — the refusal is the failure response | | |
+| RF-38.S1 | security | same | `rigorkit update` | the user's custom file byte-equal |
 ### RF-34
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
@@ -434,7 +445,7 @@ Draft answers 1–24 (`specs/archive/008-updater/full-draft.md`) apply unless ch
    - G23: one question per pack named as new in the changelog since the recorded global version; global scope only; every recorded agent. The record keeps pack/agent pairs (M4).
    - New: startup blocks that differ from the current one are offered per file (RF-17); a global scope without a readable record is not refreshed and the update says how to record it (RF-24); 0.2.0 clones move to the first update-capable release by documented manual commands (RF-34); one update at a time (RF-32); an unreachable remote ends the update with no refresh (L5); a later global install keeps the recorded version (L7); a corrupted record is moved aside by the next global install (L1); an agent in a pseudo-terminal counts as interactive and can answer the questions (L8, accepted residual T15 in the threat model).
 
-5. Review corrections (2026-11-12, delegated, no new user-visible choice): a dry run reads the staged release with the running code and never runs the release's code (INV-1); a release that tracks files under `custom/` is refused (INV-3); only the clone at `~/.rigorkit` records the global scope (RF-18); skipped questions in a non-interactive run keep the recorded version (RF-19, RF-30).
+5. Review corrections (2026-11-12, delegated): a dry run reads the staged release with the running code and never runs the release's code (RF-14); a release that tracks files under `custom/` is refused (RF-38, INV-3); only the clone at `~/.rigorkit` records the global scope (RF-18); skipped questions in a non-interactive run keep the recorded version (RF-19, RF-30).
 
 ## Open questions
 - None.

@@ -183,7 +183,7 @@ rec_write() { # merge REC_NEW into the record: new copies replace old ones, "=" 
   rm -f "$tmp"; rec_warn
 }
 rec_drop_rules() { # agents...: --uninstall-rules removes their rules lines (RF-36)
-  [ "$DRY" -eq 0 ] && [ "${RK_NO_RECORD-}" != 1 ] && [ -e "$REC" ] && [ ! -L "$REC_DIR" ] || return 0
+  [ "$DRY" -eq 0 ] && [ "${RK_NO_RECORD-}" != 1 ] && [ -e "$REC" ] && [ ! -L "$REC_DIR" ] && rec_home_clone || return 0
   if ! record_valid "$REC"; then echo "warning: the global record $REC is unreadable; it was left as it is" >&2; return 0; fi
   local tmp
   tmp="$( ( umask 077; mktemp "$REC_DIR/global.XXXXXX" ) 2>/dev/null )" || { rec_warn; return 0; }
