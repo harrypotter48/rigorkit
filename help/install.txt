@@ -1,0 +1,33 @@
+Usage: rigorkit install --pack <packs> --agent <agents> [--project <dir> | --global] [options]
+       ./install.sh <same options>
+
+Installs packs (skills, agents and, with --global, rules) into each coding
+agent's folders. Packs come from this clone and from ~/.rigorkit/custom/packs;
+a custom pack replaces the official pack with the same name.
+
+Options:
+  --pack <packs>        Comma-separated packs, or 'all' (official and custom)
+  --agent <agents>      Comma-separated: claude, codex, cursor, opencode
+  --project <dir>       Install into a project folder (default: current folder)
+  --global              Install into your home folder, including global rules
+  --force               Overwrite skills and agents that already exist
+  --dry-run             Print what would change; write nothing
+  --uninstall-rules     Remove rigorkit rule blocks from the global rule files
+  --version             Print the version of this clone
+  --list                List packs and what each one installs
+  --help, -h            Show this help
+
+Examples:
+  rigorkit install --pack core,sdd --agent claude --global
+  rigorkit install --pack all --agent claude,codex --project ~/code/app --dry-run
+  rigorkit install --uninstall-rules --agent claude
+
+Writes:
+  <scope>/.claude/skills, <scope>/.agents/skills   skills
+  <scope>/.claude/agents, .cursor/agents, .codex/agents, .opencode/agents
+                                                  agents (OpenCode global: ~/.config/opencode/agents)
+  <scope>/.rigorkit-version                       installed version
+  ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.config/opencode/AGENTS.md
+                                                  global rules, between rigorkit markers,
+                                                  with a <file>.rigorkit.bak backup
+  <scope> is the project folder, or your home folder with --global.

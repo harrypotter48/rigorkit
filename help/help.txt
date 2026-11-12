@@ -1,0 +1,13 @@
+Usage: rigorkit help [<command>]
+
+Shows the list of commands, or the help of one command.
+
+Options:
+  --help, -h            Show this help
+
+Examples:
+  rigorkit help
+  rigorkit help install
+
+Writes:
+  Nothing.

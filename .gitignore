@@ -7,3 +7,4 @@ site/dist/
 site/.test-artifacts/
 site/src/content/docs/docs/
 site/npm-debug.log*
+/custom/

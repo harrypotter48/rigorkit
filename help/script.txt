@@ -1,0 +1,20 @@
+Usage: rigorkit script <name> [args]
+
+Runs the first helper script named <name> from, in order:
+~/.rigorkit/custom/scripts, the custom packs' scripts folders, and the
+official packs' scripts folders not replaced by a custom pack (packs in
+name order). Every argument after <name> is passed to the script unchanged,
+and rigorkit exits with the script's status.
+
+Options:
+  --help                Show this help (only as the first argument)
+
+Examples:
+  rigorkit script test-summary npm test
+  rigorkit script json-peek package.json 2
+
+Writes:
+  Nothing; the script itself may write.
+
+Exit status: 2 for a missing or invalid name, 127 when no script has that
+name, 126 when the script found first is not executable.

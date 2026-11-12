@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# rigorkit installer — copies packs (skills, agents, rules, scripts) to each coding agent's folders.
+# rigorkit installer — copies packs (skills, agents, rules) to each coding agent's folders.
+# Help: help/install.txt (also `rigorkit help install`). Helper scripts are not copied: rules call
+# them through this clone's bin/rigorkit. Packs in ~/.rigorkit/custom/packs replace official ones.
 #
 #   ./install.sh --pack sdd --agent claude,codex,cursor,opencode [--project DIR | --global] [--force] [--dry-run]
 #   ./install.sh --pack all --agent claude --force    (every pack; --force overwrites what exists)
-#   ./install.sh --pack core --agent claude,codex,opencode --global   (rules + scripts: --global only)
+#   ./install.sh --pack core --agent claude,codex,opencode --global   (rules: --global only)
 #   ./install.sh --uninstall-rules --agent claude,codex,opencode [--dry-run]
 #   ./install.sh --list
 #   ./install.sh --version
@@ -14,12 +16,13 @@
 # Agent tiers map to models per tool in ~/.config/rigorkit/models (optional, see README).
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$(dirname "$0")" && pwd -P)"
 PACKS=""; AGENTS=""; SCOPE="project"; DEST="$PWD"; FORCE=0; DRY=0; UNINSTALL=0
 MODELS="${RIGORKIT_MODELS:-$HOME/.config/rigorkit/models}"
-SCRIPTS_DIR="$HOME/.local/share/rigorkit/scripts"
+CUSTOM="$HOME/.rigorkit/custom"
+RENDER="'$ROOT/bin/rigorkit'"   # rules placeholder {{RIGORKIT}} -> this clone's rigorkit, single-quoted
 
-usage() { sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { cat "$ROOT/help/install.txt"; exit "${1:-0}"; }
 die() { echo "error: $*" >&2; exit 1; }
 say() { echo "$*"; }
 
@@ -30,6 +33,34 @@ case "$VERSION" in
   [0-9]*.[0-9]*.[0-9]*) ;;
   *) die "invalid VERSION file: $ROOT/VERSION" ;;
 esac
+
+# --- custom packs (~/.rigorkit/custom/packs) ----------------------------------------
+# Valid custom names: not `all`, no comma, no whitespace (RF-59). Invalid ones are warned about once.
+CUSTOM_PACKS=""; CUSTOM_SCANNED=0
+scan_custom() {
+  [ "$CUSTOM_SCANNED" -eq 1 ] && return 0
+  CUSTOM_SCANNED=1
+  local d n
+  for d in "$CUSTOM"/packs/*/; do
+    [ -d "$d" ] || continue
+    n="$(basename "$d")"
+    case "$n" in
+      all|*,*|*[[:space:]]*) echo "warning: custom pack '$n' ignored: a pack name cannot be all or contain a comma or space" >&2 ;;
+      *) CUSTOM_PACKS="$CUSTOM_PACKS $n" ;;
+    esac
+  done
+  return 0
+}
+is_custom() { case " $CUSTOM_PACKS " in *" $1 "*) return 0 ;; *) return 1 ;; esac; }
+pack_dir() { if is_custom "$1"; then echo "$CUSTOM/packs/$1"; else echo "$ROOT/packs/$1"; fi; }
+all_packs() { # official (glob order), then custom-only names
+  local p n
+  for p in "$ROOT"/packs/*/; do basename "$p"; done
+  for n in $CUSTOM_PACKS; do [ -d "$ROOT/packs/$n" ] || echo "$n"; done
+}
+
+# --help wins in any position, also as an option value (RF-26).
+for arg in "$@"; do case "$arg" in -h|--help) usage 0 ;; esac; done
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -45,12 +76,16 @@ while [ $# -gt 0 ]; do
       echo "rigorkit $VERSION (local)"
       echo "installed  project: $(version_or_none "$PWD/.rigorkit-version")  global: $(version_or_none "$HOME/.rigorkit-version")"
       echo "all  (every pack below)"
-      for p in "$ROOT"/packs/*/; do
-        p="$(basename "$p")"; echo "$p"
-        for s in "$ROOT/packs/$p"/skills/*/; do [ -d "$s" ] && echo "  skill  $(basename "$s")"; done
-        for a in "$ROOT/packs/$p"/agents/*.md; do [ -f "$a" ] && echo "  agent  $(basename "$a" .md)"; done
-        [ -f "$ROOT/packs/$p/rules.md" ] && echo "  rules  (global only)"
-        for x in "$ROOT/packs/$p"/scripts/*; do [ -f "$x" ] && echo "  script $(basename "$x")"; done
+      scan_custom
+      for p in $(all_packs); do
+        d="$(pack_dir "$p")"
+        if ! is_custom "$p"; then echo "$p"
+        elif [ -d "$ROOT/packs/$p" ]; then echo "$p  (custom, replaces the official pack)"
+        else echo "$p  (custom)"; fi
+        for s in "$d"/skills/*/; do [ -d "$s" ] && echo "  skill  $(basename "$s")"; done
+        for a in "$d"/agents/*.md; do [ -f "$a" ] && echo "  agent  $(basename "$a" .md)"; done
+        [ -f "$d/rules.md" ] && echo "  rules  (global only)"
+        for x in "$d"/scripts/*; do [ -f "$x" ] && echo "  script $(basename "$x")"; done
       done; exit 0 ;;
     -h|--help) usage 0 ;;
     *) die "unknown option: $1 (see --help)" ;;
@@ -59,13 +94,15 @@ done
 
 [ -n "$PACKS" ] || [ "$UNINSTALL" -eq 1 ] || usage 1
 case ",$PACKS," in
-  ",all,") PACKS="$(for p in "$ROOT"/packs/*/; do basename "$p"; done | paste -sd, -)" ;;
+  ",all,") scan_custom; PACKS="$(all_packs | paste -sd, -)" ;;
   *",all,"*) die "--pack all cannot be combined with other packs" ;;
 esac
 [ -n "$AGENTS" ] || die "--agent is required (claude,codex,cursor,opencode)"
 [ "$SCOPE" = "global" ] || [ -d "$DEST" ] || die "project dir not found: $DEST"
 [ "$SCOPE" = "global" ] && BASE="$HOME" || BASE="$(cd "$DEST" && pwd)"
 MARKER="$BASE/.rigorkit-version"
+scan_custom
+WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT   # temp files only here, always removed (Q10)
 
 has_agent() { case ",$AGENTS," in *",$1,"*) return 0 ;; *) return 1 ;; esac; }
 for a in $(echo "$AGENTS" | tr ',' ' '); do
@@ -121,7 +158,30 @@ rules_file() { # agent -> its global instructions file ("" if the tool has none)
   esac
 }
 
-apply_rules() { # dst new-content-file: shows the diff on --dry-run, keeps a .bak otherwise
+real_file() { # path -> the file a chain of symbolic links points to (twin of install-remote.sh resolve_link)
+  local f="$1" l n=0
+  while [ -L "$f" ]; do
+    n=$((n + 1)); [ "$n" -le 40 ] || die "too many symbolic links: $1"
+    l="$(readlink "$f")"
+    case "$l" in /*) f="$l" ;; *) f="$(dirname "$f")/$l" ;; esac
+  done
+  printf '%s\n' "$f"
+}
+
+backup() { # real-file -> <real-file>.rigorkit.bak with the original mode, never more readable (RF-62, INV-4)
+  # Twin of install-remote.sh backup(); keep both equal. mktemp: new 600 file, no planted link followed.
+  local b="$1.rigorkit.bak" t
+  t="$( umask 077; mktemp "$1.rigorkit.bak.XXXXXX" )" || return 1
+  ( umask 077; cp -p "$1" "$t" ) && mv -f "$t" "$b" || { rm -f "$t"; return 1; }
+  say "  backup $b"
+}
+
+render() { # rules-file -> stdout with every {{RIGORKIT}} replaced by $RENDER (no regex, no escapes)
+  RK_RENDER="$RENDER" awk 'BEGIN { r = ENVIRON["RK_RENDER"]; k = "{{RIGORKIT}}" }
+    { out = ""; s = $0; while ((i = index(s, k)) > 0) { out = out substr(s, 1, i - 1) r; s = substr(s, i + length(k)) } print out s }' "$1"
+}
+
+apply_rules() { # dst new-content-file: shows the diff on --dry-run, keeps a .rigorkit.bak otherwise
   local dst="$1" tmp="$2" old="/dev/null"
   if [ -f "$dst" ] && cmp -s "$dst" "$tmp"; then say "  same   $dst"; rm -f "$tmp"; return; fi
   say "  rules  $dst"
@@ -131,14 +191,15 @@ apply_rules() { # dst new-content-file: shows the diff on --dry-run, keeps a .ba
     rm -f "$tmp"; return
   fi
   mkdir -p "$(dirname "$dst")"
-  if [ -f "$dst" ]; then cp "$dst" "$dst.bak"; say "  backup $dst.bak"; fi
-  cat "$tmp" > "$dst"; rm -f "$tmp"
+  if [ -f "$dst" ]; then backup "$(real_file "$dst")" || die "cannot back up $(real_file "$dst"); $dst left unchanged"; fi
+  cat "$tmp" > "$dst"; rm -f "$tmp"   # writes through a symbolic link
   mark_installed_version
 }
 
 merge_rules() { # pack rules-file dst: replaces the block if present, appends it otherwise
-  local s="<!-- rigorkit:$1:start -->" e="<!-- rigorkit:$1:end -->" src="$2" dst="$3" tmp
-  tmp="$(mktemp)"
+  local s="<!-- rigorkit:$1:start -->" e="<!-- rigorkit:$1:end -->" src dst="$3" tmp
+  src="$(mktemp "$WORK/rules.XXXXXX")"; render "$2" > "$src"
+  tmp="$(mktemp "$WORK/merge.XXXXXX")"
   if [ -f "$dst" ] && grep -qxF "$s" "$dst"; then
     grep -qxF "$e" "$dst" || die "$dst has '$s' without '$e': fix it by hand"
     awk -v s="$s" -v e="$e" -v f="$src" '
@@ -155,7 +216,7 @@ remove_rules() { # pack dst: drops the block (and the blank line before it)
   local s="<!-- rigorkit:$1:start -->" e="<!-- rigorkit:$1:end -->" dst="$2" tmp
   if ! { [ -f "$dst" ] && grep -qxF "$s" "$dst"; }; then say "  none   $dst"; return; fi
   grep -qxF "$e" "$dst" || die "$dst has '$s' without '$e': fix it by hand"
-  tmp="$(mktemp)"
+  tmp="$(mktemp "$WORK/remove.XXXXXX")"
   awk -v s="$s" -v e="$e" '
     $0==s { skip=1; held=0; next }
     skip  { if ($0==e) skip=0; next }
@@ -166,24 +227,16 @@ remove_rules() { # pack dst: drops the block (and the blank line before it)
   apply_rules "$dst" "$tmp"
 }
 
-install_script() { # src: always kept in sync, since the rules point to it
-  local dst="$SCRIPTS_DIR/$(basename "$1")"
-  if [ -f "$dst" ] && cmp -s "$1" "$dst"; then say "  same   $dst"; return; fi
-  say "  script $dst"
-  [ "$DRY" -eq 1 ] && return
-  mkdir -p "$SCRIPTS_DIR"; cp "$1" "$dst"; chmod +x "$dst"
-}
-
 if [ "$UNINSTALL" -eq 1 ]; then
   [ "$DRY" -eq 1 ] && say "(dry run: nothing is written)"
-  for r in "$ROOT"/packs/*/rules.md; do
-    [ -f "$r" ] || continue
-    pack="$(basename "$(dirname "$r")")"; say "rules $pack"
+  for pack in $(all_packs); do
+    [ -f "$(pack_dir "$pack")/rules.md" ] || [ -f "$ROOT/packs/$pack/rules.md" ] || continue
+    say "rules $pack"
     for a in $(echo "$AGENTS" | tr ',' ' '); do
       dst="$(rules_file "$a")"; [ -n "$dst" ] && remove_rules "$pack" "$dst"
     done
   done
-  say "done. Scripts stay in $SCRIPTS_DIR (delete the folder to remove them)."
+  say "done. Scripts stay in the clone ($ROOT)."
   exit 0
 fi
 
@@ -251,31 +304,47 @@ install_agent() { # neutral agent file
 }
 
 # --- install -------------------------------------------------------------------
+# Rendered rules hold this clone's path in single quotes: refuse a path that would break them (RF-49).
+if [ "$SCOPE" = "global" ]; then
+  for pack in $(echo "$PACKS" | tr ',' ' '); do
+    [ -f "$(pack_dir "$pack")/rules.md" ] || continue
+    case "$ROOT" in *"'"*|*"
+"*) die "clone path contains a quote or a newline, so rules cannot name it: $ROOT" ;; esac
+  done
+fi
 [ "$DRY" -eq 1 ] && say "(dry run: nothing is written)"
 say "scope: $SCOPE ($BASE) · agents: $AGENTS"
 [ "$FORCE" -eq 0 ] && report_version_difference
 for pack in $(echo "$PACKS" | tr ',' ' '); do
-  P="$ROOT/packs/$pack"; [ -d "$P" ] || die "unknown pack: $pack (see --list)"
+  P="$(pack_dir "$pack")"; [ -d "$P" ] || die "unknown pack: $pack (see --list)"
   say "pack $pack"
+  if is_custom "$pack" && [ -d "$ROOT/packs/$pack" ]; then say "  shadow custom pack $pack replaces the official one"; fi
+  if ! is_custom "$pack"; then
+    for x in "$P"/scripts/*; do
+      [ -f "$x" ] && [ -f "$CUSTOM/scripts/$(basename "$x")" ] && say "  shadow custom script $(basename "$x") replaces the official one"
+    done
+  fi
   for s in "$P"/skills/*/; do
     [ -f "$s/SKILL.md" ] || continue
     for d in "${SKILL_DIRS[@]}"; do copy_dir "${s%/}" "$d/$(basename "$s")"; done
   done
   for a in "$P"/agents/*.md; do [ -f "$a" ] && install_agent "$a"; done
-  if [ -f "$P/rules.md" ] || [ -d "$P/scripts" ]; then
+  if [ -f "$P/rules.md" ]; then
     if [ "$SCOPE" != "global" ]; then
-      say "  note   rules and scripts install only with --global (a repo's AGENTS.md may be shared)"
+      say "  note   rules install only with --global (a repo's AGENTS.md may be shared)"
     else
-      if [ -f "$P/rules.md" ]; then
-        for a in $(echo "$AGENTS" | tr ',' ' '); do
-          dst="$(rules_file "$a")"
-          if [ -n "$dst" ]; then merge_rules "$pack" "$P/rules.md" "$dst"
-          else say "  note   $a has no global rules file: paste $P/rules.md into its user rules"; fi
-        done
-      fi
-      for x in "$P"/scripts/*; do [ -f "$x" ] && install_script "$x"; done
+      for a in $(echo "$AGENTS" | tr ',' ' '); do
+        dst="$(rules_file "$a")"
+        if [ -n "$dst" ]; then merge_rules "$pack" "$P/rules.md" "$dst"
+        else
+          say "  note   $a has no global rules file: paste this block into its user rules:"
+          render "$P/rules.md"
+          say "  end of block"
+        fi
+      done
     fi
   fi
+  if [ -d "$P/scripts" ] && [ "$SCOPE" = "global" ]; then say "  scripts run from $ROOT with rigorkit script <name>"; fi
 done
 
 if has_agent claude && { has_agent cursor || has_agent opencode; }; then

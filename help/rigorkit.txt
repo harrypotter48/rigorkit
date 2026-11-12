@@ -1,0 +1,10 @@
+Usage: rigorkit <command> [args]
+
+Commands:
+  install [options]      Install packs into your coding agents (same as install.sh)
+  script <name> [args]   Run a helper script, custom first, then official
+  help [<command>]       Show this list, or the help of one command
+
+Run 'rigorkit help <command>' or 'rigorkit <command> --help' for details.
+Manual: man rigorkit. If 'rigorkit' runs an older copy, check which one comes
+first in PATH with 'command -v rigorkit'.
