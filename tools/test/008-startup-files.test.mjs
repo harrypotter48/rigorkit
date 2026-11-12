@@ -418,7 +418,9 @@ test('RF-27.E2: MANPATH unset before install: a new shell still finds man ls and
   const s = installFor(t, SHELL_KIND);
   const o = openShell(SHELL_KIND, s, 'printf "<l>%s</l>\\n<r>%s</r>\\n" "$(man -w ls)" "$(man -w rigorkit)"');
   assert.equal(o.status, 0, o.out);
-  assert.match(between(o.stdout, 'l') || '', /\/ls\.1/, o.out);
+  const ls = between(o.stdout, 'l') || '';
+  assert.match(ls, /^\/.*ls\.1/, o.out); // a system page for ls (ls.1, rust-ls.1.gz…)
+  assert.ok(!ls.startsWith(s.T), o.out); // not shadowed by the clone's man/
   assert.equal(between(o.stdout, 'r'), path.join(s.T, 'man/man1/rigorkit.1'));
 });
 
