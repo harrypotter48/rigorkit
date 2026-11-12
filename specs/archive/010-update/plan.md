@@ -22,7 +22,7 @@
 | `help/update.txt`, `help/rigorkit.txt`, `man/man1/rigorkit.1` | Update help; regenerated man | RF-29 |
 | `CHANGELOG.md` (new), `VERSION` 0.3.0, `README.md` | Sections 0.1.0–0.3.0; manual move from 0.2.0 | RF-11, RF-12, RF-34 |
 | 9 entry `SKILL.md` | One notice line each | RF-9 |
-| `specs/changes/010-update/baseline.txt`, `AGENTS.md` | New ratchet baseline (after approval) | NFR |
+| `specs/archive/010-update/baseline.txt`, `AGENTS.md` | New ratchet baseline (after approval) | NFR |
 | `tools/test/rigorkit-fixture.mjs` | `CLONE_ENTRIES` += `lib`, `CHANGELOG.md` | tests |
 
 ## Data model

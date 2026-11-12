@@ -1,5 +1,5 @@
 # Spec 010 — Update check and `rigorkit update` (HU-2)
-> Status: ready (clarify round 7, 2026-11-12), approval delegated (answer 4) · Tier: feature · DoD: critical (moves the clone to downloaded code; rewrites shell startup blocks, global rules and global installed copies) · Owner repo: rigorkit · Affected repos: rigorkit; the user's global scope (written only after confirmation)
+> Status: delivered 2026-11-12 (v0.3.0 published; owner accepted after live checks, including the delegated answers 4–5 and the content baseline) · Tier: feature · DoD: critical (moves the clone to downloaded code; rewrites shell startup blocks, global rules and global installed copies) · Owner repo: rigorkit · Affected repos: rigorkit; the user's global scope (written only after confirmation)
 > Origin: HU-2 — owner request of 2026-11-10 for an updater like oh-my-zsh's `omz update` (`specs/archive/008-updater/full-draft.md`, sliced 2026-11-11). Reuses draft answers 1–24 and the round 1–2 findings; owner kept HU-2 as one spec (answer 1). Draft ids are given as (dRF-n). Threat model: `threat-model.md` (SR-1–SR-6 below).
 
 ## Context and goal
