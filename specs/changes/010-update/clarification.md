@@ -47,3 +47,4 @@ Resolved (round 7 re-audits): Q1 explicit "When" in RF-35 rows. Q2 RF-35 exclude
 Independent sdd-reviewer; 0 high, 0 medium, 3 low. Q-closures hold; SR-1–SR-6 covered.
 Accepted low, resolved in the plan without a spec edit: R1 (`--dry-run` and `--help` count only as options of `rigorkit` and its `install`/`update` commands, never inside `rigorkit script` arguments); R2 (capability RF-6 entry gains the check note at archive); R3 (RF-37.H1 built with a work-tree file git cannot overwrite).
 Approval: owner delegated (answer 4); spec, plan and delegated choices are confirmed at acceptance.
+- Format fix (2026-11-12, no behavior change): n/a failure rows renamed RF-n.F as the scenario checker requires.

@@ -146,7 +146,7 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 |---|---|---|---|---|
 | RF-5.H1 | happy | mode `disabled`, check due | interactive shell start and interactive `rigorkit` run | no network access, no notice |
 | RF-5.E1 | edge | mode changed to `disabled` while a newer version is recorded | interactive shell start, then agent entry skill | no notice in the terminal or from the agent |
-| RF-5.F1 | failure | n/a — nothing runs that can fail | | |
+| RF-5.F | failure | n/a — nothing runs that can fail | | |
 | RF-5.S | security | n/a — disables behavior only | | |
 ### RF-6
 | ID | Type | Given | When | Then |
@@ -245,21 +245,21 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 |---|---|---|---|---|
 | RF-30.H1 | happy | newer version, changed rules, standard input not a terminal | `rigorkit update` | clone moved; no global or startup file written; every skipped item listed |
 | RF-30.E1 | edge | nothing to ask | non-interactive update | clone moved, no skipped list |
-| RF-30.F1 | failure | n/a — same failures as RF-10 | | |
+| RF-30.F | failure | n/a — same failures as RF-10 | | |
 | RF-30.S1 | security | an agent runs `rigorkit update` | run | no global file written (INV-1) |
 ### RF-32
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
 | RF-32.H1 | happy | an update is waiting for an answer | a second `rigorkit update` | refuses saying another update is running; nothing changed |
 | RF-32.E1 | edge | a previous update was killed and left its lock | `rigorkit update` | the stale lock is detected and the update proceeds |
-| RF-32.F1 | failure | n/a — the refusal is the failure response | | |
+| RF-32.F | failure | n/a — the refusal is the failure response | | |
 | RF-32.S1 | security | two shells answer yes at once | both updates | at most one moves the clone or writes global files |
 ### RF-33
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
 | RF-33.H1 | happy | fresh temporary HOME | one-line installer | the startup block is the current one; an interactive shell start with a due check starts the check |
 | RF-33.E1 | edge | the clone is removed after install | interactive shell start | no error, no output |
-| RF-33.F1 | failure | n/a — installer failures are capability `installer` RF-1 | | |
+| RF-33.F | failure | n/a — installer failures are capability `installer` RF-1 | | |
 | RF-33.S1 | security | startup file with user content | install | capability `installer` RF-1 regression: only the block added, rest byte-equal, backup kept |
 ### RF-18
 | ID | Type | Given | When | Then |
@@ -380,7 +380,7 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 |---|---|---|---|---|
 | RF-28.H1 | happy | 0.4.0 removed skill `x` from its pack | update | `x` reported as no longer shipped; left on disk |
 | RF-28.E1 | edge | the user deleted a recorded copy | update | reported missing; included in the RF-20 count |
-| RF-28.F1 | failure | n/a — report only | | |
+| RF-28.F | failure | n/a — report only | | |
 | RF-28.S1 | security | copy no longer shipped | update | byte-equal |
 ### RF-29
 | ID | Type | Given | When | Then |
@@ -401,7 +401,7 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 |---|---|---|---|---|
 | RF-34.H1 | happy | a 0.2.0 clone | run the documented commands | the clone is at the first release with `rigorkit update`; `rigorkit help` lists `update` |
 | RF-34.E1 | edge | 0.2.0 clone with an edited tracked file | run the commands | git refuses to move it; the documented text says to move the edit to the custom area first |
-| RF-34.F1 | failure | n/a — documentation; failures are git's own messages | | |
+| RF-34.F | failure | n/a — documentation; failures are git's own messages | | |
 | RF-34.S | security | n/a — the commands only check out a release tag of the user's own remote | | |
 
 ## Capability changes
