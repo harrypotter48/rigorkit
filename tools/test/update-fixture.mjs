@@ -41,11 +41,12 @@ export function testRemote(t, root) {
   git(work, ['remote', 'add', 'origin', bare]);
   let first = true;
   const release = (version, mutate = () => {}, { tag = `v${version}`, changelog } = {}) => {
+    const log = path.join(work, 'CHANGELOG.md');
+    const previous = first ? null : readFileSync(log, 'utf8');   // each release keeps the earlier sections
     for (const e of readdirSync(work)) if (e !== '.git') rmSync(path.join(work, e), { recursive: true, force: true });
     runtimeCopy(work);
     writeFileSync(path.join(work, 'VERSION'), `${version}\n`);
-    const log = path.join(work, 'CHANGELOG.md');
-    const base = existsSync(log) ? readFileSync(log, 'utf8') : '# Changelog\n';
+    const base = previous ?? (existsSync(log) ? readFileSync(log, 'utf8') : '# Changelog\n');
     const section = changelog ?? `## ${version}\nGlobal rules: unchanged\nNew packs: none\n\nTest release ${version}.\n`;
     writeFileSync(log, base.replace(/^# Changelog\n/, `# Changelog\n\n${section}\n`));
     mutate(work);
@@ -80,7 +81,8 @@ export const hoursAgo = h => now() - Math.round(h * 3600);
 
 // Environment for rigorkit runs inside a temp HOME.
 export function envFor(h, extra = {}) {
-  return { HOME: h.HOME, TMPDIR: h.TMPDIR, PATH: process.env.PATH, TERM: 'dumb', ...GITENV, ...extra };
+  // PYTHONDONTWRITEBYTECODE: macOS python3 (the pty helper) would cache bytecode under $HOME/Library.
+  return { HOME: h.HOME, TMPDIR: h.TMPDIR, PATH: process.env.PATH, TERM: 'dumb', PYTHONDONTWRITEBYTECODE: '1', ...GITENV, ...extra };
 }
 
 // Run cmd in a pseudo-terminal; steps = [[expect, send], ...].
