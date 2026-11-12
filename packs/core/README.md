@@ -24,7 +24,7 @@ Rules and helpers remain global only: personal preferences must not enter shared
 ./install.sh --pack core --agent claude,codex,opencode --global --dry-run
 ./install.sh --pack core --agent claude,codex,opencode --global
 ```
-Rules: Claude ~/.claude/CLAUDE.md; Codex ~/.codex/AGENTS.md (or $CODEX_HOME/AGENTS.md); OpenCode ~/.config/opencode/AGENTS.md. Cursor has no global file: paste rules.md in Settings → Rules → User Rules. Scripts: ~/.local/share/rigorkit/scripts/.
+Rules: Claude ~/.claude/CLAUDE.md; Codex ~/.codex/AGENTS.md (or $CODEX_HOME/AGENTS.md); OpenCode ~/.config/opencode/AGENTS.md. Cursor has no global file: the installer prints the rendered block to paste in Settings → Rules → User Rules. Scripts are not copied: the rules call them with `'<clone>/bin/rigorkit' script <name>`, custom scripts in ~/.rigorkit/custom/scripts first. Scripts already in ~/.local/share/rigorkit/scripts/ from 0.1.0 are left as they are.
 
-Only the block between `<!-- rigorkit:core:start -->` and `<!-- rigorkit:core:end -->` is replaced, or appended when absent; reinstall never duplicates it. Outside content stays intact. Existing files get .bak before change; --dry-run shows diff without writes.
+Only the block between `<!-- rigorkit:core:start -->` and `<!-- rigorkit:core:end -->` is replaced, or appended when absent; reinstall never duplicates it. Outside content stays intact. Existing files get `<file>.rigorkit.bak` (same mode as the original) before change; --dry-run shows diff without writes.
 Remove only rule blocks, with backups: `./install.sh --uninstall-rules --agent claude,codex,opencode`. Compare real-feature usage before/after using Claude Code /cost or OpenCode session usage.

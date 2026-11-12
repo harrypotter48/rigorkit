@@ -10,7 +10,7 @@ Non-negotiable principles for every spec, plan and task.
 4. **Valid YAML**: prefixed `name` matches its folder; English, single-quoted `description`, at most 300 characters, covering purpose, when to use and one or two request phrases. Content is English except Spanish structure aliases and quoted examples.
 5. **Generic, no secrets**: no work-project code, internal names, business data or secrets.
 6. **Reference, do not copy** third-party skills.
-7. **Preserve user files**: installer writes only between markers and keeps `.bak`; never replaces user instructions.
+7. **Preserve user files**: installer writes only between markers and keeps `<file>.rigorkit.bak` with the original's mode; never replaces user instructions.
 8. **Context economy**: each `rules.md` has a token estimate at most 300; content loaded every turn costs every turn.
 
 ## Critical paths (reinforced DoD)
