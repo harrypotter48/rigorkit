@@ -96,7 +96,7 @@ test('RF-18.F1: an unwritable record folder: install proceeds with one warning',
   const s = setup(t);
   mkdirSync(STATE(s.h.HOME), { recursive: true });
   chmodSync(STATE(s.h.HOME), 0o500);
-  t.after(() => chmodSync(STATE(s.h.HOME), 0o700));
+  t.after(() => { try { chmodSync(STATE(s.h.HOME), 0o700); } catch {} });
   const r = s.install('--global', '--pack', 'core', '--agent', 'claude');
   assert.equal(r.status, 0, r.out);
   assert.ok(existsSync(path.join(s.h.HOME, '.claude/CLAUDE.md')), 'install still wrote the rules');
@@ -163,7 +163,7 @@ test('RF-35.F1: the rename fails: install proceeds, warns, record untouched', { 
   const s = setup(t);
   corrupt(s);
   chmodSync(STATE(s.h.HOME), 0o500);
-  t.after(() => chmodSync(STATE(s.h.HOME), 0o700));
+  t.after(() => { try { chmodSync(STATE(s.h.HOME), 0o700); } catch {} });
   const r = s.install('--global', '--pack', 'core', '--agent', 'claude');
   assert.equal(r.status, 0, r.out);
   assert.match(r.out, /updates cannot manage the global scope/);

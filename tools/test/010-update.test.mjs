@@ -316,7 +316,7 @@ test('RF-37.H1: git cannot write a file the new tag changes: clone at its previo
   put(f(s, '.zshrc'), OLD_BLOCK);
   const dir = path.join(s.clone, 'packs/core/scripts');
   chmodSync(dir, 0o555);
-  t.after(() => chmodSync(dir, 0o755));
+  t.after(() => { try { chmodSync(dir, 0o755); } catch {} });
   const h0 = head(s);
   const o = upd(s);
   assert.notEqual(o.status, 0);
@@ -507,7 +507,7 @@ test('RF-19.F1: one item fails to write: error for it, the others continue, vers
   const s = setup(t, { install: { packs: 'core,sdd', agents: 'claude' }, later: changed() });
   const skills = f(s, '.claude/skills');
   chmodSync(skills, 0o555);
-  t.after(() => chmodSync(skills, 0o755));
+  t.after(() => { try { chmodSync(skills, 0o755); } catch {} });
   const o = upd(s, [[Q.group, 'y'], [Q.rules(f(s, '.claude/CLAUDE.md')), 'y']]);
   assert.match(o.out, /sdd-spec/);
   assert.match(read(f(s, '.claude/CLAUDE.md')), /Test rule change\./);
@@ -565,7 +565,7 @@ test('RF-20.F1: an unwritable global folder: error for that copy, the others wri
   const s = setup(t, { install: { packs: 'sdd', agents: 'claude' }, later: [['0.4.0', all(changeSkill('sdd', 'sdd-spec'), changeAgent('sdd', 'sdd-reviewer'))]] });
   const p = f(s, '.claude/skills/sdd-spec'), fp0 = recCopy(s, p)[5];
   chmodSync(f(s, '.claude/skills'), 0o555);
-  t.after(() => chmodSync(f(s, '.claude/skills'), 0o755));
+  t.after(() => { try { chmodSync(f(s, '.claude/skills'), 0o755); } catch {} });
   const o = upd(s, [[Q.group, 'y']]);
   assert.match(o.out, /sdd-spec/);
   assert.match(read(f(s, '.claude/agents/sdd-reviewer.md')), /Changed agent\./);
@@ -717,7 +717,7 @@ test('RF-22.F1: a failed overwrite leaves the copy and its fingerprint as they w
   const s = edited(t);
   const fp0 = recCopy(s, s.p)[5];
   chmodSync(f(s, '.claude/skills'), 0o555);
-  t.after(() => chmodSync(f(s, '.claude/skills'), 0o755));
+  t.after(() => { try { chmodSync(f(s, '.claude/skills'), 0o755); } catch {} });
   const o = upd(s, [[Q.edited(s.p), 'o']]);
   assert.match(o.out, /sdd-spec/);
   assert.equal(read(path.join(s.p, 'SKILL.md')), s.mine);
@@ -862,7 +862,7 @@ test('RF-25.F1: an unreadable custom area: one warning, the update continues', {
   const s = setup(t);
   const c = path.join(s.clone, 'custom'); mkdirSync(path.join(c, 'packs'), { recursive: true });
   chmodSync(c, 0o000);
-  t.after(() => chmodSync(c, 0o755));
+  t.after(() => { try { chmodSync(c, 0o755); } catch {} });
   const o = upd(s);
   assert.equal(version(s), '0.4.0');
   assert.equal(o.out.split('\n').filter(l => /custom/.test(l) && /warning/.test(l)).length, 1, o.out);
@@ -927,10 +927,11 @@ test('RF-26.F1: the execute bit cannot be added: reported, the update continues'
   const s = setup(t, { later: [] });
   chmodSync(script(s), 0o644);
   run('chflags', ['uchg', script(s)]);
-  t.after(() => run('chflags', ['nouchg', script(s)]));
-  const o = upd(s);
-  assert.match(o.out, /test-summary/);
-  assert.equal(o.status, 0, o.out);
+  try {
+    const o = upd(s);
+    assert.match(o.out, /test-summary/);
+    assert.equal(o.status, 0, o.out);
+  } finally { run('chflags', ['nouchg', script(s)]); }
 });
 
 test('RF-26.S1: the repair adds only the user execute bit', { skip: SKIP }, t => {
@@ -984,11 +985,12 @@ test('RF-27.F1: a file that cannot be removed is reported; the others are remove
   const s = oldScripts(t);
   put(path.join(OLD(s), 'json-peek'), read(path.join(s.clone, 'packs/core/scripts/json-peek')), 0o755);
   run('chflags', ['uchg', path.join(OLD(s), 'json-peek')]);
-  t.after(() => run('chflags', ['nouchg', path.join(OLD(s), 'json-peek')]));
-  const o = upd(s, [[Q.old, 'y']]);
-  assert.match(o.out, /json-peek/);
-  assert.equal(existsSync(path.join(OLD(s), 'test-summary')), false);
-  assert.equal(o.status, 0, o.out);
+  try {
+    const o = upd(s, [[Q.old, 'y']]);
+    assert.match(o.out, /json-peek/);
+    assert.equal(existsSync(path.join(OLD(s), 'test-summary')), false);
+    assert.equal(o.status, 0, o.out);
+  } finally { run('chflags', ['nouchg', path.join(OLD(s), 'json-peek')]); }
 });
 
 test('RF-27.S1: a user file, an edited script and a link to a user file are untouched and listed', { skip: SKIP }, t => {

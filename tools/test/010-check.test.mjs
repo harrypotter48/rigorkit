@@ -217,7 +217,7 @@ test('RF-3.E1: the next due check finding the same version asks again', { skip: 
 test('RF-3.F1: a no that cannot be recorded shows no error and is asked at the next shell', { skip: NEED_PTY || ROOT_SKIP }, t => {
   const s = plain(t);
   chmodSync(STATE(s.h.HOME), 0o500);
-  t.after(() => chmodSync(STATE(s.h.HOME), 0o700));
+  t.after(() => { try { chmodSync(STATE(s.h.HOME), 0o700); } catch {} });
   const o = shellStart(s, { steps: [[question('0.4.0', '0.3.0'), 'n']] });
   assert.doesNotMatch(o.out, /error|denied|cannot/i);
   assert.match(shellStart(s, { eof: false, timeout: 2 }).out, /Update now\?/);
@@ -242,7 +242,7 @@ test('RF-4.F1: an unreadable or malformed state shows no notice and no error', {
   assert.equal(shellStart(s).out.trim(), '');
   writeState(s.h.HOME, { checked: now(), newest: '0.4.0' });
   chmodSync(path.join(STATE(s.h.HOME), 'check'), 0o000);
-  t.after(() => chmodSync(path.join(STATE(s.h.HOME), 'check'), 0o600));
+  t.after(() => { try { chmodSync(path.join(STATE(s.h.HOME), 'check'), 0o600); } catch {} });
   assert.equal(shellStart(s).out.trim(), '');
 });
 
@@ -282,7 +282,7 @@ test('RF-31.E2: rigorkit script with non-terminal input prints byte-equal output
 test('RF-31.F1: an unreadable state: no notice, list shown, exit status unchanged', { skip: NEED_PTY || ROOT_SKIP }, t => {
   const s = plain(t);
   chmodSync(path.join(STATE(s.h.HOME), 'check'), 0o000);
-  t.after(() => chmodSync(path.join(STATE(s.h.HOME), 'check'), 0o600));
+  t.after(() => { try { chmodSync(path.join(STATE(s.h.HOME), 'check'), 0o600); } catch {} });
   const o = rk(s, ['install', '--list']);
   assert.equal(o.status, 0);
   assert.match(o.out, /rigorkit 0\.3\.0 \(local\)/);
