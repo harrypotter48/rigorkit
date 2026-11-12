@@ -19,10 +19,10 @@ Date: 2026-11-12 · Branch: feat/009-release-tag · Diff reviewed: `git diff mai
 
 Corrections applied (2026-11-12): push credential moved from argv to `GIT_CONFIG_COUNT/KEY/VALUE` env, base64 header masked (`::add-mask::`) and redacted (Sec L3, SDD L1); version compare with `BigInt` (Sec L4); README blank line before "Releases" (SDD L3). After corrections: 241 pass, 0 fail.
 
-## Open — owner decision (security medium)
-- M1: in the write job, `actions/checkout` and `actions/setup-node` receive `github.token` by default (write) and are pinned by major tag `@v6`, not SHA.
-- M2: toolkit tests run in the same job before the push step; code on `main` could influence the next step (`$GITHUB_ENV`, `$GITHUB_PATH`, workspace edits) and reach the token.
-Both need a spec amendment (RF-5.H1 "same job", NFR credentials) and a `test(amend)` (RF-5.H1 one-job check, C6 `@v6`) if changed.
+## Security medium findings — resolved (answer 9)
+- M1/M2 (write token reachable by actions and test code in one job): owner chose to split the workflow. Spec amended (clarify rounds 4–5 ready), `test(amend)` of the static checks, workflow `6eb7d4b`: read-only `test` job with SHA-pinned actions; `tag` job `needs: test`, no actions, anonymous fetch of `$GITHUB_SHA`, token only in the push step.
+- Focused security re-review: M1 and M2 closed; lows: unpinned preinstalled node/git on the runner (accepted, image already trusted); raw token no longer inherited by git children (fixed).
+- After corrections: 242 pass, 0 fail, 2 todo.
 
 ## Accepted / noted
 - Arch L1: the newest-tag rule exists in `release-tag.mjs` (JS) and `install-remote.sh` (sh); the shell accepts leading zeros. HU-2 should reuse the shell copy and align it.

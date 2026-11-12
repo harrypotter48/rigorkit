@@ -25,7 +25,8 @@ function parseArgs(argv) {
 }
 
 function git(root, args, { env = {} } = {}) {
-  const r = spawnSync('git', args, { cwd: root, encoding: 'utf8', env: { ...process.env, GIT_TERMINAL_PROMPT: '0', ...env } });
+  const { RK_PUSH_TOKEN: _token, ...base } = process.env;   // git children never see the raw token
+  const r = spawnSync('git', args, { cwd: root, encoding: 'utf8', env: { ...base, GIT_TERMINAL_PROMPT: '0', ...env } });
   return { status: r.status, stdout: (r.stdout ?? '').trim(), stderr: (r.stderr ?? '').trim() };
 }
 

@@ -3,7 +3,7 @@
 ## Resume state
 Stage: design · Approvals: spec approved 2026-11-12 (round 3 ready; C3 → VERSION 0.2.0); plan + tasks approved 2026-11-12; owner asked to work autonomously until ready (authorizes running 009 tests and the 009 commits on this branch; no push/merge).
 Branch: feat/009-release-tag · Scope owner: rigorkit only. Test runs in temp dirs authorized.
-Next step: owner decision on security M1/M2 (validation.md), then acceptance after the live release. Red `2043468` (frozen: `tools/test/009-release-tag.test.mjs`).
+Next step: owner steps (ruleset, push, PR, merge), live release v0.2.0, acceptance and archive. Red `2043468` (frozen: `tools/test/009-release-tag.test.mjs`).
 Review stations: sdd + architecture + security.
 Freeze: `tools/test/009-release-tag.test.mjs` after the approved `test(red)` commit.
 
