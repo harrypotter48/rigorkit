@@ -45,4 +45,6 @@ After corrections: 216 pass, 0 fail, 2 todo; `--check` PASS.
 - Ubuntu CI run (GNU find, man-db; D4 skips zsh/man cases there).
 - `site`: `npm run test:unit` (imports `rules.md` with `{{RIGORKIT}}`, README, constitution).
 - Release tag `vX.Y.Z` containing `bin/rigorkit` before announcing the one line (answer 26); until then the installer answers "no release exists".
-- Owner acceptance of the slice.
+
+## Acceptance
+Owner accepted HU-1 on 2026-11-12, after a live demo on macOS (one-line install from the local repo, `rigorkit help`, `man rigorkit`). Still pending at that date: Ubuntu CI run, `site` `npm run test:unit` result not reported, release tag.

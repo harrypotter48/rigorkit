@@ -2,10 +2,10 @@
 
 ## Resume state
 Stage: design (plan + tasks drafted) · Approvals: spec WHAT + threat model approved by owner 2026-11-11 (clarification round 14 ready); plan D1–D12 and blocks B1–B3 approved by owner 2026-11-11.
-Authorized blocks: B1, B2, B3 (owner 2026-11-11); owner authorized running 008 tests in temp HOMEs for B2–B3 (D3) · Current block: B3 · Current task: owner acceptance.
+Authorized blocks: B1, B2, B3 (owner 2026-11-11); owner authorized running 008 tests in temp HOMEs for B2–B3 (D3) · Current block: B3 · Current task: accepted 2026-11-12; archive next.
 Branch: feat/008-updater · Scope owner: rigorkit only.
 Pending/blockers: D3 answered 2026-11-11 (agent runs 008 tests in temp HOMEs); red commits need separate approval.
-Next step: owner acceptance of HU-1 (validation.md pending items), then archive.
+Next step: archive (sdd-archive); release tagging automation requested by the owner as a separate story.
 Review stations: sdd-reviewer + architecture-reviewer + security-reviewer (approved profile, threat-model.md §6) · Approval decision: plan approved 2026-11-11; implementation reviews pending.
 References: spec.md RF-1–RF-65 (34 RFs), INV-1/3/4, scenario tables; threat-model.md PC-1–PC-4; clarification.md Q1–Q10, R6/R9/R10, S-round, V5, round 13, X1/X2; plan.md (algorithms, contracts, decisions, test strategy, risks, plan-note table).
 Dependencies checked: `install.sh:17-287` consumers; `packs/core/rules.md`; `tools/measure-content.mjs` rules cap; CI step `.github/workflows/pages.yml` "Existing toolkit regression"; `AGENTS.md`, `specs/constitution.md`, `packs/core/README.md`, `README.md`, `site/scripts/prepare-docs.mjs` (imports `rules.md`); capability specs `factory-lanes`, `english-and-compact` (archive time).
