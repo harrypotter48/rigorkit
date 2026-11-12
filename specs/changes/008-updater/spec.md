@@ -177,7 +177,7 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 | RF-43.H1 | happy | default shell zsh, no `.zshrc` | install | `.zshrc` created with the block |
 | RF-43.E1 | edge | default shell zsh, bash installed, no `.bashrc` nor `.bash_profile` | install | no bash file created |
 | RF-43.E2 | edge | default shell bash, only `.profile` and `.bashrc` exist | install | block in `.bashrc`; no `.bash_profile` created; `.profile` byte-equal |
-| RF-43.F1 | failure | n/a — an unsupported default shell is RF-52; write failures are RF-50 | | |
+| RF-43.F | failure | n/a — an unsupported default shell is RF-52; write failures are RF-50 | | |
 | RF-43.S | security | n/a — creates only the user's own startup file | | |
 ### RF-62
 | ID | Type | Given | When | Then |
@@ -198,14 +198,14 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 |---|---|---|---|---|
 | RF-52.H1 | happy | default shell fish, zsh installed with `.zshrc` | install | block in `.zshrc`; unsupported-shell message; exit 0 |
 | RF-52.E1 | edge | default shell fish, no zsh nor bash installed | install | clone done; message; no startup file created; exit 0 |
-| RF-52.F1 | failure | n/a — failures are RF-50 | | |
+| RF-52.F | failure | n/a — failures are RF-50 | | |
 | RF-52.S | security | n/a — messages only | | |
 ### RF-54
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
 | RF-54.H1 | happy | default shell bash on macOS, only `.profile` without loading `.bashrc` | install | block in `.bashrc`; login-shell hint printed; exit 0 |
 | RF-54.E1 | edge | Ubuntu `.profile` with `. "$HOME/.bashrc"` inside an `if` | install | no hint |
-| RF-54.F1 | failure | n/a — failures are RF-50 | | |
+| RF-54.F | failure | n/a — failures are RF-50 | | |
 | RF-54.S | security | n/a — message only | | |
 ### RF-53
 | ID | Type | Given | When | Then |
@@ -234,7 +234,7 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 |---|---|---|---|---|
 | RF-2.H1 | happy | rigorkit installed with all blocks | run the installer again | "already installed", exit 0, every file byte-equal |
 | RF-2.E1 | edge | run it 3 times | — | still one block per file |
-| RF-2.F1 | failure | n/a — RF-45 covers an existing folder that is not a clone | | |
+| RF-2.F | failure | n/a — RF-45 covers an existing folder that is not a clone | | |
 | RF-2.S | security | n/a — writes nothing | | |
 ### RF-44
 | ID | Type | Given | When | Then |

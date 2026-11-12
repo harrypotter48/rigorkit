@@ -91,3 +91,4 @@ Independent sdd-reviewer; 0 high, 1 medium (W1), 5 low. Round-12 resolutions hol
 Independent sdd-reviewer; 0 high, 0 medium, 3 low. All round-13 resolutions hold. Plan notes (spec not edited): X1 RF-53 refusal also removes the temporary folder (and RF-53.H1 checks it); X2 top-folder fix runs only after the RF-53 check passes. X3 fixed in threat-model.md wording.
 Pending: owner approval of the spec with the threat-model additions before plan.
 Owner approved the HU-1 spec with threat-model additions on 2026-11-11. Next: plan.
+Editorial fix 2026-11-11 (owner approved): n/a rows RF-43.F1, RF-52.F1, RF-54.F1, RF-2.F1 renamed to RF-x.F (checker format); no behavior change.
