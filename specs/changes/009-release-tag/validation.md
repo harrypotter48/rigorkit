@@ -30,5 +30,5 @@ Corrections applied (2026-11-12): push credential moved from argv to `GIT_CONFIG
 - SDD L2: some assertions are weaker than the scenario text (RF-1.S1 position checks, RF-3.F1 empty-file message, RF-6.E1/F1 message).
 
 ## Pending (owner)
-- GitHub: tag ruleset on `v*` (only GitHub Actions) and `main` PR-only, before merge.
+- GitHub: tag ruleset on `v*` restricting updates and deletions (answer 10; no bypass possible for Actions in a personal repo) and `main` PR-only, before merge. Residual: push access can create new `v*` tags.
 - Live: after merge, `v0.2.0` published by the workflow; the one-line installer installs it (resolves HW-01); manual rows RF-2.E1/F1, RF-7.E1/F1.

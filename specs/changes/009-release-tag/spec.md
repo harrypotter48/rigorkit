@@ -43,7 +43,7 @@ After a pull request that sets `VERSION` to an unreleased `X.Y.Z` greater than e
 - No new secrets or third-party actions beyond `actions/checkout` and `actions/setup-node` (read-only `test` job only, pinned by SHA); no new npm dependencies; the existing `pages.yml` workflow and its website tests stay unchanged.
 - Version content never reaches a shell command as code: it is read as data and validated before any use.
 - Credentials (answer 9): the toolkit tests run in a read-only job; the tagging job fetches the pushed commit anonymously with plain git and uses the runner's preinstalled Node, so no action receives its write token; the token reaches only the step that pushes the tag, through `env:`. Actions in the read-only job are pinned by full commit SHA. The tagging job runs `tools/release-tag.mjs` on the runner's preinstalled Node (the script needs Node 18 or later; Node 24 applies to the `test` job).
-- Owner precondition (outside the repo, answer 5): a GitHub tag ruleset on `v*` blocks creating, moving and deleting tags for everyone except GitHub Actions; `main` accepts changes only through pull requests. Residual (answer 8): any workflow with `contents: write`, including one pushed on another branch by someone with push access, can still create a tag; today only the owner has push access.
+- Owner precondition (outside the repo, answers 5 and 10): a GitHub tag ruleset on `v*` blocks updating and deleting tags for everyone (personal repositories cannot add GitHub Actions to a bypass list, so creation stays allowed); `main` accepts changes only through pull requests. Residual (answers 8 and 10): anyone with push access, or any workflow with `contents: write`, can create a new `v*` tag; no one can move or delete a published one; today only the owner has push access.
 - Constitution: the new workflow joins the critical-path table with the regression "009 tag-logic tests against local git repositories plus the static workflow checks".
 
 ## Test scenarios
@@ -128,6 +128,7 @@ Tag logic runs against local git repositories with a local bare remote; workflow
 7. A2 several merges close together? → Accept that GitHub cancels a pending run; never two tagging jobs at once; ordering cases are manual evidence (A).
 8. A3 ruleset bypass for Actions? → Accepted residual: any workflow with write access can create a tag; only the owner has push access (A).
 9. Security review M1/M2 (2026-11-12): write token reachable by actions and test code in one job? → Split: read-only `test` job (actions pinned by SHA) and `tag` job with `needs: test`, plain git fetch, no actions, token only in the push step (A).
+10. Ruleset bypass not available for GitHub Actions in a personal repository (2026-11-12)? → Restrict only updates and deletions of `v*`; creation stays open to push access and the workflow (A).
 
 ## Open questions
 - None.
