@@ -1,0 +1,4 @@
+#!/bin/sh
+# 008-updater HU-1 scaffolding: implemented in B1 T3.
+echo "rigorkit: not implemented" >&2
+exit 1
