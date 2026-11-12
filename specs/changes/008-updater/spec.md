@@ -1,5 +1,5 @@
 # Spec 008 — Install rigorkit with one line (HU-1)
-> Status: clarifying (round 7, sliced) · Tier: feature · DoD: critical (writes user startup files, global rules and user folders) · Owner repo: rigorkit · Affected repos: rigorkit
+> Status: clarifying (round 14, threat model) · Tier: feature · DoD: critical (writes user startup files, global rules and user folders) · Owner repo: rigorkit · Affected repos: rigorkit
 > Origin: HU-1 — owner request of 2026-11-10 for an updater like oh-my-zsh's `omz update`; sliced on 2026-11-11 into HU-1 (this change), HU-2 and HU-3 (`specs/backlog.md`). The pre-slicing draft with all 41 requirements is kept in `full-draft.md` for HU-2 and HU-3.
 
 ## Context and goal
@@ -20,8 +20,8 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 ## Invariants
 - INV-1: The one-line installer and `rigorkit install` write only what the command the user ran names; `--dry-run` of `rigorkit install` and `install.sh` writes nothing.
 - INV-2: (dropped in slicing; the update-confirmation invariant stays in `full-draft.md` for HU-2.)
-- INV-3: No rigorkit command modifies, moves or deletes anything in the custom area; the one-line installer creates the missing empty `packs/` and `scripts/` folders only together with a new clone (RF-1, RF-51), never changing what already exists there.
-- INV-4: Content outside the rigorkit markers of a user startup or instruction file is never changed, and a backup `<file>.rigorkit.bak` is kept next to the real file (the target of a symbolic link) before the marked block changes (constitution §7, answer 36); a user's own `<file>.bak` is never written.
+- INV-3: No rigorkit command modifies, moves or deletes anything in the custom area; the one-line installer creates the missing empty `custom/`, `packs/` and `scripts/` folders only together with a new clone (RF-1, RF-51), never changing what already exists there.
+- INV-4: Content outside the rigorkit markers of a user startup or instruction file is never changed, and a backup `<file>.rigorkit.bak` is kept next to the real file (the target of a symbolic link), with the original file's permission mode even when the backup already exists (RF-62), before the marked block changes (constitution §7, answer 36); a user's own `<file>.bak` is never written.
 
 ## Definitions
 - **Clone**: the rigorkit repository at `~/.rigorkit` (answer 5).
@@ -45,11 +45,17 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 - RF-53: IF the checked-out ref, or an existing clone, has no `bin/rigorkit`, THEN THE SYSTEM SHALL refuse naming the ref, leave no new `~/.rigorkit`, add no startup block and exit non-zero (answer 42).
 - RF-51: IF `~/.rigorkit` contains only `custom/`, THEN THE SYSTEM SHALL clone into a temporary folder, move the clone into `~/.rigorkit`, create only the missing `custom/packs/` or `custom/scripts/`, and leave every existing file in `custom/` byte-equal (answer 41).
 - RF-48: WHERE `RIGORKIT_REMOTE` is set, THE SYSTEM SHALL clone from it instead of `https://github.com/harrypotter48/rigorkit.git`, accepting only `https://`, SSH (`ssh://` or `user@host:path`) or an existing local path, and SHALL refuse any other value, including `http://`, `git://`, `file://` and an empty value (answers 33, 34).
+- RF-60: IF no clone exists and either `RIGORKIT_REF` is set but empty, starts with `-` or fails `git check-ref-format --allow-onelevel`, or the value of `RIGORKIT_REMOTE` or its user, host or path part starts with `-`, THEN THE SYSTEM SHALL refuse naming the value, write nothing and exit non-zero (threat model T4, answer 46). With an existing clone the values are ignored (RF-58).
+- RF-63: IF any file or folder of a new clone, outside an existing `custom/`, is writable by group or others, THEN THE SYSTEM SHALL remove those permission bits and say so; IF removing them fails, THEN it SHALL name the path, leave no new `~/.rigorkit` (in the RF-51 case, only the original `custom/`), remove the temporary folder, add no startup block and exit non-zero (threat model T11, answers 46, 49). THE SYSTEM SHALL clone every new clone into a temporary folder (RF-51 or not) and run this permission fix there, before the move into `~/.rigorkit` and before any custom folder is created. WHERE `~/.rigorkit` contains only `custom/` (RF-51), IF that folder itself is writable by group or others, THEN THE SYSTEM SHALL remove those bits from that folder only, before moving the clone in, leave `custom/` unchanged and say so; IF that fails, THEN the RF-63 failure outcome applies (answer 50).
+- RF-64: WHEN the one-line installer clones in the RF-51 case, IF `custom/` or any file or folder in it is writable by group or others, THEN THE SYSTEM SHALL leave it unchanged and warn naming it with the `chmod go-w` command to fix it (INV-3, answer 47). In that case, IF a path in `custom/` cannot be read, THEN it SHALL warn naming it and continue.
+- RF-65: WHEN the one-line installer creates `custom/`, `custom/packs/` or `custom/scripts/`, THE SYSTEM SHALL create them without group or others write permission, whatever the umask (threat model T11).
 - RF-42: WHEN the one-line installer runs, THE SYSTEM SHALL add the startup block that enables the `rigorkit` command and `man rigorkit` to `.zshrc` if zsh is installed, and, if bash is installed, to `.bashrc` and to an existing `.bash_profile` that does not already load `.bashrc` (answers 21, 30).
+- RF-61: THE SYSTEM SHALL make the startup block add the clone's `bin/` to the end of `PATH`, and the repository's automated checks SHALL fail if `bin/` holds anything other than `rigorkit` (threat model T7, answer 46).
 - RF-43: IF a startup file the installer would write does not exist, THEN THE SYSTEM SHALL create it only when it is `.zshrc` or `.bashrc` of the default shell, SHALL never create `.bash_profile` (answer 30), and SHALL skip it otherwise.
-- RF-50: IF cloning or writing any startup block fails, THEN THE SYSTEM SHALL name what failed and exit non-zero, whatever the default shell.
-- RF-56: IF git is missing, no release tag exists, the ref does not exist or the clone fails, THEN THE SYSTEM SHALL leave no new `~/.rigorkit`, change no startup file and exit non-zero naming the cause.
+- RF-50: IF cloning, creating a custom folder or writing any startup block fails, THEN THE SYSTEM SHALL name what failed and exit non-zero, whatever the default shell. Unless RF-56 or RF-63 apply, THE SYSTEM SHALL continue with the remaining writes and keep them; for a custom folder that cannot be created, the message SHALL give `mkdir -m 755 <path>` to create it by hand.
+- RF-56: IF git is missing, no release tag exists, the ref does not exist or the clone fails, THEN THE SYSTEM SHALL leave no new `~/.rigorkit`, remove any temporary folder, change no startup file and exit non-zero naming the cause.
 - RF-55: IF a startup file is a symbolic link, THEN THE SYSTEM SHALL keep the link and write the block to its target.
+- RF-62: WHEN THE SYSTEM writes `<file>.rigorkit.bak`, it SHALL give it the permission mode of the original file, also when the backup already exists (threat model T10, answer 46).
 - RF-52: IF the default shell is neither zsh nor bash and nothing failed, THEN THE SYSTEM SHALL say only zsh and bash are supported and exit 0.
 - RF-54: IF bash is the default shell and neither `.bash_profile` nor a `.profile` that loads `.bashrc` exists, THEN THE SYSTEM SHALL print a hint that login bash shells will not read `.bashrc`.
 - RF-2: IF the clone and every applicable startup block already exist, THEN THE SYSTEM SHALL report that rigorkit is already installed, change nothing and exit successfully.
@@ -58,7 +64,7 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 - RF-45: IF `~/.rigorkit` exists, is not a rigorkit clone (Definitions) and is not the RF-51 case, THEN THE SYSTEM SHALL refuse, name the folder, change nothing and exit with an error.
 
 ### Installing packs (H1, H5)
-- RF-3: THE SYSTEM SHALL provide through `rigorkit install` every option `install.sh` offers today (packs, agents, project or global scope, force, dry-run, rule removal, version, list) with the same effects as Baseline 0.1.0, except: helper scripts are not copied (RF-29), global rules are rendered with the clone path (RF-49), backups are named `<file>.rigorkit.bak` (INV-4), `--list` also shows custom packs and `--uninstall-rules` also removes custom packs' rule blocks (RF-33) and `--uninstall-rules` says scripts stay in the clone.
+- RF-3: THE SYSTEM SHALL provide through `rigorkit install` every option `install.sh` offers today (packs, agents, project or global scope, force, dry-run, rule removal, version, list) with the same effects as Baseline 0.1.0, except: helper scripts are not copied (RF-29), global rules are rendered with the clone path (RF-49), backups are named `<file>.rigorkit.bak` with the original's mode (INV-4, RF-62), `--list` also shows custom packs and `--uninstall-rules` also removes custom packs' rule blocks (RF-33) and `--uninstall-rules` says scripts stay in the clone.
 - RF-46: THE SYSTEM SHALL keep `install.sh` as a supported entry point with the same behavior as `rigorkit install`, from any clone (answer 14).
 - RF-33: WHEN the user runs `rigorkit install --pack <name>` for a pack in the custom area, THE SYSTEM SHALL install it with the same options and effects as an official pack; `--pack all` SHALL include custom packs, and `--list` SHALL show them marked custom (answer 32).
 - RF-59: IF a custom pack is named `all` or its name contains `,` or whitespace, THEN THE SYSTEM SHALL neither list nor install it and SHALL warn naming it (answer 45).
@@ -100,6 +106,38 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 | RF-48.E1 | edge | `RIGORKIT_REMOTE=git@github.com:me/rigorkit.git` (fork) | run the installer | accepted as SSH |
 | RF-48.F1 | failure | `RIGORKIT_REMOTE` path does not exist | run the installer | error naming it; no `~/.rigorkit` left |
 | RF-48.S1 | security | `RIGORKIT_REMOTE` is `http://…`, `git://…`, `file://…` or empty | run the installer | refused naming the value; nothing written |
+### RF-60
+| ID | Type | Given | When | Then |
+|---|---|---|---|---|
+| RF-60.H1 | happy | `RIGORKIT_REF=v0.2.0` | run the installer | clone at `v0.2.0`; exit 0 |
+| RF-60.E1 | edge | `RIGORKIT_REF='v0..2'` (invalid ref name) or `RIGORKIT_REF=` (empty) | run the installer | refused naming it; nothing written |
+| RF-60.F1 | failure | `RIGORKIT_REF=--upload-pack=touch_marker` | run the installer | refused; marker absent; no `~/.rigorkit`; exit non-zero |
+| RF-60.S1 | security | `RIGORKIT_REMOTE='-oProxyCommand=touch_marker@h:p'` or `ssh://-oProxyCommand=x/p` | run the installer | refused; marker absent; nothing written |
+### RF-63
+| ID | Type | Given | When | Then |
+|---|---|---|---|---|
+| RF-63.H1 | happy | umask `022` | run the installer | `~/.rigorkit` mode unchanged; no message |
+| RF-63.E1 | edge | umask `000` | run the installer | group/other write bits removed from the clone; message says so |
+| RF-63.F1 | failure | umask `000`, stubbed `chmod` that fails | run the installer | error naming the path; no `~/.rigorkit`; startup files unchanged; exit non-zero; temporary folder removed |
+| RF-63.E2 | edge | RF-51 case, umask `000`, stubbed `chmod` that fails | run the installer | `~/.rigorkit` holds only the original `custom/`, byte- and mode-equal; startup files unchanged; temporary folder removed |
+| RF-63.E3 | edge | RF-51 case, `~/.rigorkit` mode `777`, `custom/` mode `775` | run the installer | `~/.rigorkit` mode `755`; message says so; `custom/` mode `775` unchanged (RF-64 warns) |
+| RF-63.F2 | failure | RF-51 case, `~/.rigorkit` mode `777`, umask `022`, stubbed `chmod` that fails only on `~/.rigorkit` | run the installer | error naming `~/.rigorkit`; it holds only the original `custom/`, byte- and mode-equal; startup files unchanged; temporary folder removed; exit non-zero |
+| RF-63.S1 | security | umask `000` | run the installer, then check every file in `~/.rigorkit` | no file or folder writable by group or others |
+### RF-64
+| ID | Type | Given | When | Then |
+|---|---|---|---|---|
+| RF-64.H1 | happy | RF-51 case, `custom/scripts/x` mode `775` | run the installer | `x` mode `775`; warning names `x` and `chmod go-w`; the new clone fixed per RF-63 |
+| RF-64.E1 | edge | RF-51 case, `custom/` modes `755`/`644` | run the installer | no warning |
+| RF-64.F1 | failure | RF-51 case, `custom/packs/secret` unreadable | run the installer | warning names it; install continues; its mode unchanged |
+| RF-64.E2 | edge | existing clone, `custom/scripts/x` mode `775` | run the installer again | no RF-64 warning (answer 48) |
+| RF-64.S1 | security | RF-51 case, any modes | run the installer | every mode and byte in `custom/` unchanged (INV-3) |
+### RF-65
+| ID | Type | Given | When | Then |
+|---|---|---|---|---|
+| RF-65.H1 | happy | new clone, umask `000` | run the installer | `custom/`, `custom/packs/`, `custom/scripts/` not group/other-writable |
+| RF-65.E1 | edge | RF-51 case with only `custom/packs/`, umask `000` | run the installer | created `custom/scripts/` not group/other-writable; `custom/packs/` mode unchanged |
+| RF-65.F1 | failure | RF-51 case, `custom/` mode `555` with only `custom/packs/` | run the installer | error names `custom/scripts` and the `mkdir -m 755` command; existing `custom/` unchanged; clone kept in `~/.rigorkit`; startup blocks added; exit non-zero (RF-50) |
+| RF-65.S1 | security | umask `000` | run the installer | no folder created by the installer is group/other-writable |
 ### RF-51
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
@@ -126,6 +164,13 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 | RF-55.E1 | edge | link to a link | install | final target gets the block; both links kept |
 | RF-55.F1 | failure | broken link | install | error naming it; nothing written there; exit non-zero |
 | RF-55.S1 | security | link target has user content | install | only the marked block added; rest byte-equal |
+### RF-61
+| ID | Type | Given | When | Then |
+|---|---|---|---|---|
+| RF-61.H1 | happy | `PATH=/usr/bin:/bin` | new shell after install | `PATH` ends with the clone's `bin`; `/usr/bin` still first |
+| RF-61.E1 | edge | startup block runs twice (RF-42.E5) | new login shell | clone `bin` appears once |
+| RF-61.F1 | failure | a file other than `rigorkit` added to `bin/` | run the checks | fail naming it |
+| RF-61.S1 | security | clone `bin/` holds a test `ls` (check disabled) | new shell, `command -v ls` | system `ls` found first |
 ### RF-43
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
@@ -134,6 +179,13 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 | RF-43.E2 | edge | default shell bash, only `.profile` and `.bashrc` exist | install | block in `.bashrc`; no `.bash_profile` created; `.profile` byte-equal |
 | RF-43.F1 | failure | n/a — an unsupported default shell is RF-52; write failures are RF-50 | | |
 | RF-43.S | security | n/a — creates only the user's own startup file | | |
+### RF-62
+| ID | Type | Given | When | Then |
+|---|---|---|---|---|
+| RF-62.H1 | happy | `.zshrc` mode `600` | install | `.zshrc.rigorkit.bak` mode `600` |
+| RF-62.E1 | edge | existing `.zshrc.rigorkit.bak` mode `644`, `.zshrc` mode `600` | install | backup mode `600` |
+| RF-62.F1 | failure | backup cannot be written | install | error naming it; original unchanged; exit non-zero |
+| RF-62.S1 | security | `CLAUDE.md` mode `600` | `rigorkit install --pack core --agent claude --global` | `CLAUDE.md.rigorkit.bak` mode `600` |
 ### RF-50
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
@@ -167,7 +219,7 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 |---|---|---|---|---|
 | RF-56.H1 | happy | git missing | run the installer | error naming git; no `~/.rigorkit`; exit non-zero (also RF-1.F2) |
 | RF-56.E1 | edge | remote without `vX.Y.Z` tags | run the installer | error saying no release exists (also RF-1.E1) |
-| RF-56.F1 | failure | clone fails midway | run the installer | partial clone removed; exit non-zero (also RF-1.F1) |
+| RF-56.F1 | failure | clone fails midway | run the installer | partial clone removed; exit non-zero (also RF-1.F1); temporary folder removed |
 | RF-56.S1 | security | any RF-56 failure with existing startup files | run the installer | startup files byte-equal |
 ### RF-58
 | ID | Type | Given | When | Then |
@@ -175,6 +227,7 @@ After the change, one line installs rigorkit into `~/.rigorkit` and enables the 
 | RF-58.H1 | happy | rigorkit installed, `RIGORKIT_REF=main` | run the installer | warning names `RIGORKIT_REF`; "already installed"; clone unchanged; exit 0 |
 | RF-58.E1 | edge | `RIGORKIT_REMOTE` set, a block missing | run the installer | warning; missing block added |
 | RF-58.F1 | failure | invalid `RIGORKIT_REMOTE` (`http://`) with an existing clone | run the installer | warning only; clone unchanged |
+| RF-58.E2 | edge | rigorkit installed, `RIGORKIT_REF=--upload-pack=touch_marker` | run the installer | warning only; marker absent; clone unchanged; exit 0 |
 | RF-58.S | security | n/a — the values are not used | | |
 ### RF-2
 | ID | Type | Given | When | Then |
@@ -351,6 +404,11 @@ Answers recorded before slicing (numbering kept from `full-draft.md`); only thos
 43. M5 scripts of custom packs? → Order: `custom/scripts/`, custom packs, official packs not replaced; scripts of a replaced official pack are not callable (A).
 44. P12 `RIGORKIT_REF`/`RIGORKIT_REMOTE` with an existing clone? → Warn that they are ignored (A).
 45. P13 custom pack named `all` or with `,`/space? → Refused with a warning (A).
+46. Threat model (2026-11-11)? → Add SR-1–SR-4 as RF-60–RF-63; PC-1–PC-4 go to the plan; profile sdd + architecture + security reviewers. `main` is protected on GitHub and only merges through pull requests (owner, T3) (A).
+47. R4 group-writable files in an existing `custom/`? → Leave unchanged, warn with the fix (A).
+48. R11 existing and development clones not checked? → Accepted residual; `rigorkit doctor` (HU-3) can check them (A).
+49. S1 `chmod` fails in RF-63? → Like RF-53/RF-56: no new clone, no startup block, original `custom/` kept (A).
+50. V1 existing group/other-writable `~/.rigorkit` in the RF-51 case? → Remove those bits from that folder only and say so (A).
 
 ## Open questions
 - None.

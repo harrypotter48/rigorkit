@@ -62,3 +62,32 @@ Independent sdd-reviewer; 0 high, 0 medium, 10 low (Q1–Q10). All round-6 resol
 Lows carried to the plan without editing the spec (an edit would need a new round): Q1 scope RF-48 to new clones; Q2 scope RF-56 to the new-clone path; Q3 RF-49 refusal scope; Q4 quoting inside the startup block; Q5 `--help` as an option value; Q6 `install.sh --help` vs `rigorkit install --help`; Q7 `--list`/`--pack all` with a shadowed name; Q8 replace every placeholder occurrence; Q9 add `custom/` to `.gitignore`; Q10 dry-run temp files.
 Pending: owner approval before plan.
 Owner approved the HU-1 spec (WHAT) on 2026-11-11. Next: threat model before plan (security lane, packs/security/README.md:13).
+
+## Clarification — round 8 trigger (2026-11-11)
+Threat model approved (answer 46); spec edited with RF-60–RF-63 and INV-4 backup mode. Round 8 audits these edits and their consistency.
+
+## Clarification — round 8 (2026-11-11) · Verdict: not ready
+Independent sdd-reviewer; 0 high, 4 medium (R1–R4), 7 low. Fixed: R1 RF-60 user part; R2 RF-60 scoped to no clone + RF-58.E2; R3 RF-63 every file/folder; R5 RF-3 exception; R7 RF-63.F1; R8 empty ref and check-ref-format. Plan notes: R6 (HOME with a space, PC-3), R9 (older rigorkit earlier in PATH), R10 (set backup mode before writing). Owner choices raised: R4 (RF-63 vs existing custom/ and INV-3), R11 (existing and development clones not checked).
+Owner answered R4, R11 (spec answers 47–48): RF-63 excludes existing custom/, RF-64 warns; residual recorded in threat-model.md.
+
+## Clarification — round 9 (2026-11-11) · Verdict: not ready
+Independent sdd-reviewer; 0 high, 2 medium (S1, S2), 5 low. All round-8 resolutions hold. Fixed: S2 RF-64 trigger + RF-64.E2; S3 RF-65; S4 RF-60 precedence; S5 RF-60.H1; S6 RF-64 unreadable path + RF-64.F1. Accepted: S7 (RF-61 keeps two behaviors). Plan notes: stub chmod for RF-63.F1; RF-51 temp folder via mktemp -d under $HOME. Owner choice raised: S1 (outcome when chmod fails in RF-63).
+Owner answered S1 (spec answer 49): RF-63 failure leaves no clone and no block; RF-63.F1/E2.
+
+## Clarification — round 10 (2026-11-11) · Verdict: not ready
+Independent sdd-reviewer; 0 high, 1 medium (T1), 5 low. Fixed: T1 RF-50 covers custom-folder creation (clone kept, as for startup blocks) + RF-65.F1; T2 RF-65 'one-line installer'; T3 RF-64 scope; T4 RF-63 ordering; T5 INV-3 + RF-65.S1; T6 status header.
+
+## Clarification — round 11 (2026-11-11) · Verdict: not ready
+Independent sdd-reviewer; 0 high, 1 medium (U1), 4 low. Fixed: U1 RF-50 keeps the clone and other writes (except RF-56/RF-63) + RF-65.F1; U2/U3 RF-63 temporary folder for every new clone, own sentence; U4 RF-65.F1 Given; U5 message to create the folder by hand.
+
+## Clarification — round 12 (2026-11-11) · Verdict: not ready
+Independent sdd-reviewer; 0 high, 1 medium (V1, owner), 4 low. Round-11 resolutions hold. Fixed: V2 temporary folder removed in RF-63.F1/E2, RF-56.F1; V3/V4 RF-50 continue-and-keep wording, exception reworded, `mkdir -m 755` in the message. Plan notes: V5 (RF-63 'outside custom/' clause never matches in the temp folder; RF-65.F1 not valid as root). Owner choice raised: V1 (existing group/other-writable `~/.rigorkit` top folder in the RF-51 case).
+Owner answered V1 (spec answer 50): RF-63 fixes the existing ~/.rigorkit folder in the RF-51 case + RF-63.E3.
+
+## Clarification — round 13 (2026-11-11) · Verdict: not ready
+Independent sdd-reviewer; 0 high, 1 medium (W1), 5 low. Round-12 resolutions hold. Fixed: W1 RF-63.F2 + folder fix before the move; W2 WHERE wording; W3 temporary folder removal in RF-56/RF-63 text; W4 RF-65.F1; W5 RF-64 covers custom/ itself; W6 threat-model residual. Plan note: a failed move into a non-writable existing ~/.rigorkit is handled as RF-56.
+
+## Clarification — round 14 (2026-11-11) · Verdict: ready
+Independent sdd-reviewer; 0 high, 0 medium, 3 low. All round-13 resolutions hold. Plan notes (spec not edited): X1 RF-53 refusal also removes the temporary folder (and RF-53.H1 checks it); X2 top-folder fix runs only after the RF-53 check passes. X3 fixed in threat-model.md wording.
+Pending: owner approval of the spec with the threat-model additions before plan.
+Owner approved the HU-1 spec with threat-model additions on 2026-11-11. Next: plan.
