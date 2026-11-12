@@ -1,7 +1,7 @@
 # Tasks — 010-update (HU-2 Update check and `rigorkit update`)
 
 ## Resume state
-Stage: acceptance · Approvals: owner chose one spec (answer 1), answers 2–3; owner delegated the remaining choices and asked to work autonomously until done (answer 4, 2026-11-12: authorizes the clarify rounds, plan, tasks, 010 tests in temporary folders and the 010 commits on this branch; no push or merge). Spec, plan, ratchet baseline and delegated choices are confirmed by the owner at acceptance.
+Stage: archived 2026-11-12 · Approvals: owner chose one spec (answer 1), answers 2–3; owner delegated the remaining choices and asked to work autonomously until done (answer 4, 2026-11-12: authorizes the clarify rounds, plan, tasks, 010 tests in temporary folders and the 010 commits on this branch; no push or merge). Spec, plan, ratchet baseline and delegated choices are confirmed by the owner at acceptance.
 Branch: feat/010-update · Scope owner: rigorkit only.
 Next step: owner push, PR and CI (Linux), manual checks in `validation.md`, acceptance, archive. Red `12755a0`; amendments `aa1fce5`, `60ceb03`, `8cca976`, `7b61759` (harness and 008 command list only; no assertion weakened); feat `2d46609`; baseline `b350414`.
 Review stations: sdd + architecture + security (critical DoD).
@@ -24,6 +24,6 @@ Done when: a test remote update moves the clone and asks each refresh question p
 - [x] T6. `lib/common.sh`, `lib/update.sh` phase 1 and phase 2; `bin/rigorkit` `update` arm.
 
 ### B4 — Close (NFR, critical DoD)
-Evidence 2026-11-12 (macOS): `node --test tools/test/*.test.mjs` 426 tests, 423 pass, 0 fail, 2 todo (008); 010 files: check 48/48, update 105/105, install-record 18/18, repo-checks 11/11; `generate-man --check` PASS; scenario checker 195 scenarios PASS; content ratchet vs `specs/changes/010-update/baseline.txt` PASS (entry skills +30 tokens each, owner confirmation pending). Linux CI pending (push is the owner's).
-- [x] T7. Full suite green, scenario checker, content ratchet with a new baseline `specs/changes/010-update/baseline.txt` (`AGENTS.md` path), constitution critical-path row for `lib/`.
+Evidence 2026-11-12 (macOS): `node --test tools/test/*.test.mjs` 426 tests, 423 pass, 0 fail, 2 todo (008); 010 files: check 48/48, update 105/105, install-record 18/18, repo-checks 11/11; `generate-man --check` PASS; scenario checker 195 scenarios PASS; content ratchet vs `specs/archive/010-update/baseline.txt` PASS (entry skills +30 tokens each, owner confirmation pending). Linux CI pending (push is the owner's).
+- [x] T7. Full suite green, scenario checker, content ratchet with a new baseline `specs/archive/010-update/baseline.txt` (`AGENTS.md` path), constitution critical-path row for `lib/`.
 - [x] T8. Three independent reviews, one correction round, `validation.md`, manual items for the owner (RF-9 in Claude Code, live demo).
