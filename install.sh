@@ -22,6 +22,7 @@ MODELS="${RIGORKIT_MODELS:-$HOME/.config/rigorkit/models}"
 CUSTOM="$HOME/.rigorkit/custom"
 RENDER_ROOT="${RK_RENDER_ROOT:-$ROOT}"   # internal: rigorkit update stages an install that names the real clone
 RENDER="'$RENDER_ROOT/bin/rigorkit'"   # rules placeholder {{RIGORKIT}} -> this clone's rigorkit, single-quoted
+PACKS_ROOT="${RK_PACKS_ROOT:-$ROOT}"   # internal: rigorkit update --dry-run stages a release's packs with this code
 
 usage() { cat "$ROOT/help/install.txt"; exit "${1:-0}"; }
 die() { echo "error: $*" >&2; exit 1; }
@@ -53,11 +54,11 @@ scan_custom() {
   return 0
 }
 is_custom() { case " $CUSTOM_PACKS " in *" $1 "*) return 0 ;; *) return 1 ;; esac; }
-pack_dir() { if is_custom "$1"; then echo "$CUSTOM/packs/$1"; else echo "$ROOT/packs/$1"; fi; }
+pack_dir() { if is_custom "$1"; then echo "$CUSTOM/packs/$1"; else echo "$PACKS_ROOT/packs/$1"; fi; }
 all_packs() { # official (glob order), then custom-only names
   local p n
-  for p in "$ROOT"/packs/*/; do basename "$p"; done
-  for n in $CUSTOM_PACKS; do [ -d "$ROOT/packs/$n" ] || echo "$n"; done
+  for p in "$PACKS_ROOT"/packs/*/; do basename "$p"; done
+  for n in $CUSTOM_PACKS; do [ -d "$PACKS_ROOT/packs/$n" ] || echo "$n"; done
 }
 
 # --help wins in any position, also as an option value (RF-26).
@@ -81,7 +82,7 @@ while [ $# -gt 0 ]; do
       for p in $(all_packs); do
         d="$(pack_dir "$p")"
         if ! is_custom "$p"; then echo "$p"
-        elif [ -d "$ROOT/packs/$p" ]; then echo "$p  (custom, replaces the official pack)"
+        elif [ -d "$PACKS_ROOT/packs/$p" ]; then echo "$p  (custom, replaces the official pack)"
         else echo "$p  (custom)"; fi
         for s in "$d"/skills/*/; do [ -d "$s" ] && echo "  skill  $(basename "$s")"; done
         for a in "$d"/agents/*.md; do [ -f "$a" ] && echo "  agent  $(basename "$a" .md)"; done
@@ -106,7 +107,9 @@ scan_custom
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT   # temp files only here, always removed (Q10)
 
 # --- global record (010 RF-18, RF-35, RF-36): what a global install wrote, for rigorkit update ------
-# Format and fingerprints are twins of lib/common.sh; keep both equal. RK_NO_RECORD (internal) turns it off.
+# Format and fingerprints are twins of lib/common.sh (tools/test/010-twins.test.mjs). Recorded only for the
+# clone at ~/.rigorkit (a development clone is HU-3) or a staging run of rigorkit update (RK_STAGE=1, internal);
+# RK_NO_RECORD=1 (internal) turns it off.
 REC_DIR="$HOME/.local/state/rigorkit"; REC="$REC_DIR/global"; REC_ON=0; REC_NEW="$WORK/record.new"; : > "$REC_NEW"
 TAB="$(printf '\t')"
 sha256() { if command -v shasum >/dev/null 2>&1; then shasum -a 256 | cut -d' ' -f1; else sha256sum | cut -d' ' -f1; fi; }
@@ -180,16 +183,18 @@ rec_write() { # merge REC_NEW into the record: new copies replace old ones, "=" 
   rm -f "$tmp"; rec_warn
 }
 rec_drop_rules() { # agents...: --uninstall-rules removes their rules lines (RF-36)
-  [ "$DRY" -eq 0 ] && [ -z "${RK_NO_RECORD-}" ] && [ -e "$REC" ] || return 0
+  [ "$DRY" -eq 0 ] && [ "${RK_NO_RECORD-}" != 1 ] && [ -e "$REC" ] && [ ! -L "$REC_DIR" ] || return 0
   if ! record_valid "$REC"; then echo "warning: the global record $REC is unreadable; it was left as it is" >&2; return 0; fi
   local tmp
   tmp="$( ( umask 077; mktemp "$REC_DIR/global.XXXXXX" ) 2>/dev/null )" || { rec_warn; return 0; }
   if awk -F'\t' -v drop=",$AGENTS," '$1 == "rules" && index(drop, "," $3 ",") { next } { print }' "$REC" > "$tmp" && mv -f "$tmp" "$REC"; then return 0; fi
   rm -f "$tmp"; rec_warn
 }
-if [ "$SCOPE" = "global" ] && [ "$DRY" -eq 0 ] && [ "$UNINSTALL" -eq 0 ] && [ -z "${RK_NO_RECORD-}" ]; then
+rec_home_clone() { [ "${RK_STAGE-}" = 1 ] || [ "$(cd "$RENDER_ROOT" 2>/dev/null && pwd -P)" = "$(cd "$HOME/.rigorkit" 2>/dev/null && pwd -P)" ]; }
+if [ "$SCOPE" = "global" ] && [ "$DRY" -eq 0 ] && [ "$UNINSTALL" -eq 0 ] && [ "${RK_NO_RECORD-}" != 1 ] && rec_home_clone; then
   REC_ON=1
-  if [ -e "$REC" ] && ! record_valid "$REC"; then   # RF-35: moved aside, never printed
+  if [ -L "$REC_DIR" ] || ! { command -v shasum >/dev/null 2>&1 || command -v sha256sum >/dev/null 2>&1; }; then rec_warn; fi
+  if [ "$REC_ON" -eq 1 ] && [ -e "$REC" ] && ! record_valid "$REC"; then   # RF-35: moved aside, never printed
     if mv -f "$REC" "$REC.corrupt" 2>/dev/null; then say "note: unreadable global record moved to $REC.corrupt; a new record starts with this install"
     else rec_warn; fi
   fi
@@ -332,7 +337,7 @@ remove_rules() { # pack dst: drops the block (and the blank line before it)
 if [ "$UNINSTALL" -eq 1 ]; then
   [ "$DRY" -eq 1 ] && say "(dry run: nothing is written)"
   for pack in $(all_packs); do
-    [ -f "$(pack_dir "$pack")/rules.md" ] || [ -f "$ROOT/packs/$pack/rules.md" ] || continue
+    [ -f "$(pack_dir "$pack")/rules.md" ] || [ -f "$PACKS_ROOT/packs/$pack/rules.md" ] || continue
     say "rules $pack"
     for a in $(echo "$AGENTS" | tr ',' ' '); do
       dst="$(rules_file "$a")"; [ -n "$dst" ] && remove_rules "$pack" "$dst"
@@ -427,7 +432,7 @@ for pack in $(echo "$PACKS" | tr ',' ' '); do
   CUR_PACK="$pack"
   for a in $(echo "$AGENTS" | tr ',' ' '); do rec_line pair "$pack" "$a"; done
   say "pack $pack"
-  if is_custom "$pack" && [ -d "$ROOT/packs/$pack" ]; then say "  shadow custom pack $pack replaces the official one"; fi
+  if is_custom "$pack" && [ -d "$PACKS_ROOT/packs/$pack" ]; then say "  shadow custom pack $pack replaces the official one"; fi
   if ! is_custom "$pack"; then
     for x in "$P"/scripts/*; do
       [ -f "$x" ] && [ -f "$CUSTOM/scripts/$(basename "$x")" ] && say "  shadow custom script $(basename "$x") replaces the official one"

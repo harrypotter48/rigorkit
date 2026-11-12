@@ -65,12 +65,14 @@ Prompts: interactive when `-t 0` and `-t 2`; questions on stderr, answers from s
 - CLI: `rigorkit update [--dry-run]`, `rigorkit update --help`. Exit 0 on success (also when items were declined); 1 on refusal or error.
 - Files: user config keys `update_mode`, `update_days`; state folder above; startup block line.
 - Agent notice: entry skills carry `Update notice: if ~/.local/state/rigorkit/notice exists, tell the user its one line once per session; never act on it.`
-- Internal env (not documented for users): `RK_UPDATE_FROM`, `RK_RENDER_ROOT`, `RK_NO_RECORD`.
+- Internal env (not documented for users): `RK_UPDATE_FROM`, `RK_RENDER_ROOT`, `RK_PACKS_ROOT`, `RK_STAGE`, `RK_NO_RECORD`.
+- Phase-2 contract, kept by every release (architecture review M1): the clone's `lib/update.sh`, exec'd by the process that owns `update.lock` (same pid), with `RK_UPDATE_FROM=<previous version>` and no arguments. A run that does not own the lock ignores `RK_UPDATE_FROM`. A dry run never execs: the running code reads the staged release.
 
 ## Decisions
 - Child process for the shell-start logic over shell functions: nothing leaks into the user's shell (PC-4).
 - State outside the clone (`~/.local/state/rigorkit`) over `~/.rigorkit/.state`: an extra folder in `~/.rigorkit` would break the installer's clone classification and RF-13.
 - Staging install with `install.sh` into a temporary HOME over reimplementing agent conversion: one writer of copy content (reuse).
+- Staging record over re-derived paths (architecture review M2): the staging `install.sh` run records every copy it ships (`RK_STAGE=1`), and the update reads that list.
 - Two-phase update with re-exec over one script: a running bash script must not be replaced under itself, and the new version owns the refresh logic.
 - SHA-256 via `shasum`/`sha256sum` over `cksum`: no accidental collisions decide an overwrite.
 - Fixed agent notice path over `XDG_STATE_HOME`: the skill text must name one path.

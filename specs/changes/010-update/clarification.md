@@ -48,3 +48,6 @@ Independent sdd-reviewer; 0 high, 0 medium, 3 low. Q-closures hold; SR-1–SR-6 
 Accepted low, resolved in the plan without a spec edit: R1 (`--dry-run` and `--help` count only as options of `rigorkit` and its `install`/`update` commands, never inside `rigorkit script` arguments); R2 (capability RF-6 entry gains the check note at archive); R3 (RF-37.H1 built with a work-tree file git cannot overwrite).
 Approval: owner delegated (answer 4); spec, plan and delegated choices are confirmed at acceptance.
 - Format fix (2026-11-12, no behavior change): n/a failure rows renamed RF-n.F as the scenario checker requires.
+
+## Review corrections (2026-11-12)
+Three independent reviews (sdd: 1 high, 5 medium; architecture: 0 high, 5 medium; security: 0 high, 2 medium) and one correction round. Spec edits: RF-18 scope (clone at `~/.rigorkit`), out-of-scope line for development clones, answer 5. Regression tests: `tools/test/010-review.test.mjs`. Round 8 re-audits these edits.

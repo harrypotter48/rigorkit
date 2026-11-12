@@ -1,5 +1,5 @@
 # Threat model — 010-update (2026-11-12)
-> Security lane, before plan (`packs/security/README.md`). Reference: `packs/security/skills/security-baselines`, threat model 008 (`specs/archive/008-updater/threat-model.md`). Scope: `spec.md` (HU-2). Status: draft; owner delegated decisions (spec answer 4), owner reviews at acceptance.
+> Security lane, before plan (`packs/security/README.md`). Reference: `packs/security/skills/security-baselines`, threat model 008 (`specs/archive/008-updater/threat-model.md`). Scope: `spec.md` (HU-2). Status: reviewed 2026-11-12 (security review: 0 high, 2 medium fixed — T17, T18 —, lows L1–L5 fixed, L6/L7 accepted as T19/T20); owner delegated decisions (spec answer 4), owner reviews at acceptance.
 
 ## 1. Assets
 | Asset | Sensitivity |
@@ -41,6 +41,10 @@
 | T13 | — | Backups of startup files or rules readable by others | capability `installer` RF-1 backup keeps mode | Reuse the same backup | covered |
 | T14 | — | `--dry-run` writes to `~/.rigorkit/.git` | Answer 3 | — | accepted |
 | T15 | B4 | Injected agent running in a pseudo-terminal answers the refresh questions | Diffs shown; same power as `rigorkit install --force`, which agents can already run | Residual (spec answer 4, L8) | accepted residual |
+| T17 | B1 | `--dry-run` used to vet a release runs that release's code | Fixed in review: phase 2 of the running code reads the staged release; staging uses the running `install.sh` with the release's packs (`RK_PACKS_ROOT`) | — | covered |
+| T18 | B1 | A release tracking files under the git-ignored `custom/` overwrites them on checkout | Fixed in review: such a release is refused before the move | — | covered |
+| T19 | B5 | `~/.claude` or `~/.claude/skills` is itself a link (dotfiles): copies are written into its target | Only the last path component is checked (SR-6); the user chose the link | Residual | accepted residual |
+| T20 | B3 | The check triggers GUI prompts (ssh-agent confirmation, FIDO touch, GUI credential helper) | `BatchMode`, `GIT_TERMINAL_PROMPT=0`, `GIT_ASKPASS=false` stop terminal prompts only | Residual; `update_mode = disabled` turns the check off | accepted residual |
 | T16 | B1 | `New packs:` names from the remote changelog reach the question and the installer | RF-23: only names the clone or custom area ships, valid pack names; printed safely | — | covered |
 
 ## 5. Requirements

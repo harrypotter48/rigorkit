@@ -14,8 +14,8 @@ newer() { # a b -> status 0 when version a > version b
 sort_versions() { # stdin versions -> ascending, valid ones only
   awk '/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/' | LC_ALL=C sort -t. -k1,1n -k2,2n -k3,3n | uniq
 }
-print_safe() { # stdin -> stdout; control characters other than tab and newline become "?" (SR-2)
-  LC_ALL=C awk '{ gsub(/[\001-\010\013-\037\177]/, "?"); print }'
+print_safe() { # stdin -> stdout; C0 controls other than tab and newline, DEL and UTF-8 C1 controls become "?" (SR-2)
+  LC_ALL=C awk '{ gsub(/\302[\200-\237]/, "?"); gsub(/[\001-\010\013-\037\177]/, "?"); print }'
 }
 say_safe() { printf '%s\n' "$*" | print_safe; }
 

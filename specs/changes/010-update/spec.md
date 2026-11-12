@@ -72,7 +72,7 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 - RF-33: WHEN the one-line installer writes a startup block, THE SYSTEM SHALL write the current block, which starts the check and the notices (K11).
 
 ### Global refresh (H4)
-- RF-18: WHEN `rigorkit install --global` writes, skips or finds identical an installed copy or rules block, THE SYSTEM SHALL record the pack/agent pair, the version and the fingerprint as it is on disk after the install (a skipped differing copy without a fingerprint, keeping the fingerprint and declined content it already had, M6); writing a copy clears its declined content (N1); the recorded global version is set only when the scope had no record (a later install keeps it, L7); `--dry-run` records nothing; a project install never changes the record (dRF-20, dRF-34 for the global scope).
+- RF-18: WHEN `rigorkit install --global` of the clone (`~/.rigorkit`) writes, skips or finds identical an installed copy or rules block, THE SYSTEM SHALL record the pack/agent pair, the version and the fingerprint as it is on disk after the install (a skipped differing copy without a fingerprint, keeping the fingerprint and declined content it already had, M6); writing a copy clears its declined content (N1); the recorded global version is set only when the scope had no record (a later install keeps it, L7); `--dry-run` records nothing; a project install never changes the record (dRF-20, dRF-34 for the global scope).
 - RF-35: IF `rigorkit install --global` without `--dry-run` or `--uninstall-rules` finds the global record unreadable, THEN THE SYSTEM SHALL rename it to `<record>.corrupt` (replacing an older one), start a new record with this install and say so (L1).
 - RF-36: WHEN `--uninstall-rules` removes a rules block, THE SYSTEM SHALL remove that block from the global record.
 - RF-19: WHEN `rigorkit update` ends without a refusal and the global record exists and is readable, THE SYSTEM SHALL run the global refresh for the recorded pack/agent pairs (RF-20–RF-23, RF-27, RF-28) and set the recorded global version to the clone version only when no question of the refresh was answered no or left unanswered (RF-30) and no item failed; a keep answer (RF-22) is not a no.
@@ -408,7 +408,7 @@ In a temporary HOME, with rigorkit installed by the one-line installer from a lo
 On archive, capability `installer` changes (L10): RF-1 startup block also starts the check (RF-33); RF-3 adds to the listed differences from 0.1.0 the global record (RF-18, RF-35, RF-36) and, for `rigorkit install` only, the check and notice of interactive runs (RF-1, RF-31); RF-5 interactive `rigorkit script` runs may start the background check (RF-1) and print the notice line on standard error (RF-31); RF-6 lists `update` and its help; `bin/` still holds only `rigorkit`; new contracts for the check, notices and `rigorkit update`.
 
 ## Out of scope
-- Projects, the registry of projects, development installs, 0.1.0 migration and scan, `rigorkit doctor` (HU-3; dRF-15, dRF-20–24, dRF-35, dRF-36, dRF-39).
+- Projects, the registry of projects, development installs (a global install from a development clone is not recorded), 0.1.0 migration and scan, `rigorkit doctor` (HU-3; dRF-15, dRF-20–24, dRF-35, dRF-36, dRF-39).
 - Moving an edited copy to the custom area (draft answer 7's third option; delegated G4 — the custom area keeps owning whole packs).
 - Aligning `tools/install-remote.sh`'s newest-tag rule (it accepts leading zeros) with this change's rule; recorded as a follow-up (K15).
 - An `auto` mode, `--yes`, signed releases, Windows, shells other than zsh and bash, hooks of one tool (draft out of scope).
@@ -433,6 +433,8 @@ Draft answers 1–24 (`specs/archive/008-updater/full-draft.md`) apply unless ch
    - G4: no "move to custom" choice; edited copies are overwritten or kept; keep is remembered until the official content changes again.
    - G23: one question per pack named as new in the changelog since the recorded global version; global scope only; every recorded agent. The record keeps pack/agent pairs (M4).
    - New: startup blocks that differ from the current one are offered per file (RF-17); a global scope without a readable record is not refreshed and the update says how to record it (RF-24); 0.2.0 clones move to the first update-capable release by documented manual commands (RF-34); one update at a time (RF-32); an unreachable remote ends the update with no refresh (L5); a later global install keeps the recorded version (L7); a corrupted record is moved aside by the next global install (L1); an agent in a pseudo-terminal counts as interactive and can answer the questions (L8, accepted residual T15 in the threat model).
+
+5. Review corrections (2026-11-12, delegated, no new user-visible choice): a dry run reads the staged release with the running code and never runs the release's code (INV-1); a release that tracks files under `custom/` is refused (INV-3); only the clone at `~/.rigorkit` records the global scope (RF-18); skipped questions in a non-interactive run keep the recorded version (RF-19, RF-30).
 
 ## Open questions
 - None.

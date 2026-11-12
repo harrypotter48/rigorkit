@@ -6,14 +6,15 @@
 # The body runs from main(), called on the last line, so a checkout that replaces this file mid-run is safe.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
+CODE="$(cd "$(dirname "$0")/.." && pwd -P)"   # the running code (install.sh, lib/)
+ROOT="$CODE"   # the release content read by phase 2: the staged release in a dry run (never executed)
 CLONE="$HOME/.rigorkit"
 STATE="$HOME/.local/state/rigorkit"
 REC="$STATE/global"
 OLDDIR="$HOME/.local/share/rigorkit/scripts"
-. "$ROOT/lib/common.sh"
+. "$CODE/lib/common.sh"
 
-DRY=0; IA=0; NO=0; FAILED=0; UNANSWERED=0; ASKED=0
+DRY=0; IA=0; NO=0; FAILED=0; UNANSWERED=0; ASKED=0; REFRESH=0; LOCKED=0; STAGE=""; DRYTMP=""
 SKIPPED=(); PENDING=()
 [ -t 0 ] && [ -t 2 ] && IA=1
 
@@ -25,12 +26,13 @@ git_safe() { # git with the check's hardening (SR-3, PC-2)
 ask() { # question key -> status 0 on yes (y/yes); records no, skips or prints in a dry run
   ASKED=1
   if [ "$DRY" -eq 1 ]; then say_safe "would ask: $1"; return 1; fi
-  if [ "$IA" -eq 0 ]; then SKIPPED+=("$2"); return 1; fi
+  # Only refresh questions decide the recorded global version (RF-19); an unanswered one counts (RF-30).
+  if [ "$IA" -eq 0 ]; then SKIPPED+=("$2"); [ "$REFRESH" -eq 1 ] && UNANSWERED=1; return 1; fi
   local a=""
   printf '%s [y/N] ' "$1" | print_safe | tr -d '\n' >&2
   read -r a || a=""
   case "$a" in [yY]|[yY][eE][sS]) return 0 ;; esac
-  NO=1; PENDING+=("$2"); return 1
+  [ "$REFRESH" -eq 1 ] && NO=1; PENDING+=("$2"); return 1
 }
 ask_ok() { # question key -> 0 overwrite, 1 keep, 2 unanswered
   ASKED=1
@@ -54,16 +56,27 @@ write_state() { # newest: checked now, declined cleared; agent notice removed
 }
 
 # --- phase 1 -------------------------------------------------------------------------------------------
-lock() {
+lock() { # one update at a time (RF-32): a folder with the owner's pid; a dead or old empty lock is taken over
+  local L="$STATE/update.lock" pid moved
+  [ -L "$STATE" ] && { err "$STATE is a symbolic link; not updating"; exit 1; }
   ( umask 077; mkdir -p "$STATE" ) 2>/dev/null
-  if ! mkdir "$STATE/update.lock" 2>/dev/null; then
-    local pid; pid="$(cat "$STATE/update.lock/pid" 2>/dev/null)"
+  if ! ( umask 077; mkdir "$L" ) 2>/dev/null; then
+    pid="$(cat "$L/pid" 2>/dev/null)"
     if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then err "another rigorkit update is running (pid $pid)"; exit 1; fi
-    rm -rf "$STATE/update.lock"; mkdir "$STATE/update.lock" 2>/dev/null || { err "cannot lock $STATE/update.lock"; exit 1; }
+    if [ -z "$pid" ] && [ -z "$(find "$L" -prune -mmin +1 2>/dev/null)" ]; then err "another rigorkit update is running"; exit 1; fi
+    moved="$STATE/update.lock.stale.$$"
+    mv "$L" "$moved" 2>/dev/null || { err "another rigorkit update is running"; exit 1; }
+    if [ "$(cat "$moved/pid" 2>/dev/null)" != "$pid" ]; then   # someone else took it meanwhile: give it back
+      [ -e "$L" ] || mv "$moved" "$L" 2>/dev/null; err "another rigorkit update is running"; exit 1
+    fi
+    rm -rf "$moved"
+    ( umask 077; mkdir "$L" ) 2>/dev/null || { err "another rigorkit update is running"; exit 1; }
   fi
-  echo $$ > "$STATE/update.lock/pid"
+  echo $$ > "$L/pid"; LOCKED=1
 }
-unlock() { [ "$DRY" -eq 1 ] || rm -rf "$STATE/update.lock"; }
+owns_lock() { [ "$(cat "$STATE/update.lock/pid" 2>/dev/null)" = "$$" ]; }
+unlock() { if [ "$LOCKED" -eq 1 ] && owns_lock; then rm -rf "$STATE/update.lock"; fi; return 0; }
+cleanup() { [ -n "$STAGE" ] && rm -rf "$STAGE"; [ -n "$DRYTMP" ] && rm -rf "$DRYTMP"; unlock; }
 
 local_changes() { # porcelain paths except execute-bit-only changes of official helper scripts
   local line p
@@ -91,7 +104,6 @@ phase1() {
   local current newest out remote changes tagged old
   [ -d "$CLONE/.git" ] || { err "$CLONE is not a git clone; reinstall rigorkit"; exit 1; }
   [ "$DRY" -eq 1 ] || lock
-  trap unlock EXIT
   current="$(tr -d ' \t\r\n' < "$CLONE/VERSION" 2>/dev/null)"
   changes="$(local_changes)"
   if [ -n "$changes" ]; then
@@ -105,7 +117,8 @@ phase1() {
   fi
   newest="$(git -C "$CLONE" tag -l 'v*' | sed 's/^v//' | sort_versions | tail -1)"
   if [ -z "$newest" ] || ! valid_version "$current" || ! newer "$newest" "$current"; then
-    if [ -z "$newest" ]; then echo "no release found on $remote"
+    if ! valid_version "$current"; then say_safe "the VERSION of $CLONE is not a valid version; not moving it"
+    elif [ -z "$newest" ]; then echo "no release found on $remote"
     elif [ "$newest" = "$current" ]; then echo "rigorkit is up to date ($current)"
     else say_safe "rigorkit $current is newer than the newest release $newest"; fi
     fix_exec_bits
@@ -121,24 +134,29 @@ phase1() {
   if ! git -C "$CLONE" merge-base --is-ancestor HEAD "v$newest^{commit}" 2>/dev/null; then
     err "release v$newest does not descend from your clone (rewritten history?); not updating"; exit 1
   fi
+  if [ -n "$(git -C "$CLONE" ls-tree -r --name-only "v$newest" -- custom 2>/dev/null)" ]; then   # INV-3
+    err "release v$newest tracks files under custom/, which updates never touch; not updating"; exit 1
+  fi
   fix_exec_bits
   echo "rigorkit $current -> $newest"
-  if [ "$DRY" -eq 1 ]; then
-    local tmp; tmp="$(mktemp -d)"
-    trap 'rm -rf "$tmp"' EXIT
-    mkdir "$tmp/new" && git -C "$CLONE" archive "v$newest" | tar -x -C "$tmp/new" || { err "cannot read release v$newest"; exit 1; }
-    RK_UPDATE_FROM="$current" bash "$tmp/new/lib/update.sh" --dry-run
+  if [ "$DRY" -eq 1 ]; then   # this code reads the staged release; nothing from it runs (threat model M1)
+    DRYTMP="$(mktemp -d)"
+    mkdir "$DRYTMP/new" && git -C "$CLONE" archive "v$newest" | tar -x -C "$DRYTMP/new" || { err "cannot read release v$newest"; exit 1; }
+    ROOT="$DRYTMP/new"
+    phase2 "$current"
     exit $?
   fi
   old="$(git -C "$CLONE" rev-parse HEAD)"
   # git can report a file it could not write and still exit 0: a clean work tree is the real success test.
   if ! out="$(git -C "$CLONE" -c advice.detachedHead=false checkout --quiet --detach "v$newest" 2>&1)" ||
-     [ -n "$(git -C "$CLONE" status --porcelain=v1 --untracked-files=no 2>/dev/null)" ]; then
+     [ -n "$(local_changes)" ]; then
     git -C "$CLONE" -c advice.detachedHead=false checkout --quiet --force --detach "$old" >/dev/null 2>&1
     git -C "$CLONE" reset --quiet --hard "$old" >/dev/null 2>&1
+    git -C "$CLONE" clean -fdq >/dev/null 2>&1   # only files the failed move added: RF-13 left none before it
     err "cannot move $CLONE to v$newest:"; printf '%s\n' "$out" | sed 's/^/  /' | print_safe >&2; exit 1
   fi
-  trap - EXIT
+  # Phase-2 contract (kept by every release): the clone's lib/update.sh, run by the lock owner (same pid,
+  # exec) with RK_UPDATE_FROM=<previous version> and no arguments.
   exec env RK_UPDATE_FROM="$current" bash "$CLONE/lib/update.sh"
 }
 
@@ -182,7 +200,7 @@ startup_blocks() { # RF-17
     case "$seen" in *"|$r|"*) continue ;; esac
     seen="$seen|$r|"
     grep -qxF '# rigorkit:start' "$r" || continue
-    if ! grep -qxF '# rigorkit:end' "$r"; then say_safe "$f has '# rigorkit:start' without '# rigorkit:end'; skipped"; FAILED=1; continue; fi
+    if ! grep -qxF '# rigorkit:end' "$r"; then say_safe "$f has '# rigorkit:start' without '# rigorkit:end'; skipped"; continue; fi
     cur="$(mktemp)"; awk '$0=="# rigorkit:start"{f=1} f{print} $0=="# rigorkit:end"{f=0}' "$r" > "$cur"
     if cmp -s "$cur" "$new"; then rm -f "$cur"; continue; fi
     diff -u "$cur" "$new" | tail -n +3 | sed 's/^/    /' | print_safe
@@ -191,7 +209,7 @@ startup_blocks() { # RF-17
       tmp="$(mktemp)"
       awk -v nf="$new" '$0=="# rigorkit:start"{while ((getline l < nf) > 0) print l; skip=1; next}
         skip && $0=="# rigorkit:end"{skip=0; next} !skip' "$r" > "$tmp"
-      if backup "$r" && cat "$tmp" > "$r"; then say_safe "  rewrote $f"; else err "cannot rewrite $f"; FAILED=1; fi
+      if backup "$r" && replace_file "$r" "$tmp"; then say_safe "  rewrote $f"; else err "cannot rewrite $f"; fi
       rm -f "$tmp"
     fi
   done
@@ -209,12 +227,21 @@ pack_dir() { # pack -> its folder (a valid custom pack wins), empty when none
   case "$n" in ''|all|-*|*/*|*..*|*,*|*[[:space:]]*) return 0 ;; esac
   if [ -d "$CLONE/custom/packs/$n" ]; then echo "$CLONE/custom/packs/$n"; elif [ -d "$ROOT/packs/$n" ]; then echo "$ROOT/packs/$n"; fi
 }
-write_copy() { # kind staged real -> status; replaces the entry at real, never through a link
-  local t="$3.rigorkit-new.$$"
+write_copy() { # kind staged real -> status; the old entry is renamed aside first (never written through a
+  # link, never half-deleted: INV-6), the new one renamed in, then the old one removed
+  local t="$3.rigorkit-new.$$" o="$3.rigorkit-old.$$"
   rm -rf "$t" 2>/dev/null
   if ! mkdir -p "$(dirname "$3")" 2>/dev/null || ! cp -R "$2" "$t" 2>/dev/null; then rm -rf "$t" 2>/dev/null; return 1; fi
-  if [ -L "$3" ] || [ -e "$3" ]; then rm -rf "$3" 2>/dev/null || { rm -rf "$t"; return 1; }; fi
-  mv "$t" "$3" 2>/dev/null || { rm -rf "$t"; return 1; }
+  if [ -L "$3" ] || [ -e "$3" ]; then mv "$3" "$o" 2>/dev/null || { rm -rf "$t"; return 1; }; fi
+  if ! mv "$t" "$3" 2>/dev/null; then rm -rf "$t"; [ -L "$o" ] || [ -e "$o" ] && mv "$o" "$3" 2>/dev/null; return 1; fi
+  if [ -L "$o" ] || [ -e "$o" ]; then rm -rf "$o" 2>/dev/null || say_safe "warning: could not remove $o"; fi
+  return 0
+}
+replace_file() { # real-file content-file: a temporary file in the same folder with the original mode, renamed in
+  local t="$1.rigorkit-new.$$"
+  if [ -f "$1" ]; then cp -p "$1" "$t" 2>/dev/null || return 1; fi
+  if cat "$2" > "$t" 2>/dev/null && mv -f "$t" "$1" 2>/dev/null; then return 0; fi
+  rm -f "$t"; return 1
 }
 apply_edits() { # EDITS lines: fp <path> <fp> <declined> | add <copy line fields...> | rules <file> <pack> <fp>
   [ -s "$EDITS" ] || return 0
@@ -248,66 +275,52 @@ refresh() {
     echo "Run rigorkit install --global --pack <packs> --agent <agents>: it moves the record aside and starts a new one."
     return 0
   fi
-  local recver pairs packs p agents a stage codexreal models name f d path rel staged kind
+  REFRESH=1
+  if ! command -v shasum >/dev/null 2>&1 && ! command -v sha256sum >/dev/null 2>&1; then
+    err "neither shasum nor sha256sum is installed; the global scope cannot be compared"; FAILED=1; return 0
+  fi
+  local recver pairs packs p agents stage models d path rel staged kind fp
   recver="$(awk -F'\t' '$1=="version"{print $2; exit}' "$REC")"
   pairs="$(awk -F'\t' '$1=="pair"{print $2 "\t" $3}' "$REC")"
   packs="$(printf '%s\n' "$pairs" | cut -f1 | awk 'NF && !s[$0]++')"
-  stage="$(mktemp -d)"; STAGE="$stage"; EDITS="$stage/edits"; : > "$EDITS"
-  trap 'rm -rf "$STAGE"; unlock' EXIT
+  stage="$(mktemp -d)"; STAGE="$stage"; EDITS="$stage/edits"; : > "$EDITS"; : > "$stage/failed"
   mkdir -p "$stage/h/.rigorkit"
   [ -d "$CLONE/custom" ] && ln -s "$CLONE/custom" "$stage/h/.rigorkit/custom"
-  codexreal="${CODEX_HOME:-$HOME/.codex}"
   models="${RIGORKIT_MODELS:-$HOME/.config/rigorkit/models}"
-  : > "$stage/items"   # kind <tab> pack <tab> agent <tab> real path
+  # install.sh is the one writer of copy content: each recorded pack is installed into a staging HOME,
+  # and the staging record lists every copy it ships with its fingerprint.
   while IFS= read -r p <&3; do
     agents="$(printf '%s\n' "$pairs" | awk -F'\t' -v p="$p" '$1==p{print $2}' | paste -sd, -)"
     d="$(pack_dir "$p")"
-    if [ -z "$d" ] || ! HOME="$stage/h" CODEX_HOME="$stage/h/.codex-home" RIGORKIT_MODELS="$models" RK_RENDER_ROOT="$CLONE" RK_NO_RECORD=1 \
-        bash "$ROOT/install.sh" --global --force --pack "$p" --agent "$agents" >/dev/null 2>&1 </dev/null; then
-      if [ -z "$d" ]; then say_safe "pack $p is no longer shipped; its copies are left as they are"
-      else err "cannot prepare pack $p"; FAILED=1; fi
-      awk -F'\t' -v p="$p" '$1=="copy" && $3==p {print $2 "\t" $3 "\t" $4 "\t" $5 "\tgone"}' "$REC" >> "$stage/gone"
-      continue
+    if [ -z "$d" ]; then say_safe "pack $p is no longer shipped; its copies are left as they are"; continue; fi
+    if ! HOME="$stage/h" CODEX_HOME="$stage/h/.codex-home" RIGORKIT_MODELS="$models" RK_RENDER_ROOT="$CLONE" RK_PACKS_ROOT="$ROOT" RK_STAGE=1 \
+        bash "$CODE/install.sh" --global --force --pack "$p" --agent "$agents" > "$stage/log" 2>&1 </dev/null; then
+      err "cannot prepare pack $p:"; sed 's/^/  /' "$stage/log" | print_safe >&2
+      echo "$p" >> "$stage/failed"; FAILED=1
     fi
-    for a in $(echo "$agents" | tr ',' ' '); do
-      for f in "$d"/skills/*/; do
-        [ -f "$f/SKILL.md" ] || continue
-        name="$(basename "$f")"
-        if [ "$a" = claude ]; then path="$HOME/.claude/skills/$name"; else path="$HOME/.agents/skills/$name"; fi
-        printf 'skill\t%s\t%s\t%s\n' "$p" "$a" "$path" >> "$stage/items"
-      done
-      for f in "$d"/agents/*.md; do
-        [ -f "$f" ] || continue
-        name="$(awk 'NR==1&&/^---$/{f=1;next} f&&/^---$/{exit} f&&index($0,"name: ")==1{print substr($0,7);exit}' "$f")"
-        [ -n "$name" ] || continue
-        case "$a" in
-          claude) path="$HOME/.claude/agents/$name.md" ;;
-          cursor) path="$HOME/.cursor/agents/$name.md" ;;
-          codex) path="$HOME/.codex/agents/$name.toml" ;;
-          opencode) path="$HOME/.config/opencode/agents/$name.md" ;;
-        esac
-        rel="${path#"$HOME"/}"
-        [ -e "$stage/h/$rel" ] && printf 'agent\t%s\t%s\t%s\n' "$p" "$a" "$path" >> "$stage/items"
-      done
-    done
   done 3<<< "$packs"
+  : > "$stage/items"   # kind <tab> pack <tab> agent <tab> real path <tab> new fingerprint
+  if [ -f "$stage/h/.local/state/rigorkit/global" ]; then
+    awk -F'\t' -v OFS='\t' -v h="$stage/h/" -v home="$HOME/" '$1=="copy" && index($5, h)==1 { print $2, $3, $4, home substr($5, length(h) + 1), $6 }' \
+      "$stage/h/.local/state/rigorkit/global" > "$stage/items"
+  fi
 
   # Recorded copies of recorded pairs that the clone no longer ships (RF-28).
   local k
   awk -F'\t' 'FNR==NR { have[$4]=1; next } $1=="copy" && !($5 in have) && !seen[$5]++ { print $5 "\t" $3 }' "$stage/items" "$REC" > "$stage/notshipped"
   while IFS="$TAB" read -r path p <&3; do
     grep -q "^$p	" <<< "$pairs" || continue
+    grep -qxF -- "$p" "$stage/failed" && continue
     say_safe "$path: no longer shipped by pack $p; left as it is"
   done 3< "$stage/notshipped"
 
   # Classify each path once (RF-20, RF-22).
   : > "$stage/group"; : > "$stage/edited"
   local recfp declined newfp curfp ref
-  while IFS="$TAB" read -r kind p a path <&3; do
+  while IFS="$TAB" read -r kind p a path fp <&3; do
     grep -qxF "$path" "$stage/done" 2>/dev/null && continue
     echo "$path" >> "$stage/done"
-    rel="${path#"$HOME"/}"; staged="$stage/h/$rel"
-    newfp="$(fp_path "$kind" "$staged")"
+    newfp="$fp"
     recfp="$(rec_field "$path" 6)"; declined="$(rec_field "$path" 7)"
     if [ ! -e "$path" ] && [ ! -L "$path" ]; then
       [ -n "$recfp" ] && say_safe "$path is missing"
@@ -364,7 +377,7 @@ refresh() {
       else
         { if [ -s "$r" ]; then cat "$r"; echo; fi; echo "$s"; cat "$new"; echo "$e"; } > "$tmp"
       fi
-      if { [ ! -f "$r" ] || backup "$r"; } && mkdir -p "$(dirname "$file")" && cat "$tmp" > "$file"; then
+      if { [ ! -f "$r" ] || backup "$r"; } && mkdir -p "$(dirname "$r")" && replace_file "$r" "$tmp"; then
         printf 'rules\t%s\t%s\t%s\n' "$file" "$pack" "$(fp_text < "$new")" >> "$EDITS"
       else err "cannot rewrite $file"; FAILED=1; fi
     fi
@@ -459,12 +472,14 @@ main() {
       *) err "unknown option: $1 (see rigorkit help update)"; return 2 ;;
     esac
   done
-  if [ -n "${RK_UPDATE_FROM-}" ]; then   # phase 2 of the new code, after the move (or staged by a dry run)
-    trap unlock EXIT
-    [ "$DRY" -eq 1 ] || write_state "$(tr -d ' \t\r\n' < "$ROOT/VERSION")"
+  trap cleanup EXIT
+  if [ -n "${RK_UPDATE_FROM-}" ] && [ "$DRY" -eq 0 ] && owns_lock; then   # phase 2 of the new code, after the move
+    LOCKED=1
+    write_state "$(tr -d ' \t\r\n' < "$ROOT/VERSION")"
     phase2 "$RK_UPDATE_FROM"
     return $?
   fi
+  unset RK_UPDATE_FROM   # not the lock owner: an inherited variable never skips phase 1
   if [ "$ROOT" != "$(cd "$CLONE" 2>/dev/null && pwd -P)" ]; then
     err "rigorkit update updates $CLONE; run $CLONE/bin/rigorkit update"; return 1
   fi

@@ -101,7 +101,7 @@ export function check(root) {
   }
   const updates = optionsInInstaller(root, 'lib/update.sh');
   const updHelp = existsSync(path.join(root, 'help/update.txt')) ? optionsInHelp(root, 'update') : [];
-  if (!updates) problems.push('lib/update.sh: option loop "case \\"$1\\" in" not found');
+  if (!updates) problems.push(existsSync(path.join(root, 'lib/update.sh')) ? 'lib/update.sh: option loop "case \\"$1\\" in" not found' : 'lib/update.sh missing');
   else {
     for (const o of updates) if (!updHelp.includes(o)) problems.push(`update option without help in help/update.txt: ${o}`);
     for (const o of updHelp) if (!updates.includes(o)) problems.push(`help/update.txt names an option lib/update.sh does not have: ${o}`);
