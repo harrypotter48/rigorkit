@@ -19,4 +19,5 @@ Non-negotiable principles for every spec, plan and task.
 | `install.sh` | Writes user folders/instructions | Project/global dry-runs plus real installation in a temporary folder |
 | `packs/*/rules.md` | Loaded every turn in user sessions | Token estimate at most 300 |
 | `tools/install-remote.sh` | Downloads and installs rigorkit; writes shell startup files | Install in a temporary HOME: no byte outside markers changes, a re-run adds no second block, a user's own `.bak` stays byte-equal |
+| `.github/workflows/release-tag.yml`, `tools/release-tag.mjs` | Publishes the version the one-line installer downloads | 009 tag-logic tests against local git repositories plus the static workflow checks |
 | `bin/rigorkit` | Runs helper scripts named by global rules; entry point for `install` | Same checks as `install.sh` through `rigorkit install`; `script` never runs a name with `/`, `..` or a leading `-` |

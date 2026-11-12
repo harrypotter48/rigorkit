@@ -1,5 +1,5 @@
 # rigorkit
-A factory for rigorous, tool-neutral work: common departments, specialized processes and human approval gates. The software lane is available today. Supports Claude Code, Codex, Cursor and OpenCode. Install only the packs you need. Current version: 0.1.0 (`VERSION`, `./install.sh --version`).
+A factory for rigorous, tool-neutral work: common departments, specialized processes and human approval gates. The software lane is available today. Supports Claude Code, Codex, Cursor and OpenCode. Install only the packs you need. Current version: 0.2.0 (`VERSION`, `./install.sh --version`).
 
 ## From a feature to an accepted slice
 
@@ -121,6 +121,8 @@ cd rigorkit
 | --dry-run | Show planned actions, rule diff; no writes |
 | --version | Print the local version |
 | --uninstall-rules | Remove only rigorkit global rule blocks |
+Releases: bump `VERSION` in a pull request; after the merge, CI runs the toolkit tests and publishes the tag `v<VERSION>` (`.github/workflows/release-tag.yml`), which the one-line installer downloads.
+
 Update with git pull, then reinstall --force. --pack all --force replaces installed packs and adds new ones.
 
 The version lives in `VERSION` at the repository root and is the only copy of it. The installer records the version it wrote in `.rigorkit-version` at the scope root (the project directory, or your home directory for a global install), and `--list` prints the local version next to the installed one. Without `--force` the installer never overwrites an installed copy, so a different installed version is reported instead of replaced.

@@ -1,1 +1,33 @@
-# 009-release-tag HU-4 scaffolding: implemented in T3.
+# Publishes the release tag v<VERSION> on main when it is not released yet (009-release-tag, HU-4).
+# Bump VERSION in a pull request; after the merge this workflow runs the toolkit tests and tags.
+name: Release tag
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    concurrency:
+      group: release-tag
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Toolkit tests
+        run: node --test tools/test/*.test.mjs
+      - name: Publish the release tag
+        run: node tools/release-tag.mjs
+        env:
+          RK_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
