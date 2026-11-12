@@ -1,27 +1,25 @@
 # Half-wired features
 
-What seems finished but has no real effect: UI without backend, unenforced permissions,
-emails never sent, unreachable flows whose code remains. This differs from `@legacy`
-(code confirmed unused).
+Seems finished, no real effect: UI without backend, unenforced permissions, unsent emails,
+unreachable flows with leftover code. Not `@legacy` (confirmed unused code).
 
-Every entry has a stable `HW-NN`: never reuse or renumber it, even after moving it to
-"Resolved". Code and specs reference that ID. Do not delete a closed entry: move it
-to "Resolved" with its resolution date and the same ID.
+Stable `HW-NN`, cited by code/specs: never reuse or renumber; a closed entry is never deleted,
+it moves to "Resolved" with its resolution date and same ID.
 
 ## Active
 
 ### HW-01 · <Feature> (`<module>`)
 - Where: <file(s)>
-- What it seems to do: <what the user or code suggests>
-- What is actually missing: <the absent or disconnected piece>
-- Decision: <who left it this way, when and why, or "undecided">
+- What it seems to do: <suggested by user/UI/code>
+- What is actually missing: <absent/disconnected piece>
+- Decision: <who/when/why, or "undecided">
 
 ### HW-NN · Accepted finding · <screen, endpoint or rule> (`<module>`)
 - Where: <file(s) or screen>
-- Finding: <defect or improvement, with severity and the evidence>
-- Accepted by: <who, when, and why it is not corrected in this change>
+- Finding: <defect/improvement, severity, evidence>
+- Accepted by: <who/when/why not corrected here>
 
 ## Resolved
 
 ### HW-NN · <Feature> — resolved on <YYYY-MM-DD>
-- <What was done and in which change (<id>)>
+- <What was done, change (<id>)>

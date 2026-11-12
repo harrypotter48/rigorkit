@@ -20,4 +20,4 @@ Reviewers: <approved independent profile>.
 - [ ] T2. <Action>. (RF-2) [<layer> · <repo>]
       <Only task-specific dependency/completion exceptions.>
 
-Trace real dependencies; reuse valid evidence. No time-box/internal-task stops. Decisions/blockers/restricted checks→owner; [x] needs evidence, every commit approval. Final full spec/plan/diff and integration review; owner accepts each slice.
+Trace real dependencies; reuse valid evidence. No time-box/internal-task stops. Decisions/blockers/restricted checks→owner; [x] needs evidence, every commit approval. Final full spec/plan/diff/integration review; owner accepts each slice.
