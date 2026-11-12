@@ -1,4 +1,67 @@
 #!/bin/sh
-# 008-updater HU-1 scaffolding: implemented in B1 T3.
-echo "rigorkit: not implemented" >&2
-exit 1
+# rigorkit — command-line entry point of a rigorkit clone (help, install, helper scripts).
+# POSIX sh. Dispatch convention (checked by tools/generate-man.mjs --check):
+# one arm per command per line in the 'case $cmd' below, whose catch-all arm is the
+# only '*)' arm in this file.
+set -u
+LC_ALL=C; export LC_ALL
+
+# Resolve this file through symlinks to find the clone root.
+self=$0
+while [ -L "$self" ]; do
+  link=$(readlink "$self")
+  if [ "${link#/}" != "$link" ]; then self=$link; else self=$(dirname "$self")/$link; fi
+done
+ROOT=$(cd "$(dirname "$self")/.." && pwd -P)
+CUSTOM=$HOME/.rigorkit/custom
+HELP=$ROOT/help
+
+show() { cat "$HELP/$1.txt"; }
+usage_error() { printf 'rigorkit: %s\n\n' "$1" >&2; show rigorkit >&2; exit 2; }
+fail() { printf 'rigorkit: %s\n' "$2" >&2; exit "$1"; }
+
+run_script() {
+  if [ "${1-}" = --help ]; then show script; exit 0; fi
+  if [ $# -eq 0 ]; then fail 2 "missing script name (see 'rigorkit help script')"; fi
+  name=$1; shift
+  case $name in
+    ''|-*|*/*|*..*) fail 2 "invalid script name: $name" ;;
+  esac
+  found=
+  if [ -f "$CUSTOM/scripts/$name" ]; then found=$CUSTOM/scripts/$name; fi
+  if [ -z "$found" ]; then
+    for dir in "$CUSTOM"/packs/*/; do
+      if [ -f "${dir}scripts/$name" ]; then found=${dir}scripts/$name; break; fi
+    done
+  fi
+  if [ -z "$found" ]; then
+    for dir in "$ROOT"/packs/*/; do
+      pack=$(basename "$dir")
+      [ -d "$CUSTOM/packs/$pack" ] && continue
+      if [ -f "${dir}scripts/$name" ]; then found=${dir}scripts/$name; break; fi
+    done
+  fi
+  [ -n "$found" ] || fail 127 "no script named $name"
+  [ -x "$found" ] || fail 126 "script is not executable: $found"
+  exec "$found" "$@"
+}
+
+run_help() {
+  if [ $# -eq 0 ]; then show rigorkit; exit 0; fi
+  if [ $# -gt 1 ]; then usage_error "help takes at most one command"; fi
+  if [ "$1" = --help ] || [ "$1" = -h ]; then show help; exit 0; fi
+  for known in install script help; do
+    if [ "$1" = "$known" ]; then show "$known"; exit 0; fi
+  done
+  usage_error "unknown command: $1"
+}
+
+cmd=${1-}
+[ $# -gt 0 ] && shift
+case $cmd in
+  install) exec "$ROOT/install.sh" "$@" ;;
+  script) run_script "$@" ;;
+  help) run_help "$@" ;;
+  ''|--help|-h) show rigorkit; exit 0 ;;
+  *) usage_error "unknown command: $cmd" ;;
+esac

@@ -2,14 +2,14 @@
 
 ## Resume state
 Stage: design (plan + tasks drafted) · Approvals: spec WHAT + threat model approved by owner 2026-11-11 (clarification round 14 ready); plan D1–D12 and blocks B1–B3 approved by owner 2026-11-11.
-Authorized blocks: none yet · Current block: — · Current task: —.
+Authorized blocks: B1 (owner 2026-11-11) · Current block: B1 done (pending commit) · Current task: next B2 T6.
 Branch: feat/008-updater · Scope owner: rigorkit only.
 Pending/blockers: who runs installation-type tests (D3, `AGENTS.md:16`) not answered: owner runs them until authorized; red commits need separate approval.
-Next step: B1 T1 tests first.
+Next step: owner approves the B1 implementation commit; then B2 T6 tests first.
 Review stations: sdd-reviewer + architecture-reviewer + security-reviewer (approved profile, threat-model.md §6) · Approval decision: plan approved 2026-11-11; implementation reviews pending.
 References: spec.md RF-1–RF-65 (34 RFs), INV-1/3/4, scenario tables; threat-model.md PC-1–PC-4; clarification.md Q1–Q10, R6/R9/R10, S-round, V5, round 13, X1/X2; plan.md (algorithms, contracts, decisions, test strategy, risks, plan-note table).
 Dependencies checked: `install.sh:17-287` consumers; `packs/core/rules.md`; `tools/measure-content.mjs` rules cap; CI step `.github/workflows/pages.yml` "Existing toolkit regression"; `AGENTS.md`, `specs/constitution.md`, `packs/core/README.md`, `README.md`, `site/scripts/prepare-docs.mjs` (imports `rules.md`); capability specs `factory-lanes`, `english-and-compact` (archive time).
-Freeze: proposed test paths `tools/test/008-*.test.mjs`, `tools/test/rigorkit-fixture.mjs`, `tools/fixtures/baseline-0.1.0/`; base/red hashes recorded per block after approved `test(red)` commits.
+Freeze: proposed test paths `tools/test/008-*.test.mjs`, `tools/test/rigorkit-fixture.mjs`, `tools/fixtures/baseline-0.1.0/`; base/red hashes recorded per block after approved `test(red)` commits. B1: base `36c278b`, red `796eee8` (frozen: `tools/test/rigorkit-fixture.mjs`, `tools/test/008-rigorkit-cli.test.mjs`, `tools/test/008-repo-checks.test.mjs`).
 
 ## Functional blocks
 ### B1 — `rigorkit` command with help, manual page and helper scripts (RF-25, RF-26, RF-27, RF-28, RF-47, RF-61 repository check)
@@ -19,11 +19,12 @@ Read: spec RF-25–RF-28, RF-47, RF-61, Definitions (Commands, Manual page, Cust
 Preserve: `install.sh` behavior (B2 owns its changes); no `eval`; POSIX `sh` only; `LC_ALL=C`; custom area read-only (INV-3).
 Verify: `008-rigorkit-cli.test.mjs` (RF-47.*, RF-25.*, RF-26.*, RF-27.H1/E1/F1) and `008-repo-checks.test.mjs` (RF-28.*, RF-61.F1, PC-4) red then green; existing `node --test tools/test/*.test.mjs` green; static banned-construct grep; scenario checker shows B1 IDs covered, later IDs pending.
 Reviewers: sdd + architecture + security.
-- [ ] T1. Write `tools/test/rigorkit-fixture.mjs` (temp HOME/TMPDIR, isolated git config, toolbox PATH with stubs, local bare remote builder, snapshot, skip guards) and the B1 tests; run red for behavioral reasons; propose `test(red): HU-1 rigorkit command, help and scripts`; stop for commit approval. (RF-25–RF-28, RF-47, RF-61) [tests · rigorkit]
-- [ ] T2. Write `help/rigorkit.txt`, `help/install.txt` (every current `install.sh` option, examples, files it can write; R9 note per D12), `help/script.txt`, `help/help.txt`. (RF-25, RF-26) [help · rigorkit]
-- [ ] T3. Implement `bin/rigorkit` (dispatch, symlink-safe root, help, `script` resolution and checks, `exec`). Mode 755; only file in `bin/`. (RF-25, RF-26, RF-47, RF-61) [cli · rigorkit]
-- [ ] T4. Implement `tools/generate-man.mjs` (+ `--check`) and commit the generated `man/man1/rigorkit.1`; wire the drift assertions (commands from the dispatch `case`, options from `install.sh`'s `case "$1"`). (RF-27, RF-28) [tooling · rigorkit]
-- [ ] T5. Green run of B1 tests and existing suites; record results and skipped (D4) cases as pending. (RF-25–RF-28, RF-47, RF-61.F1) [verify · rigorkit]
+- [x] T1. Write `tools/test/rigorkit-fixture.mjs` (temp HOME/TMPDIR, isolated git config, toolbox PATH with stubs, local bare remote builder, snapshot, skip guards) and the B1 tests; run red for behavioral reasons; propose `test(red): HU-1 rigorkit command, help and scripts`; stop for commit approval. (RF-25–RF-28, RF-47, RF-61) [tests · rigorkit]
+- [x] T2. Write `help/rigorkit.txt`, `help/install.txt` (every current `install.sh` option, examples, files it can write; R9 note per D12), `help/script.txt`, `help/help.txt`. (RF-25, RF-26) [help · rigorkit]
+- [x] T3. Implement `bin/rigorkit` (dispatch, symlink-safe root, help, `script` resolution and checks, `exec`). Mode 755; only file in `bin/`. (RF-25, RF-26, RF-47, RF-61) [cli · rigorkit]
+- [x] T4. Implement `tools/generate-man.mjs` (+ `--check`) and commit the generated `man/man1/rigorkit.1`; wire the drift assertions (commands from the dispatch `case`, options from `install.sh`'s `case "$1"`). (RF-27, RF-28) [tooling · rigorkit]
+- [x] T5. Green run of B1 tests and existing suites; record results and skipped (D4) cases as pending. (RF-25–RF-28, RF-47, RF-61.F1) [verify · rigorkit]
+      Evidence 2026-11-11 (macOS, zsh 5.9, BSD man): `node --test tools/test/*.test.mjs` 79 tests, 77 pass, 0 fail, 2 todo (RF-26.E1/E2, green after B2 T7), 0 skipped; `node tools/generate-man.mjs --check` PASS; content ratchet 0 errors. Red was structural before the owner-approved scaffolding, then behavioral (24 fail). Pending: Ubuntu CI run (man skip guard), independent reviews at T18. Note: `help/install.txt` already documents B2 behavior (custom packs, `all`, `.rigorkit.bak`).
 
 ### B2 — `rigorkit install` with custom packs, clone-run scripts and rendered rules (RF-3, RF-19, RF-29, RF-33, RF-46, RF-49, RF-57, RF-59, RF-62 for rules files)
 Tasks: T6–T12 · Depends on: B1 (`bin/rigorkit` is the rendered target and `help/install.txt` is the `--help` source).
