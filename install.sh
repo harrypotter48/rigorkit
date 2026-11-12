@@ -16,7 +16,7 @@
 # Agent tiers map to models per tool in ~/.config/rigorkit/models (optional, see README).
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$(dirname "$0")" && pwd -P)"
 PACKS=""; AGENTS=""; SCOPE="project"; DEST="$PWD"; FORCE=0; DRY=0; UNINSTALL=0
 MODELS="${RIGORKIT_MODELS:-$HOME/.config/rigorkit/models}"
 CUSTOM="$HOME/.rigorkit/custom"
@@ -158,9 +158,10 @@ rules_file() { # agent -> its global instructions file ("" if the tool has none)
   esac
 }
 
-real_file() { # path -> the file a chain of symbolic links points to
-  local f="$1" l
+real_file() { # path -> the file a chain of symbolic links points to (twin of install-remote.sh resolve_link)
+  local f="$1" l n=0
   while [ -L "$f" ]; do
+    n=$((n + 1)); [ "$n" -le 40 ] || die "too many symbolic links: $1"
     l="$(readlink "$f")"
     case "$l" in /*) f="$l" ;; *) f="$(dirname "$f")/$l" ;; esac
   done
@@ -168,7 +169,9 @@ real_file() { # path -> the file a chain of symbolic links points to
 }
 
 backup() { # real-file -> <real-file>.rigorkit.bak with the original mode, never more readable (RF-62, INV-4)
-  local b="$1.rigorkit.bak" t="$1.rigorkit.bak.$$"
+  # Twin of install-remote.sh backup(); keep both equal. mktemp: new 600 file, no planted link followed.
+  local b="$1.rigorkit.bak" t
+  t="$( umask 077; mktemp "$1.rigorkit.bak.XXXXXX" )" || return 1
   ( umask 077; cp -p "$1" "$t" ) && mv -f "$t" "$b" || { rm -f "$t"; return 1; }
   say "  backup $b"
 }

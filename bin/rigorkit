@@ -4,7 +4,7 @@
 # one arm per command per line in the 'case $cmd' below, whose catch-all arm is the
 # only '*)' arm in this file.
 set -u
-LC_ALL=C; export LC_ALL
+LC_ALL=C   # byte-order globs here only; not exported to install.sh or helper scripts
 
 # Resolve this file through symlinks to find the clone root.
 self=$0
@@ -31,13 +31,14 @@ run_script() {
   if [ -f "$CUSTOM/scripts/$name" ]; then found=$CUSTOM/scripts/$name; fi
   if [ -z "$found" ]; then
     for dir in "$CUSTOM"/packs/*/; do
+      case $(basename "$dir") in all|*,*|*[[:space:]]*) continue ;; esac   # names install.sh refuses (RF-59)
       if [ -f "${dir}scripts/$name" ]; then found=${dir}scripts/$name; break; fi
     done
   fi
   if [ -z "$found" ]; then
     for dir in "$ROOT"/packs/*/; do
       pack=$(basename "$dir")
-      [ -d "$CUSTOM/packs/$pack" ] && continue
+      [ -d "$CUSTOM/packs/$pack" ] && case $pack in all|*,*|*[[:space:]]*) ;; *) continue ;; esac
       if [ -f "${dir}scripts/$name" ]; then found=${dir}scripts/$name; break; fi
     done
   fi
@@ -48,11 +49,14 @@ run_script() {
 
 run_help() {
   if [ $# -eq 0 ]; then show rigorkit; exit 0; fi
-  if [ $# -gt 1 ]; then usage_error "help takes at most one command"; fi
-  if [ "$1" = --help ] || [ "$1" = -h ]; then show help; exit 0; fi
-  for known in install script help; do
-    if [ "$1" = "$known" ]; then show "$known"; exit 0; fi
+  for arg in "$@"; do   # --help after `help` applies to `help`, valid or not (RF-26)
+    if [ "$arg" = --help ] || [ "$arg" = -h ]; then show help; exit 0; fi
   done
+  if [ $# -gt 1 ]; then usage_error "help takes at most one command"; fi
+  case $1 in
+    rigorkit|*[!a-z-]*|'') usage_error "unknown command: $1" ;;
+  esac
+  if [ -f "$HELP/$1.txt" ]; then show "$1"; exit 0; fi   # help/ is the single list of documented commands
   usage_error "unknown command: $1"
 }
 

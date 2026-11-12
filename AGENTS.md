@@ -1,7 +1,7 @@
 # AGENTS.md — rigorkit
 
 ## Project
-Tool-neutral skills and agents for Claude Code, Codex, Cursor and OpenCode, grouped in `packs/<topic>/`. Markdown plus a Bash installer (`install.sh`); the toolkit needs no build. The isolated Astro/Starlight website lives in `site/` and has its own npm build/test commands.
+Tool-neutral skills and agents for Claude Code, Codex, Cursor and OpenCode, grouped in `packs/<topic>/`. Markdown plus a Bash installer (`install.sh`), a POSIX sh CLI (`bin/rigorkit`) and a one-line installer (`tools/install-remote.sh`); the toolkit needs no build. The isolated Astro/Starlight website lives in `site/` and has its own npm build/test commands.
 
 ## Factory departments, lanes and packs
 - Rigorkit organizes verified work through Understand, Design, Build, Verify and Learn. Departments are responsibilities, not a rigid waterfall: test preparation can precede code and findings can return to earlier work.

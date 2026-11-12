@@ -89,6 +89,18 @@ Configuration is interpreted by the agent, not enforced by a new parser or runti
 | [security](packs/security/README.md) | Threat modeling, secure defaults and security review |
 
 ## Install
+One line clones the newest release into `~/.rigorkit` and enables the `rigorkit` command and `man rigorkit` in new zsh and bash shells. It installs no pack:
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/harrypotter48/rigorkit/main/tools/install-remote.sh)"
+```
+Then open a new shell and install packs with `rigorkit install` (same options as `install.sh`):
+```bash
+rigorkit help
+rigorkit install --pack core,sdd --agent claude --global
+```
+Your own packs and scripts go in `~/.rigorkit/custom/packs` and `~/.rigorkit/custom/scripts`; a custom pack or script replaces the official one with the same name. Helper scripts are no longer copied: global rules call them with `rigorkit script <name>`. An existing 0.1.0 install keeps working; its old copies in `~/.local/share/rigorkit/scripts` are left as they are. If `rigorkit` runs an older copy, check `command -v rigorkit`.
+
+From any clone, `install.sh` stays available:
 ```bash
 git clone <repository-url> rigorkit
 cd rigorkit

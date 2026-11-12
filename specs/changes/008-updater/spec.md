@@ -1,5 +1,5 @@
 # Spec 008 — Install rigorkit with one line (HU-1)
-> Status: clarifying (round 14, threat model) · Tier: feature · DoD: critical (writes user startup files, global rules and user folders) · Owner repo: rigorkit · Affected repos: rigorkit
+> Status: approved 2026-11-11 (clarify round 14 ready), in verification · Tier: feature · DoD: critical (writes user startup files, global rules and user folders) · Owner repo: rigorkit · Affected repos: rigorkit
 > Origin: HU-1 — owner request of 2026-11-10 for an updater like oh-my-zsh's `omz update`; sliced on 2026-11-11 into HU-1 (this change), HU-2 and HU-3 (`specs/backlog.md`). The pre-slicing draft with all 41 requirements is kept in `full-draft.md` for HU-2 and HU-3.
 
 ## Context and goal

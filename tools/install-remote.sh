@@ -28,7 +28,7 @@ case ":${MANPATH-}:" in *":$HOME/.rigorkit/man:"*) ;; *) export MANPATH="${MANPA
 EOF
 }
 
-resolve_link() { # path -> final target of its chain of symbolic links (status 1 after 40 links)
+resolve_link() { # path -> final target of its chain of symbolic links (status 1 after 40 links); twin of install.sh real_file()
   rl_f=$1; rl_n=0
   while [ -L "$rl_f" ]; do
     rl_n=$((rl_n + 1))
@@ -43,7 +43,9 @@ resolve_link() { # path -> final target of its chain of symbolic links (status 1
 }
 
 backup() { # real-file -> <real-file>.rigorkit.bak with the original mode, never more readable meanwhile
-  bk_t=$1.rigorkit.bak.tmp.$$
+  # Twin of install.sh backup(); keep both equal. mktemp creates a new 600 file, so a link planted
+  # at a predictable name is never followed.
+  bk_t=$( umask 077 && mktemp "$1.rigorkit.bak.XXXXXX" 2>/dev/null ) || return 1
   if ( umask 077 && cp -p "$1" "$bk_t" ) 2>/dev/null && mv -f "$bk_t" "$1.rigorkit.bak" 2>/dev/null; then
     say "  backup $1.rigorkit.bak"
     return 0
@@ -148,7 +150,7 @@ classify() { # sets RK_STATE: absent | clone | custom_only | other (file tests o
 
 dash_part() { # value part -> refuses when the part is empty or starts with -
   case $2 in
-    ''|-*) die "RIGORKIT_REMOTE refused: '$1' has an empty part or a part starting with -" ;;
+    ''|-*|\[-*) die "RIGORKIT_REMOTE refused: '$1' has an empty part or a part starting with -" ;;
   esac
 }
 
