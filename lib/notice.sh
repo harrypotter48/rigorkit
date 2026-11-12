@@ -78,7 +78,11 @@ valid "$newest" || newest=
 
 if [ "$check" -eq 1 ]; then
   if [ -z "$checked" ] || [ "$checked" -gt "$now" ] || [ $((now - checked)) -ge $((days * DAY)) ]; then
+    # SIGHUP ignored before the fork, so the detached check inherits it: when this short-lived process
+    # (often a session leader in a fresh terminal) exits, the hangup must not kill the check (INV-5).
+    trap '' HUP
     ( nohup sh "$clone/lib/check.sh" </dev/null >/dev/null 2>&1 & ) 2>/dev/null
+    trap - HUP
   fi
 fi
 

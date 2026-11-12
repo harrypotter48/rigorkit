@@ -3,6 +3,7 @@
 # Reads the release tags of the clone's origin without prompting, keeps only X.Y.Z versions and records
 # the newest one. One check at a time; a failure keeps the previous result and records only the time.
 set -u
+trap '' HUP   # detached: a closing terminal must not stop the check
 CLONE=$HOME/.rigorkit
 STATE=$HOME/.local/state/rigorkit
 LOCK=$STATE/check.lock
