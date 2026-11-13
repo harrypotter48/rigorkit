@@ -97,5 +97,8 @@ Static content checks in `tools/test/014-roadmap.test.mjs`.
 5. Release 0.5.0 with 013 and 014. Owner, 2026-11-13.
 6. The owner's projects are not touched; commands listed in the summary. Owner, 2026-11-13.
 
+## Amendments
+- AMEND-1 (owner, 2026-11-13, autonomous run; sdd review): `sdd-init` treats an old backlog file as the roadmap; fallback reads status `backlog` as `proposed`; README wording; `tools/test/010-update.test.mjs` RF-11.F1 uses versions above the current VERSION (0.5.0 is now the base).
+
 ## Open questions
 None.
