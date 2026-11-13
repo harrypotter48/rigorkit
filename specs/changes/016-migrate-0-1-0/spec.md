@@ -111,5 +111,8 @@ Tests in `tools/test/016-scan.test.mjs`: temporary HOME with a git clone whose h
 6. Global scope not scanned. Owner, 2026-11-13.
 7. Docs check in `tools/generate-man.mjs --check` (principle 9). Owner, 2026-11-13.
 
+## Amendments
+- AMEND-1 (owner, 2026-11-13, autonomous run): adding `scan` changes the command list checked by `tools/test/008-rigorkit-cli.test.mjs` RF-25.H1 (`COMMANDS`) and `tools/test/010-repo-checks.test.mjs` RF-29.E1; both now expect `install, update, scan, script, help`.
+
 ## Open questions
 None.
