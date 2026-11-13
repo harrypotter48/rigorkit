@@ -16,7 +16,7 @@ Flat owner-ordered index: one HU/story/ticket per useful vertical slice, never a
 | HU-4 | Release tag on merge | A merge that changes `VERSION` publishes `v<VERSION>` after the toolkit tests pass, so the one-line installer gets releases without manual tagging | release | S | HU-1 | done | 009-release-tag |
 | HU-5 | Close commit on archive | `sdd-archive` proposes one `type(<id>): close … [close]` commit with Outcome/Validation/Deferred/Refs, so a report reads one commit per finished change instead of every red/green/docs commit | work-tracking | S | — | done | 011-close-commit |
 | HU-6 | Compact git reads for agents | `git-compact` (log/diff/status) and `git-activity --since/--until` (fetch, attribution by change-id scope, summary and close modes) in core, plus `spec-status` in sdd, so agents read activity in a few lines | work-tracking | M | HU-5 (close mode only) | done | 012-git-scripts |
-| HU-7 | Deferred work file | Items the owner defers during a change go to `<git-common-dir>/rigorkit/deferred.md`, shared by worktrees and never committed, ready to move to an external backlog | work-tracking | S | — | wip | 013-deferred-file |
+| HU-7 | Deferred work file | Items the owner defers during a change go to `<git-common-dir>/rigorkit/deferred.md`, shared by worktrees and never committed, ready to move to an external backlog | work-tracking | S | — | done | 013-deferred-file |
 | HU-8 | Project roadmap instead of backlog | `specs/roadmap.md` replaces `specs/backlog.md` in templates, skills and docs, with a fallback to `backlog.md` plus a notice; `backlog: external` in `.rigorkit/project.yaml` sends future slices to the deferred file | work-tracking | M | HU-7 | backlog | |
 
 ## Open questions
