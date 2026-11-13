@@ -40,7 +40,7 @@ On local test repositories, `git-compact`, `git-activity` and `spec-status` prin
 - RF-11: WHEN a folder is in `specs/archive/`, THE SYSTEM SHALL print `archived-unvalidated` if its `[close]` commit has `Validation: pending`, else `archived` (also when no `[close]` commit exists).
 
 ## Non-functional requirements
-- bash 3.2 + POSIX awk/sed; no other runtime. `git-compact` lives in `packs/core/scripts/` (generic git); `git-activity` and `spec-status` in `packs/sdd/scripts/` (they depend on the 011 SDD convention). Executable.
+- bash 3.2 + POSIX awk/sed; no other runtime. All three live in `packs/core/scripts/`, executable; `git-activity` and `spec-status` read the 011 SDD convention, documented in the core README (a pack-level `scripts/` in sdd would change the project install output checked against Baseline 0.1.0, `tools/test/008-rigorkit-install.test.mjs` RF-3.H1).
 - Full output for truncated reads goes to a new file per run, `mktemp "${TMPDIR:-/tmp}/rigorkit-git-compact.XXXXXX"`.
 - Output strips control characters other than tab from repository text.
 
@@ -158,6 +158,8 @@ Tests in `tools/test/012-git-scripts.test.mjs` on temporary repositories with a 
 
 ## Amendments
 - AMEND-1 (owner, 2026-11-12, after sdd/security/architecture reviews): INV-2 widened (no index write, git-compact write/exec options rejected); INV-4 hardening against repository config; RF-6 exact case-insensitive author email and commit date; RF-7 repository top only; RF-9 strict dates and empty authors; RF-10 text ID match and git failure exit 3; git-activity moves to the sdd pack; per-run log file; control characters stripped. Frozen test amended: fixture rows filter (`repo\tid\t`), RF-2.H1 stat `| 4`, new scenarios above.
+
+- AMEND-2 (owner, 2026-11-12): `git-activity` and `spec-status` back to `packs/core/scripts/` after the full suite showed the sdd placement breaks the 0.1.0 install equivalence; test paths amended.
 
 ## Open questions
 None.
