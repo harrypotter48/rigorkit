@@ -12,7 +12,7 @@ case $root in -*) usage ;; esac
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
 export GIT_OPTIONAL_LOCKS=0 GIT_NO_LAZY_FETCH=1
 g() { git --no-pager -c core.hooksPath=/dev/null -c core.fsmonitor=false -c log.showSignature=false \
-  -c protocol.allow=never -c core.alternateRefsCommand= "$@"; }
+  -c core.alternateRefsCommand= -c protocol.allow=never -c protocol.file.allow=never -c protocol.ssh.allow=never -c protocol.http.allow=never -c protocol.https.allow=never -c protocol.git.allow=never -c protocol.ext.allow=never "$@"; }
 clean() { LC_ALL=C tr -d '\000-\010\013-\037\177'; }
 
 # Only the top of a repository or worktree (never a parent or an embedded bare repository).

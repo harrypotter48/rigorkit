@@ -9,7 +9,7 @@ sub=$1; shift
 
 # INV-2: options that write files or run programs are refused.
 for a in "$@"; do
-  case $a in --output|--output=*|-o|-o?*|--ext-diff|--textconv|--no-index|--show-signature) usage ;; esac
+  case $a in --output|--output=*|-o|-o?*|--ext-diff|--textconv|--no-index|--show-signature|*%G*) usage ;; esac
 done
 
 out=$(mktemp "${TMPDIR:-/tmp}/rigorkit-git-compact.XXXXXX") || exit 1
@@ -17,10 +17,15 @@ idx=''
 trap 'rm -f "$out" ${idx:+"$idx"}' EXIT
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
 export GIT_OPTIONAL_LOCKS=0 GIT_NO_LAZY_FETCH=1
+# Clean/smudge filters from the repository's config are emptied (status and diff re-hash files).
+filters=()
+while read -r key _; do
+  case $key in filter.*.clean|filter.*.smudge|filter.*.process) filters+=(-c "$key=") ;; filter.*.required) filters+=(-c "$key=false") ;; esac
+done < <(git config --get-regexp '^filter\.' 2>/dev/null || true)
 # No program and no network from the repository's config (signatures, lazy fetch, alternates, split index).
 g() { git --no-pager -c color.ui=never -c core.hooksPath=/dev/null -c core.fsmonitor=false -c diff.external= \
-  -c log.showSignature=false -c protocol.allow=never -c core.alternateRefsCommand= -c core.splitIndex=false \
-  -c core.quotePath=false "$@"; }
+  -c log.showSignature=false -c core.alternateRefsCommand= -c core.splitIndex=false \
+  -c core.quotePath=false -c protocol.allow=never -c protocol.file.allow=never -c protocol.ssh.allow=never -c protocol.http.allow=never -c protocol.https.allow=never -c protocol.git.allow=never -c protocol.ext.allow=never ${filters[@]+"${filters[@]}"} "$@"; }
 [ "$(g rev-parse --is-bare-repository 2>/dev/null)" != true ] || { echo "git-compact: refusing a bare repository" >&2; exit 2; }
 
 # git diff refreshes and rewrites the index even with optional locks off: give it a private copy.

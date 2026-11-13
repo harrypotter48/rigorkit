@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+Global rules: changed
+New packs: none
+
+- Commit convention in project rules: `type(<id>): summary` with the change ID, no scope without a change, `Refs:` footer only with a ticket or HU; `test(red|green|amend)` put the ID first.
+- `sdd-archive` proposes one `[close]` commit per change with Outcome, Validation, Deferred and Follow-ups.
+- New helper scripts (`rigorkit script <name>`): `git-compact` (short log/diff/status), `git-activity` (work per change ID across repositories) and `spec-status` (state of every SDD change); the global rules now name them.
+
 ## 0.3.0
 Global rules: unchanged
 New packs: none

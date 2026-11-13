@@ -50,7 +50,7 @@ export GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=10'
 g() { git --no-pager -c core.hooksPath=/dev/null -c core.fsmonitor=false -c credential.helper= \
   -c core.askPass=true -c protocol.ext.allow=never -c protocol.git.allow=never -c log.showSignature=false \
   -c core.alternateRefsCommand= "$@"; }
-gr() { g -c protocol.allow=never "$@"; }
+gr() { g -c protocol.allow=never -c protocol.file.allow=never -c protocol.ssh.allow=never -c protocol.http.allow=never -c protocol.https.allow=never -c protocol.git.allow=never -c protocol.ext.allow=never "$@"; }
 clean() { LC_ALL=C tr -d '\000-\010\013-\037\177'; }
 
 # Change ID: scope of type(<id>):, or the first word after test(red|green|amend):; otherwise "-".
@@ -70,7 +70,7 @@ for r in "${repos[@]}"; do
     && [ "$(cd "$top" && pwd -P)" = "$here" ] || { fail "$r"; continue; }
   name=$(basename "$here")
   if [ "$fetch" = 1 ] && [ -n "$(g -C "$r" remote 2>/dev/null)" ]; then
-    g -C "$r" fetch --quiet --all --upload-pack=git-upload-pack >/dev/null 2>&1 </dev/null || notes="${notes}fetch failed: $name"$'\n'
+    g -C "$r" fetch --quiet --no-recurse-submodules --upload-pack=git-upload-pack >/dev/null 2>&1 </dev/null || notes="${notes}fetch failed: $name"$'\n'
   fi
   body=$(gr -C "$r" log --all --no-merges "${filters[@]}" --date=format:%Y-%m-%d --format=$'%H\t%cd\t%ae\t%s') || { fail "$r"; continue; }
   body=$(printf '%s\n' "$body" | awk -F'\t' -v w="$wanted" 'NF && (w == "" || index(w, "," tolower($3) ",") > 0)')

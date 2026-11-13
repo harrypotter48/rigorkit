@@ -5,6 +5,6 @@ User/repo instructions override these.
 
 **Read** Search (grep/glob) before reading; read needed ranges only. Never reread or reopen just-edited files to verify. Start with spec/named paths; no context tours. Subagents only for broad searches; return conclusions with file:line, not dumps.
 
-**Commands** Filter to errors/summary (`| tail -30`, `--silent`, `--quiet`). Before writing output-summary scripts run `{{RIGORKIT}} script <name>`: `test-summary <cmd>`, `first-error <cmd>`, `json-peek <file> [depth] [jq-path]`.
+**Commands** Filter to errors/summary (`| tail -30`, `--quiet`). Before writing summary scripts run `{{RIGORKIT}} script <name>`: `test-summary <cmd>`, `first-error <cmd>`, `json-peek`, `git-compact`, `git-activity`, `spec-status`.
 
 **Session** State lives in specs/ files, not chat. Suggest clearing context at stage changes (spec → build → review).
