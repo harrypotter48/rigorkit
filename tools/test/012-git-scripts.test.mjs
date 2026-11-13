@@ -1,4 +1,4 @@
-// 012-git-scripts HU-6 — git-compact, git-activity and spec-status on temporary repositories. AMEND-1.
+// 012-git-scripts HU-6 — git-compact, git-activity and spec-status on temporary repositories. AMEND-1, AMEND-2.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -9,8 +9,8 @@ import { fileURLToPath } from 'node:url';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const COMPACT = path.join(repo, 'packs/core/scripts/git-compact');
-const ACTIVITY = path.join(repo, 'packs/sdd/scripts/git-activity');
-const STATUS = path.join(repo, 'packs/sdd/scripts/spec-status');
+const ACTIVITY = path.join(repo, 'packs/core/scripts/git-activity');
+const STATUS = path.join(repo, 'packs/core/scripts/spec-status');
 
 function temp(t, name = 'rigorkit-012-') {
   const dir = realpathSync(mkdtempSync(path.join(tmpdir(), name)));
