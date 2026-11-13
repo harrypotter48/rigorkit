@@ -161,5 +161,6 @@ Tests in `tools/test/012-git-scripts.test.mjs` on temporary repositories with a 
 
 - AMEND-2 (owner, 2026-11-12): `git-activity` and `spec-status` back to `packs/core/scripts/` after the full suite showed the sdd placement breaks the 0.1.0 install equivalence; test paths amended.
 
+- AMEND-3 (owner, 2026-11-12, release 0.4.0 "haz lo necesario"): `packs/core/rules.md` names the three helpers within the 300-token rendered limit; `tools/test/010-update.test.mjs` RF-34.H1/E1 fixtures also publish v0.3.0, because the README's documented move from 0.2.0 targets v0.3.0 and VERSION is no longer 0.3.0.
 ## Open questions
 None.
