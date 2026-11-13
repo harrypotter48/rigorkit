@@ -1,4 +1,4 @@
-// 015-project-registry HU-9 — project record written by `install.sh --project` (RF-1–RF-4, INV-1–2).
+// 015-project-registry HU-9 — project record written by `install.sh --project` (RF-1–RF-4, INV-1–2). AMEND-1.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -107,6 +107,57 @@ test('RF-3.H1: an unreadable project record is moved aside without printing it',
   assert.equal(lines(readFileSync(file, 'utf8'))[0], 'rigorkit-project-record 1');
   assert.doesNotMatch(r.out, /SECRET-LINE/);
   assert.match(r.out, /corrupt/);
+});
+
+test('RF-1.S2: a project path with an escape character is not recorded', t => {
+  const s = setup(t);
+  const odd = path.join(s.h.root, 'esc\x1bproj');
+  mkdirSync(odd);
+  const r = s.install(['--project', odd, '--pack', 'core', '--agent', 'claude']);
+  assert.equal(r.status, 0, r.out);
+  assert.equal(records(s.h.HOME).length, 0);
+  assert.match(r.out, /not recorded/);
+});
+
+test('RF-2.E2: a reinstall from a newer clone sets the version', t => {
+  const s = setup(t);
+  writeFileSync(path.join(s.clone, 'VERSION'), '0.5.0\n');
+  s.install(['--project', s.project, '--pack', 'core', '--agent', 'claude']);
+  writeFileSync(path.join(s.clone, 'VERSION'), '0.6.0\n');
+  assert.equal(s.install(['--project', s.project, '--pack', 'core', '--agent', 'claude', '--force']).status, 0);
+  assert.deepEqual(field(records(s.h.HOME)[0].text, 'version').map(f => f[1]), ['0.6.0']);
+});
+
+test('RF-2.F1: a record that names another path is left untouched', t => {
+  const s = setup(t);
+  s.install(['--project', s.project, '--pack', 'core', '--agent', 'claude']);
+  const file = records(s.h.HOME)[0].file;
+  const other = readFileSync(file, 'utf8').replace(/^path\t.*$/m, 'path\t/somewhere/else');
+  writeFileSync(file, other);
+  const r = s.install(['--project', s.project, '--pack', 'sdd', '--agent', 'claude']);
+  assert.equal(r.status, 0, r.out);
+  assert.match(r.out, /another path/);
+  assert.equal(readFileSync(file, 'utf8'), other);
+});
+
+test('RF-3.E1: a global-header record at the project key is moved aside', t => {
+  const s = setup(t);
+  s.install(['--project', s.project, '--pack', 'core', '--agent', 'claude']);
+  const file = records(s.h.HOME)[0].file;
+  writeFileSync(file, 'rigorkit-global-record 1\nversion\t0.5.0\n');
+  assert.equal(s.install(['--project', s.project, '--pack', 'core', '--agent', 'claude']).status, 0);
+  assert.ok(existsSync(`${file}.corrupt`));
+  assert.equal(lines(readFileSync(file, 'utf8'))[0], 'rigorkit-project-record 1');
+});
+
+test('RF-4.S1: a development clone path with a tab is not recorded', t => {
+  const h = home(t);
+  const clone = cloneCopy(path.join(h.root, 'dev\tclone'));
+  const project = path.join(h.root, 'proj'); mkdirSync(project);
+  const r = run('bash', [path.join(clone, 'install.sh'), '--project', project, '--pack', 'core', '--agent', 'claude'], { env: envFor(h), cwd: h.HOME });
+  assert.equal(r.status, 0, r.out);
+  assert.equal(records(h.HOME).length, 0);
+  assert.match(r.out, /not recorded/);
 });
 
 test('RF-4.H1: an install from a development clone records dev with the clone path', t => {
