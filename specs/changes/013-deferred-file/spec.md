@@ -17,10 +17,11 @@ When the owner says "leave this for another story" during a change, nothing reco
 `rigorkit script deferred add|list|clear` keeps one-line entries in `<git-common-dir>/rigorkit/deferred.md`, shared by worktrees and never committed; the project rules tell agents to use it; `sdd-archive` reports what the change deferred; the sdd pack does not grow.
 
 ## Invariants
-- INV-1: The file lives in `$(git rev-parse --git-common-dir)/rigorkit/deferred.md`: never in the worktree, never committed, the same for every worktree.
+- INV-1: The file lives in `$(git rev-parse --git-common-dir)/rigorkit/deferred.md`: never in the worktree, never committed, the same for every worktree; a symlinked `rigorkit/` or `deferred.md`, or a common dir without `HEAD`, is refused (exit 3); `GIT_COMMON_DIR` and `CDPATH` from the environment are ignored.
 - INV-2: An entry is one line `- YYYY-MM-DD HH:MM · <change-id|-> · <text>`; control characters in the text become spaces, runs of spaces collapse and ends are trimmed.
-- INV-3: `clear` removes only the first N entries the caller listed; entries added later stay.
+- INV-3: `clear` removes only the first N entries the caller listed; entries added later stay, also when an `add` runs at the same time (`add` and `clear` share a lock).
 - INV-4: The inspected repository's config never runs a program (same git hardening as 012: hooks, fsmonitor off; no transport).
+- INV-6: Exit codes: 0 ok, 1 write failure or lock timeout, 2 usage, 3 not a repository top or unsafe location. Repository names in the output have no control characters.
 - INV-5: sdd pack loaded tokens stay at or below `specs/archive/010-update/baseline.txt`.
 
 ## Functional requirements (EARS)
@@ -46,6 +47,7 @@ Tests in `tools/test/013-deferred-file.test.mjs` on temporary repositories with 
 | RF-1.E1 | edge | linked worktree | `add` from the worktree, `list` from the main checkout | same entry |
 | RF-1.E2 | edge | no `--change`; text with a newline and a tab | `add` | change `-`; one line, no control characters |
 | RF-1.F | n/a — write failures are RF-2 and RF-5 | | | |
+| RF-1.S2 | security | `rigorkit/deferred.md` is a symlink to a file outside `.git` | `add` | exit 3, target unchanged |
 | RF-1.S1 | security | repo whose `core.hooksPath` hook and `core.fsmonitor` create a marker | `add`, `list`, `clear` | no marker (INV-4) |
 ### RF-2
 | ID | Type | Given | When | Then |
@@ -66,6 +68,8 @@ Tests in `tools/test/013-deferred-file.test.mjs` on temporary repositories with 
 |---|---|---|---|---|
 | RF-4.H1 | happy | 3 entries | `clear --first 2 --yes` | 1 entry left (the third) |
 | RF-4.E1 | edge | 2 listed, 1 added after listing | `clear --first 2 --yes` | the added one stays |
+| RF-4.E2 | edge | 2 entries | `clear --first 2 --yes`, then `list` | file empty; `deferred: 0 in 1 repos`, exit 0 |
+| RF-4.F2 | failure | plain folder | `clear --first 1 --yes --repo <dir>` | exit 3 |
 | RF-4.F1 | failure | no `--yes`; `--first 0`; `--first 5` with 2 | `clear` | exit 2, file unchanged |
 | RF-4.S | n/a — covered by RF-1.S1 | | | |
 ### RF-5
@@ -100,6 +104,9 @@ Tests in `tools/test/013-deferred-file.test.mjs` on temporary repositories with 
 3. Entry format → `- YYYY-MM-DD HH:MM · <change-id|-> · <text>`. Owner, 2026-11-13.
 4. Out of scope stays in the spec; only explicit owner deferrals go to the file. Owner, 2026-11-13.
 5. `clear` needs `--yes` and removes only the listed first N. Owner, 2026-11-13.
+
+## Amendments
+- AMEND-1 (owner, 2026-11-13, autonomous run; sdd and security reviews): empty-file count, shared lock for `add`/`clear`, symlink and common-dir checks, exit 1 for write failures, sanitized names; new scenarios RF-1.S2, RF-4.E2, RF-4.F2. sdd-archive keeps only the change's rows in `Deferred`.
 
 ## Open questions
 None.
