@@ -34,13 +34,15 @@ block_of() { # pack file -> the lines between the pack's markers (status 1 when 
   [ -f "$2" ] && grep -qxF "$s" "$2" && grep -qxF "$e" "$2" || return 1
   awk -v s="$s" -v e="$e" '$0==e{f=0} f{print} $0==s{f=1}' "$2"
 }
-record_valid() { # file: header line plus known lines only
-  awk -F'\t' 'NR==1 { if ($0 != "rigorkit-global-record 1") bad=1; next }
+record_valid() { # file [header]: that header (default global) plus the lines its kind allows
+  awk -F'\t' -v want="${2:-rigorkit-global-record 1}" 'NR==1 { if ($0 != want) bad=1; proj = ($0 == "rigorkit-project-record 1"); next }
+    proj && $1=="path" && NF==2 && $2 ~ /^\// { np++; next }
+    proj && $1=="dev" && NF==2 && $2 ~ /^\// { next }
     $1=="version" && NF==2 && $2 ~ /^[0-9]+\.[0-9]+\.[0-9]+$/ { next }
     $1=="pair" && NF==3 { next }
     $1=="copy" && NF==7 && ($2=="skill" || $2=="agent") { next }
-    $1=="rules" && NF==5 { next }
-    { bad=1 } END { exit (bad || NR == 0) }' "$1" 2>/dev/null
+    !proj && $1=="rules" && NF==5 { next }
+    { bad=1 } END { exit (bad || NR == 0 || (proj && np != 1)) }' "$1" 2>/dev/null
 }
 
 real_file() { # path -> the file a chain of symbolic links points to (twin of install.sh real_file)
