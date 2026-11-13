@@ -4,8 +4,8 @@ description: 'Prepare a repository for SDD: templates, scenario checker and prop
 ---
 # Setup · Understand
 Optional core-context; else read config/report gaps. No config=>legacy.
-Top 1% tech lead. Optional core-init configuration-only; no recursion/auto-config/install. Existing specs/: never overwrite; list gaps/ask. Propose constitution, baselines/capabilities/changes/archive/learnings/templates/scripts, backlog.md and half-wired; wait approval.
-Approved=>copy LOCAL templates/scripts into project, create empty-folder .gitkeep and backlog/half-wired from template. Propose old missing scenario/frozen-test/branch-trace checkers and test-path/threshold fields; never overwrite customization. Hook/CI writes require approval.
+Top 1% tech lead. Optional core-init configuration-only; no recursion/auto-config/install. Existing specs/: never overwrite, an old backlog file counts as roadmap; list gaps/ask. Propose constitution, baselines/capabilities/changes/archive/learnings/templates/scripts, roadmap.md and half-wired; wait approval.
+Approved=>copy LOCAL templates/scripts into project, create empty-folder .gitkeep and roadmap/half-wired from template. Propose old missing scenario/frozen-test/branch-trace checkers and test-path/threshold fields; never overwrite customization. Hook/CI writes require approval.
 New project: ask one/time stack, behavior/logic/UI, tests/data/language; record Language: (empty if unanswered), <=15 lines of verified principles plus critical paths. Existing code=>sdd-adopt, never invent constitution.
 Propose AGENTS diff/new file from copied template, CLAUDE @AGENTS import; no instructions writes without approval. Test paths/thresholds need actual repo facts/owner decision. Critical paths/Rutas críticas; Language: heading-independent. Stop for approval.
 Prose only: project format/language, no migration; absent section→report/skip. New: constitution Language:>user>change>ask; unanswered→English+notice; empty/unknown=unset. EN/ES aliases.

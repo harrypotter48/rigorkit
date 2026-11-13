@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0
+Global rules: unchanged
+New packs: none
+
+- `rigorkit script deferred add|list|clear`: work you defer during a change goes to `.git/rigorkit/deferred.md`, shared by worktrees and never committed; project rules tell agents to use it and `sdd-archive` lists what the change deferred.
+- `specs/backlog.md` is now `specs/roadmap.md`, with statuses `proposed|next|wip|done`. Existing projects keep working: `sdd-slice` reads `backlog.md` and tells you once to run `git mv specs/backlog.md specs/roadmap.md`.
+- `backlog: external` in `.rigorkit/project.yaml`: proposed slices go to the deferred file and the roadmap keeps only selected and finished work.
+
 ## 0.4.0
 Global rules: changed
 New packs: none

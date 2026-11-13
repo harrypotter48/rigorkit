@@ -126,11 +126,12 @@ test('RF-11.E1: 0.3.0 → 0.6.0 shows 0.4.0, 0.5.0, 0.6.0 in order and nothing o
   assert.doesNotMatch(o, /Test release 0\.3\.0\./);
 });
 
-test('RF-11.F1: a missing 0.5.0 section is reported and the update continues', { skip: SKIP }, t => {
-  const s = setup(t, { later: [['0.4.0'], ['0.5.0', undefined, { changelog: '' }], ['0.6.0']] });
+test('RF-11.F1: a missing 9.5.0 section is reported and the update continues', { skip: SKIP }, t => {
+  // AMEND-1 (014): versions above the current VERSION; 0.5.0 is now the released base.
+  const s = setup(t, { later: [['9.4.0'], ['9.5.0', undefined, { changelog: '' }], ['9.6.0']] });
   const o = upd(s);
-  assert.match(o.out, /no changelog entry for 0\.5\.0/);
-  assert.equal(version(s), '0.6.0');
+  assert.match(o.out, /no changelog entry for 9\.5\.0/);
+  assert.equal(version(s), '9.6.0');
 });
 
 test('RF-11.S1: an escape sequence in a changelog section is printed safely', { skip: SKIP }, t => {

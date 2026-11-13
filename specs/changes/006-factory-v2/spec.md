@@ -203,7 +203,7 @@ All behavior below is manual instruction-following validation; the executable co
 - Real documentation import succeeds. Existing PR workflow must complete website build/typecheck/browser/output checks before merge; local unrun checks are not green.
 - Manual instruction-following scenarios are identified as adoption validation, not claimed executed by source inspection or fixture tests. A real adopting repository and installed-project migration remain separate work.
 ## Questions and answers
-1. Where does the backlog live? → In git, in `specs/backlog.md` of the repository, as the flat index of the stories. It is only the index; the written changes keep living in `specs/changes/`.
+1. Where does the backlog live? → In git, in `specs/roadmap.md` of the repository (renamed by 014), as the flat index of the stories. It is only the index; the written changes keep living in `specs/changes/`.
 2. Does the backlog replace `specs/changes/`? → No. The backlog indexes the stories; each selected story becomes a change in `specs/changes/`.
 3. Who declares the test paths? → The constitution of each repository. The frozen-test check reads them from there.
 4. Which paths count as a test? → The co-located test files of the repository, declared in the constitution as patterns.
