@@ -14,6 +14,7 @@ Lane: none. `core` provides shared project capabilities and global rules, not a 
 | git-compact <log\|diff\|status> [args] | Read-only git: one line per commit, stat + hunk headers (`--full` for the diff), short status; truncated with a per-run full log in $TMPDIR; refuses write/exec options; repository config runs nothing |
 | git-activity --since <date> [--until] [--authors] [--close] [--no-fetch] <repo>... | Commits per change ID (SDD convention: `type(<id>):`, first word after `test(red\|green\|amend):`) as TSV, `--close` lists `[close]` commits with Outcome/Validation; coverage line, exit 3 if a path was not read |
 | spec-status [repo] | `id state tasks` per SDD change in `specs/changes/` and `specs/archive/` (defined, in-progress, implemented, validated, archived, archived-unvalidated) |
+| deferred add\|list\|clear | Work the owner defers during a change: one line per item in `<git-common-dir>/rigorkit/deferred.md` (shared by worktrees, never committed); `list` as TSV with a count; `clear --first <n> --yes` keeps items added later |
 
 ## Install
 Skills may be installed per project or globally. For a software project:

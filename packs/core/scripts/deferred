@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# deferred add [--change <id>] [--repo <dir>] [--] <text…> | list [dir…] | clear --first <n> --yes [--repo <dir>]
+# Work the owner defers during a change, kept in <git-common-dir>/rigorkit/deferred.md: outside the
+# worktree, never committed, shared by every worktree. Exit 0 ok, 1 write failure or lock timeout,
+# 2 usage, 3 not a repository top or unsafe location. The repository's config never runs a program.
+set -uo pipefail
+usage() { echo "usage: deferred add [--change <id>] [--repo <dir>] [--] <text…> | list [dir…] | clear --first <n> --yes [--repo <dir>]" >&2; exit 2; }
+[ $# -gt 0 ] || usage
+cmd=$1; shift
+
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR CDPATH
+export GIT_OPTIONAL_LOCKS=0 GIT_NO_LAZY_FETCH=1
+g() { git --no-pager -c core.hooksPath=/dev/null -c core.fsmonitor=false -c log.showSignature=false \
+  -c protocol.allow=never -c protocol.file.allow=never -c protocol.ssh.allow=never -c protocol.http.allow=never \
+  -c protocol.https.allow=never -c protocol.git.allow=never -c protocol.ext.allow=never "$@"; }
+clean() { LC_ALL=C tr -d '\000-\010\013-\037\177'; }
+name_of() { basename "$(cd -- "$1" && pwd -P)" | LC_ALL=C tr -d '\000-\037\177'; }
+
+# Prints the deferred file of a repository top, or fails: not a top, no git dir, or a symlink on the way.
+file_of() {
+  local top here common
+  top=$(g -C "$1" rev-parse --show-toplevel 2>/dev/null) && here=$(cd -- "$1" 2>/dev/null && pwd -P) \
+    && [ "$(cd -- "$top" && pwd -P)" = "$here" ] \
+    && common=$(g -C "$1" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) \
+    && [ -f "$common/HEAD" ] && [ ! -L "$common/rigorkit" ] && [ ! -L "$common/rigorkit/deferred.md" ] || return 1
+  echo "$common/rigorkit/deferred.md"
+}
+count() { local n=0; [ -f "$1" ] && n=$(grep -c '^- ' "$1"); echo "${n:-0}"; }
+not_top() { echo "deferred: $1 is not the top of a git repository (or its deferred file is a symlink)" >&2; }
+# add and clear share a lock so an entry added during clear is never lost (INV-3).
+lock() {
+  local i=0
+  until mkdir "$1.lock" 2>/dev/null; do
+    i=$((i + 1)); [ "$i" -le 50 ] || { echo "deferred: $1 is locked" >&2; exit 1; }; sleep 0.1
+  done
+  trap 'rmdir "'"$1"'.lock" 2>/dev/null' EXIT
+}
+
+case $cmd in
+  add)
+    change='-' repo='.'
+    while [ $# -gt 0 ]; do
+      case $1 in
+        --change) [ $# -ge 2 ] || usage; change=$2; shift 2 ;;
+        --repo) [ $# -ge 2 ] || usage; repo=$2; shift 2 ;;
+        --) shift; break ;;
+        -*) usage ;;
+        *) break ;;
+      esac
+    done
+    [ "$change" = - ] || [[ $change =~ ^[A-Za-z0-9._][A-Za-z0-9._-]*$ ]] || usage
+    case $repo in -*) usage ;; esac
+    text=$(printf '%s' "$*" | LC_ALL=C tr '\000-\037\177' ' ' | tr -s ' ' | sed 's/^ //; s/ $//')
+    [ -n "$text" ] || usage
+    f=$(file_of "$repo") || { not_top "$repo"; exit 3; }
+    (umask 077 && mkdir -p "$(dirname "$f")") || exit 1
+    lock "$f"
+    (umask 077 && printf -- '- %s · %s · %s\n' "$(date '+%Y-%m-%d %H:%M')" "$change" "$text" >>"$f") || exit 1
+    echo "deferred: added ($(count "$f") in $(name_of "$repo"))"
+    ;;
+  list)
+    [ $# -gt 0 ] || set -- .
+    for d in "$@"; do case $d in -*) usage ;; esac; done
+    printf 'repo\tdate\tchange\ttext\n'
+    total=0 repos=0 bad=0
+    for d in "$@"; do
+      f=$(file_of "$d") || { not_top "$d"; bad=1; continue; }
+      repos=$((repos + 1))
+      [ -f "$f" ] || continue
+      REPO=$(name_of "$d") LC_ALL=C awk '/^- / { s = substr($0, 3); gsub(/\t/, " ", s); i = index(s, " · "); dt = substr(s, 1, i - 1)
+        s = substr(s, i + 4); j = index(s, " · "); print ENVIRON["REPO"] "\t" dt "\t" substr(s, 1, j - 1) "\t" substr(s, j + 4) }' "$f" | clean
+      total=$((total + $(count "$f")))
+    done
+    echo "deferred: $total in $repos repos"
+    exit $((bad * 3))
+    ;;
+  clear)
+    first='' yes=0 repo='.'
+    while [ $# -gt 0 ]; do
+      case $1 in
+        --first) [ $# -ge 2 ] || usage; first=$2; shift 2 ;;
+        --yes) yes=1; shift ;;
+        --repo) [ $# -ge 2 ] || usage; repo=$2; shift 2 ;;
+        *) usage ;;
+      esac
+    done
+    case $repo in -*) usage ;; esac
+    [ "$yes" = 1 ] && [[ $first =~ ^[1-9][0-9]*$ ]] || usage
+    f=$(file_of "$repo") || { not_top "$repo"; exit 3; }
+    [ -f "$f" ] || { echo "deferred: only 0 entries" >&2; exit 2; }
+    lock "$f"
+    have=$(count "$f")
+    [ "$first" -le "$have" ] || { echo "deferred: only $have entries" >&2; exit 2; }
+    tmp=$(mktemp "$f.XXXXXX") || exit 1
+    LC_ALL=C awk -v n="$first" '/^- / && k < n { k++; next } { print }' "$f" >"$tmp" && mv "$tmp" "$f" || { rm -f "$tmp"; exit 1; }
+    echo "deferred: cleared $first ($((have - first)) left)"
+    ;;
+  *) usage ;;
+esac
