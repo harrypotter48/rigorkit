@@ -1,15 +1,15 @@
-// 012-git-scripts HU-6 — git-compact, git-activity and spec-status on temporary repositories.
+// 012-git-scripts HU-6 — git-compact, git-activity and spec-status on temporary repositories. AMEND-1.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, realpathSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, realpathSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const COMPACT = path.join(repo, 'packs/core/scripts/git-compact');
-const ACTIVITY = path.join(repo, 'packs/core/scripts/git-activity');
+const ACTIVITY = path.join(repo, 'packs/sdd/scripts/git-activity');
 const STATUS = path.join(repo, 'packs/sdd/scripts/spec-status');
 
 function temp(t, name = 'rigorkit-012-') {
@@ -44,7 +44,7 @@ function run(script, args, { cwd, env = {} } = {}) {
   const r = spawnSync('bash', [script, ...args], { cwd, encoding: 'utf8', env: { ...process.env, ...baseEnv, ...env } });
   return { status: r.status, out: r.stdout, err: r.stderr, lines: r.stdout.split('\n').filter(Boolean) };
 }
-const rows = r => r.lines.filter(l => l.includes('\t') && !l.startsWith('repo\t'));
+const rows = r => r.lines.filter(l => l.includes('\t') && !l.startsWith('repo\tid\t'));
 
 // ---------- git-compact ----------
 test('RF-1.H1: log prints hash, date and subject per commit', t => {
@@ -77,9 +77,17 @@ test('RF-2.H1: diff prints stat and hunk headers without content lines', t => {
   writeFileSync(path.join(r0, 'a.txt'), lines.join('\n'));
   const r = run(COMPACT, ['diff'], { cwd: r0 });
   assert.equal(r.status, 0, r.err);
-  assert.match(r.out, /a\.txt \| +2 /);
+  assert.match(r.out, /a\.txt \| +4 /);
   assert.equal(r.lines.filter(l => /^\s*@@ /.test(l)).length, 2, r.out);
   assert.ok(!r.lines.some(l => /^[+-](?![+-])/.test(l) && !/^\s*@@/.test(l)), r.out);
+});
+
+test('RF-2.E2: a file name with spaces keeps its heading', t => {
+  const r0 = init(t);
+  put(r0, 'my file.txt', 'a\nb\n'); commit(r0, 'chore: base', { file: 'z.txt' });
+  put(r0, 'my file.txt', 'a\nc\n');
+  const r = run(COMPACT, ['diff'], { cwd: r0 });
+  assert.ok(r.lines.includes('my file.txt:'), r.out);
 });
 
 test('RF-2.E1: diff --full truncates at 200 lines', t => {
@@ -186,8 +194,10 @@ test('RF-6.E1: --authors keeps only those emails, matched literally', t => {
   commit(r0, 'feat(031): by a', { email: 'a@x.test' });
   commit(r0, 'feat(032): by b', { email: 'b@x.test' });
   commit(r0, 'feat(033): by axxtest', { email: 'a@xxtest' });
-  const ids = rows(run(ACTIVITY, ['--since', '2026-01-01', '--authors', 'a@x.test', '--no-fetch', r0])).map(l => l.split('\t')[1]);
-  assert.deepEqual(ids, ['031']);
+  commit(r0, 'feat(034): by ba', { email: 'ba@x.test' });
+  commit(r0, 'feat(035): by upper', { email: 'A@X.test' });
+  const ids = rows(run(ACTIVITY, ['--since', '2026-01-01', '--authors', 'a@x.test', '--no-fetch', r0])).map(l => l.split('\t')[1]).sort();
+  assert.deepEqual(ids, ['031', '035']);
 });
 
 function withRemote(t) {
@@ -234,6 +244,14 @@ test('RF-7.E1: a repository without remote needs no fetch note', t => {
   assert.doesNotMatch(r.out, /fetch failed/);
 });
 
+test('RF-7.E2: a subdirectory of a repository is not read', t => {
+  const r0 = activityRepo(t);
+  mkdirSync(path.join(r0, 'sub'));
+  const r = run(ACTIVITY, ['--since', '2026-01-01', '--no-fetch', path.join(r0, 'sub')]);
+  assert.equal(r.status, 3);
+  assert.equal(r.lines.at(-1), `repos: 0 read, 1 failed (${path.join(r0, 'sub')})`);
+});
+
 test('RF-8.H1: --close lists close commits with Outcome and Validation', t => {
   const r0 = activityRepo(t);
   put(r0, 'c.txt', 'c\n'); git(r0, ['add', '-A']);
@@ -268,7 +286,7 @@ test('RF-9.E1: a date with time is accepted', t => {
 
 test('RF-9.F1: missing or invalid values print usage and exit 2', t => {
   const r0 = activityRepo(t);
-  for (const args of [[r0], ['--since', 'yesterday', r0], ['--since', '2026-01-01', '--authors', 'not-an-email', r0], ['--since', '2026-01-01']]) {
+  for (const args of [[r0], ['--since', 'yesterday', r0], ['--since', '2026-13-45', r0], ['--since', '2026-01-01T09:30:00', r0], ['--since', '2026-01-01', '--authors', 'not-an-email', r0], ['--since', '2026-01-01', '--authors', '', r0], ['--since', '2026-01-01']]) {
     const r = run(ACTIVITY, ['--no-fetch', ...args]);
     assert.equal(r.status, 2, args.join(' '));
     assert.match(r.err, /usage: git-activity/);
@@ -330,6 +348,25 @@ test('RF-10.F1: a path without specs/ fails naming it', t => {
   assert.ok(r.err.includes(r0), r.err);
 });
 
+test('RF-10.F2: specs/ outside a git repository fails without states', t => {
+  const dir = temp(t);
+  put(dir, 'specs/changes/001-a/spec.md', '# Spec\n');
+  const r = run(STATUS, [dir]);
+  assert.equal(r.status, 3);
+  assert.equal(r.lines.filter(l => l.includes('\t') && !l.startsWith('id\t')).length, 0, r.out);
+});
+
+test('RF-10.E2: an ID with regex characters is matched as text', t => {
+  const r0 = specRepo(t);
+  put(r0, 'specs/changes/008-(x/tasks.md', '# Tasks\n- [ ] T1. task\n');
+  commit(r0, 'feat(008-(x): code');
+  const r = run(STATUS, [r0]);
+  assert.equal(r.status, 0, r.err);
+  const s = states(r);
+  assert.equal(s['008-(x'], 'in-progress 0/1');
+  assert.equal(s['002-b'], 'in-progress 1/3');
+});
+
 test('RF-10.S1: an option-like repository argument is rejected', t => {
   const r = run(STATUS, ['--help=x'], { cwd: specRepo(t) });
   assert.equal(r.status, 2);
@@ -344,4 +381,45 @@ test('RF-11.E1: pending validation and missing close commit', t => {
   const s = states(run(STATUS, [specRepo(t)]));
   assert.equal(s['006-f'], 'archived-unvalidated 1/1');
   assert.equal(s['007-g'], 'archived 1/1');
+});
+
+// ---------- INV-2 / INV-4 ----------
+test('INV-2.H1: status and diff leave the index bytes unchanged', t => {
+  const r0 = init(t);
+  put(r0, 'u.txt', 'same\n'); commit(r0, 'chore: base', { file: 'm.txt' });
+  put(r0, 'm.txt', 'changed\n');
+  const index = path.join(r0, '.git/index');
+  // An unchanged file with a new mtime makes git want to refresh and rewrite the index.
+  execFileSync('touch', ['-t', '202001010000', path.join(r0, 'u.txt')]);
+  const before = readFileSync(index);
+  run(COMPACT, ['status'], { cwd: r0 }); run(COMPACT, ['diff'], { cwd: r0 });
+  assert.ok(readFileSync(index).equals(before));
+});
+
+test('INV-2.S1: write and exec options are rejected by git-compact', t => {
+  const r0 = init(t); commit(r0, 'chore: base');
+  put(r0, 'a', 'a\n'); put(r0, 'b', 'b\n');
+  for (const args of [['log', '--output=x'], ['diff', '-o', 'x'], ['diff', '--ext-diff'], ['diff', '--textconv'], ['diff', '--no-index', 'a', 'b']]) {
+    const r = run(COMPACT, args, { cwd: r0 });
+    assert.equal(r.status, 2, args.join(' '));
+  }
+  assert.equal(existsSync(path.join(r0, 'x')), false);
+});
+
+test('INV-4.S1: repository config never runs fsmonitor or hooks', t => {
+  const clone = withRemote(t);
+  const marker = path.join(temp(t), 'ran');
+  const hooks = path.join(temp(t), 'hooks');
+  mkdirSync(hooks);
+  for (const name of ['reference-transaction', 'post-checkout', 'pre-auto-gc']) {
+    put(hooks, name, `#!/bin/sh\ntouch '${marker}'\n`); chmodSync(path.join(hooks, name), 0o755);
+  }
+  put(hooks, 'fsmonitor', `#!/bin/sh\ntouch '${marker}'\nexit 1\n`); chmodSync(path.join(hooks, 'fsmonitor'), 0o755);
+  git(clone, ['config', 'core.hooksPath', hooks]);
+  git(clone, ['config', 'core.fsmonitor', path.join(hooks, 'fsmonitor')]);
+  run(COMPACT, ['status'], { cwd: clone });
+  const r = run(ACTIVITY, ['--since', '2026-01-01', clone]);
+  assert.equal(r.status, 0, r.err);
+  assert.deepEqual(rows(r).map(l => l.split('\t')[1]).sort(), ['041', '042']);
+  assert.equal(existsSync(marker), false);
 });
