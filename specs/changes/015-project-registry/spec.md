@@ -20,15 +20,16 @@ After `rigorkit install --project <dir>`, `~/.local/state/rigorkit/projects/<key
 - INV-1: A project install never changes the global record (010 RF-18).
 - INV-2: `--dry-run`, `--uninstall-rules` and `RK_NO_RECORD=1` write no project record.
 - INV-3: Record format and fingerprints stay twins of `lib/common.sh` (010 review twins check).
-- INV-4: A failure to write the record never fails the install; it warns in one line.
+- INV-4: A failure to write the record never fails the install; it warns in one line (also without `shasum`/`sha256sum` or with a symlinked state folder).
+- INV-5: Paths with any control character are never recorded. Readers take only files named `^[0-9a-f]{16}$` in `projects/` (temp and `.corrupt` files have dots).
 
 ## Functional requirements (EARS)
 ### Record (H1)
 - RF-1: WHEN `install.sh --project <dir>` writes, THE SYSTEM SHALL write `~/.local/state/rigorkit/projects/<key>` (`<key>` = first 16 hex of the SHA-256 of the real path) with header `rigorkit-project-record 1`, `path <real path>`, `version`, one `pair` per pack/agent and one `copy` per skill/agent copy with its fingerprint, in the global record's line format.
-- RF-2: WHEN the same project is installed again, THE SYSTEM SHALL keep earlier pairs and copies, add the new ones, replace changed fingerprints and set the version (same merge as the global record).
-- RF-3: IF the existing project record is unreadable, THEN THE SYSTEM SHALL move it to `<record>.corrupt`, say so in one line and start a new record.
+- RF-2: WHEN the same project is installed again, THE SYSTEM SHALL keep earlier pairs and copies, add the new ones, replace changed fingerprints and set the version to the installing version; IF the existing record names another path, THEN it SHALL warn and not record this install.
+- RF-3: IF the existing project record is unreadable or not a project record (`record_valid` checks the expected header and the lines its kind allows: `path` once and `dev` only in project records, `rules` only in the global one), THEN THE SYSTEM SHALL move it to `<record>.corrupt`, say so in one line and start a new record.
 ### Development (H2)
-- RF-4: WHEN the install runs from a clone other than `~/.rigorkit`, THE SYSTEM SHALL add `dev <real clone path>` to the project record; an install from `~/.rigorkit` SHALL have no `dev` line.
+- RF-4: WHEN the install runs from a clone other than `~/.rigorkit`, THE SYSTEM SHALL add `dev <real clone path>` to the project record; an install from `~/.rigorkit` SHALL have no `dev` line; IF the clone path cannot be recorded, THEN the install is not recorded (warning).
 
 ## Test scenarios
 Tests in `tools/test/015-project-registry.test.mjs` with a temporary HOME, clone copy and project.
@@ -39,18 +40,20 @@ Tests in `tools/test/015-project-registry.test.mjs` with a temporary HOME, clone
 | RF-1.E1 | edge | project reached through a symlinked path | install | `path` is the real path; key from the real path |
 | RF-1.F1 | failure | `~/.local/state/rigorkit/projects` cannot be created (a file there) | install | install exits 0 and warns once about the project record |
 | RF-1.S1 | security | a project path with a tab | install | no record line with that path; warning |
+| RF-1.S2 | security | a project path with an escape character | install | no project record; warning |
 ### RF-2
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
 | RF-2.H1 | happy | core for claude, then sdd for codex | second install | pairs core/claude and sdd/codex, copies of both kept |
 | RF-2.E1 | edge | same install twice | second install | identical pairs and copies, no duplicates |
-| RF-2.F | n/a — failures are RF-1.F1 and RF-3 | | | |
+| RF-2.E2 | edge | first install at 0.5.0, then from a clone at 0.6.0 | second install | `version 0.6.0` |
+| RF-2.F1 | failure | the record at this project's key names another path | install | warning, record unchanged |
 | RF-2.S | n/a — no new input beyond RF-1.S1 | | | |
 ### RF-3
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
 | RF-3.H1 | happy | garbage in the project record | install | `<record>.corrupt` holds the garbage; new valid record |
-| RF-3.E | n/a — single recovery path | | | |
+| RF-3.E1 | edge | a global-header record at the project key | install | moved to `.corrupt`; new project record |
 | RF-3.F | n/a — move failure is covered by INV-4's warning | | | |
 | RF-3.S | n/a — the corrupt content is never printed (checked in RF-3.H1) | | | |
 ### RF-4
@@ -59,7 +62,7 @@ Tests in `tools/test/015-project-registry.test.mjs` with a temporary HOME, clone
 | RF-4.H1 | happy | clone outside `~/.rigorkit` | install --project | record has `dev <real clone path>` |
 | RF-4.E1 | edge | first from a development clone, then from `~/.rigorkit` | second install | no `dev` line |
 | RF-4.F | n/a — same write path as RF-1.F1 | | | |
-| RF-4.S | n/a — clone path checked like RF-1.S1 | | | |
+| RF-4.S1 | security | development clone path with a tab | install | no project record; warning |
 ### INV
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
@@ -80,6 +83,9 @@ Tests in `tools/test/015-project-registry.test.mjs` with a temporary HOME, clone
 4. `--dry-run` and `RK_NO_RECORD=1` write nothing. Owner, 2026-11-13.
 5. Write failure warns, install continues. Owner, 2026-11-13.
 6. Real installs in temporary HOME and project; full installer regression. Owner, 2026-11-13.
+
+## Amendments
+- AMEND-1 (owner, 2026-11-13, autonomous run; sdd and security reviews): kind-checked `record_valid`, project version set on reinstall, identity check on the record key, control characters, dev path and missing hash tool or symlinked state folder not recorded with a warning; new scenarios RF-1.S2, RF-2.E2, RF-2.F1, RF-3.E1, RF-4.S1.
 
 ## Open questions
 None.
