@@ -1,8 +1,8 @@
-# Backlog — rigorkit
+# Roadmap — rigorkit
 Flat owner-ordered index: one HU/story/ticket per useful vertical slice, never a layer or CRUD step. Change details live in specs/changes/ (spec Origin carries HU-N); archived changes live in specs/archive/. The Change cell stores the stable change ID.
 
 ## Status values
-- backlog: proposed, not selected.
+- proposed: not selected yet.
 - next: owner-selected next; at most one.
 - wip: in progress; at most one.
 - done: accepted change archived, keep its entry.
@@ -12,7 +12,7 @@ Flat owner-ordered index: one HU/story/ticket per useful vertical slice, never a
 |---|---|---|---|---|---|---|---|
 | HU-1 | Install rigorkit with one line | A new machine gets `~/.rigorkit`, the `rigorkit` command, its help and manual page, helper scripts inside the installation and a custom area, without manual steps | updater | M | — | done | 008-updater |
 | HU-2 | Learn about new versions and update the global scope | Daily check with terminal and agent notices, and `rigorkit update` for the clone and the global scope (changelog, global rules, edited copies, new packs, old script location), like `omz update` | updater | L | HU-1 | done | 010-update |
-| HU-3 | Update projects and migrate 0.1.0 installs | Installation registry, project and development-install updates, scan of 0.1.0 installs and `rigorkit doctor`, so no installation is forgotten | updater | M | HU-2 | backlog | |
+| HU-3 | Update projects and migrate 0.1.0 installs | Installation registry, project and development-install updates, scan of 0.1.0 installs and `rigorkit doctor`, so no installation is forgotten | updater | M | HU-2 | proposed | |
 | HU-4 | Release tag on merge | A merge that changes `VERSION` publishes `v<VERSION>` after the toolkit tests pass, so the one-line installer gets releases without manual tagging | release | S | HU-1 | done | 009-release-tag |
 | HU-5 | Close commit on archive | `sdd-archive` proposes one `type(<id>): close … [close]` commit with Outcome/Validation/Deferred/Refs, so a report reads one commit per finished change instead of every red/green/docs commit | work-tracking | S | — | done | 011-close-commit |
 | HU-6 | Compact git reads for agents | `git-compact` (log/diff/status) and `git-activity --since/--until` (fetch, attribution by change-id scope, summary and close modes) in core, plus `spec-status` in sdd, so agents read activity in a few lines | work-tracking | M | HU-5 (close mode only) | done | 012-git-scripts |

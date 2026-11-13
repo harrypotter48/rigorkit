@@ -9,7 +9,7 @@ The factory coordinates the work; **Spec-Driven Development (SDD) remains the me
 
 | Station | Output and handoff |
 |---|---|
-| 1. Slice the feature | Propose a flat backlog of useful outcomes and dependencies. You choose the next slice. |
+| 1. Slice the feature | Propose a flat roadmap of useful outcomes and dependencies. You choose the next slice. |
 | 2. Specify and clarify | Agree on behavior, acceptance, scenarios, invariants and exclusions. You approve WHAT. |
 | 3. Design and plan | Propose the minimum solution and its tasks. You approve new technical decisions and HOW. |
 | 4. Prepare tests | Turn acceptance into checks that can distinguish the requested behavior from a plausible wrong implementation. |
@@ -170,7 +170,7 @@ Install `sdd`, then ask for `sdd-init`. For existing code, continue with `sdd-ad
 
 Change flow (the entry stage is being added in the Factory v2 work):
 
-1. `sdd-slice` → owner-selected backlog entry → `sdd-triage` / `sdd-context`
+1. `sdd-slice` → owner-selected roadmap entry → `sdd-triage` / `sdd-context`
 2. `sdd-spec` → `sdd-clarify` automatically; user approves the clarified spec
 3. `sdd-plan` → `sdd-tasks` automatically; user approves the plan and functional blocks
 4. `sdd-tests` for the selected slice/block; run permitted tests and record intended-red evidence

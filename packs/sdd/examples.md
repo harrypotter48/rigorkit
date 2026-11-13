@@ -8,7 +8,7 @@ Intent: "Let editors configure the clear button on each use of a reusable form."
 | ID | Title | Why (value) | Feature | Size | Depends on | Status | Change |
 |---|---|---|---|---|---|---|---|
 | HU-1 | Configure the clear button per widget instance | Two widgets can use one form with different visibility | Instance form options | S | none | next | — |
-| HU-2 | Configure the clear button per CMS section instance | Section editors control their own use of the form | Instance form options | S | Shared contract from HU-1 if actually needed | backlog | — |
+| HU-2 | Configure the clear button per CMS section instance | Section editors control their own use of the form | Instance form options | S | Shared contract from HU-1 if actually needed | proposed | — |
 
 The owner chooses priority and approves the proposal. Each slice includes configuration, the necessary data path, rendering behavior and evidence. A backend field, an endpoint or a UI control alone is an internal task. If a shared contract creates a dependency, record it rather than claiming the slices can deploy independently.
 

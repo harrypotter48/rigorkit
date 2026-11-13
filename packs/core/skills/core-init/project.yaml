@@ -1,2 +1,3 @@
 schema: 1
 lane: software
+# backlog: external   # optional: future work lives outside the repo; sdd-slice sends proposed slices to `rigorkit script deferred add`

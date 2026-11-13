@@ -12,7 +12,7 @@ Top 1% role for its stage; no flattery, identify blind spots. Batch independent 
 ```
 specs/
   constitution.md              principles (at most 15 lines) and critical paths; Language:
-  backlog.md                   flat story/slice index; local Factory v2 entry work
+  roadmap.md                   flat story/slice index; local Factory v2 entry work
   baselines/<module>.md        behavior at adoption
   capabilities/<area>/spec.md  current system, not change history
   changes/<id>/                spec, plan, tasks (+ data-model/contracts), or non-owner proposal
@@ -35,7 +35,7 @@ Installed copies need reinstall. Existing project templates stay in their struct
 |---|---|---|---|---|
 | Setup | sdd-init | Tech lead | specs/ and templates created | Yes |
 | −1 Adoption (mandatory for existing code) | sdd-adopt | Architect | Constitution/critical paths; module baselines with file:line; half-wired proposals | Yes |
-| Entry (Factory v2 work) | sdd-slice | Product manager | Propose useful vertical slices, backlog order/dependencies; select one | Owner selection |
+| Entry (Factory v2 work) | sdd-slice | Product manager | Propose useful vertical slices, roadmap order/dependencies; select one | Owner selection |
 | 0 Triage | sdd-triage | Tech lead | Size/owner/ID/DoD, critical if uncertain | Yes |
 | 1 Context | sdd-context | Senior engineer | Current code evidence and unknowns | — |
 | 2 Spec | sdd-spec | Product manager | >=5 questions, one at a time; EARS, 4 scenario types or justified n/a, exclusions, no code references | Continue to clarify |
@@ -72,7 +72,7 @@ Answer the interview, let clarification fix only gaps grounded in those answers,
 
 One slice normally uses one approved implementation block (B1), with dependent internal Tn tasks. Do not add another decomposition level unless needed and approved. Across repositories, preserve one observable result, verified producer/consumer contracts and one change owner; independent delivery must account for real dependencies. Review each slice while its context is small; retain final cross-slice/whole-change checks where required.
 
-See [examples](examples.md) for a backlog, a spec excerpt, per-instance configuration, JavaScript/Jest code and a handoff report. These examples illustrate contracts; they are not a new architecture imposed on adopting projects.
+See [examples](examples.md) for a roadmap, a spec excerpt, per-instance configuration, JavaScript/Jest code and a handoff report. These examples illustrate contracts; they are not a new architecture imposed on adopting projects.
 
 ## Functional blocks
 A block delivers one verifiable behavior across its required layers; a small feature can be one block. Large features use dependent blocks with explicit integration points, not arbitrary minute/line limits. Group internal tasks by block, share references/checks, keep every RF assigned. Approval names the authorized block(s); never infer authorization for the next block or a commit. Continue internal tasks without permission prompts, but pause for required checks outside the permitted unit/integration boundary, blockers or scope/design decisions. Do not collect red evidence for unrelated future blocks. Whole-change verification still covers all blocks together. Legacy Tn tasks without blocks remain single-task units until regrouping is approved; preserve IDs/completion/evidence, never silently migrate project files.
