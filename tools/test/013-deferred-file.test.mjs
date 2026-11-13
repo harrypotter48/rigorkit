@@ -1,8 +1,8 @@
-// 013-deferred-file HU-7 — deferred add/list/clear in <git-common-dir>/rigorkit/deferred.md.
+// 013-deferred-file HU-7 — deferred add/list/clear in <git-common-dir>/rigorkit/deferred.md. AMEND-1.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, realpathSync, chmodSync, statSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, realpathSync, chmodSync, statSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -140,6 +140,30 @@ test('RF-4.F1: clear without --yes, with 0 or too many leaves the file unchanged
     assert.equal(run(args, { cwd: r0 }).status, 2, args.join(' '));
   }
   assert.equal(readFileSync(file(r0), 'utf8'), before);
+});
+
+test('RF-1.S2: a symlinked deferred.md is refused', t => {
+  const r0 = init(t);
+  const outside = path.join(temp(t), 'target.txt');
+  writeFileSync(outside, 'keep\n');
+  mkdirSync(path.dirname(file(r0)), { recursive: true });
+  symlinkSync(outside, file(r0));
+  assert.equal(run(['add', 'x'], { cwd: r0 }).status, 3);
+  assert.equal(readFileSync(outside, 'utf8'), 'keep\n');
+});
+
+test('RF-4.E2: clearing every entry leaves an empty list that still counts', t => {
+  const r0 = init(t);
+  run(['add', 'one'], { cwd: r0 }); run(['add', 'two'], { cwd: r0 });
+  assert.equal(run(['clear', '--first', '2', '--yes'], { cwd: r0 }).status, 0);
+  const r = run(['list'], { cwd: r0 });
+  assert.equal(r.status, 0, r.err);
+  assert.equal(r.lines.at(-1), 'deferred: 0 in 1 repos');
+  assert.deepEqual(entries(r0), []);
+});
+
+test('RF-4.F2: clear on a folder that is not a repository top exits 3', t => {
+  assert.equal(run(['clear', '--first', '1', '--yes', '--repo', temp(t)]).status, 3);
 });
 
 test('RF-5.H1: list on a valid repository exits 0', t => {
