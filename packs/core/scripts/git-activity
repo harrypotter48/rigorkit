@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# git-activity --since <date> [--until <date>] [--authors a@x,b@y] [--close] [--no-fetch] <repo>...
+# Work per change ID (SDD commit convention) across repositories, as TSV, ending with a coverage line.
+# Exit 0 = all read, 3 = partial (a path was not read), 2 = usage. Option-like values are rejected,
+# and the repositories' config never runs a program (hooks, fsmonitor, prompts, upload-pack are off).
+set -uo pipefail
+usage() { echo "usage: git-activity --since <YYYY-MM-DD[THH:MM]> [--until <date>] [--authors a@x,b@y] [--close] [--no-fetch] <repo>..." >&2; exit 2; }
+
+since='' until='' authors='' has_authors=0 close=0 fetch=1 repos=()
+while [ $# -gt 0 ]; do
+  case $1 in
+    --since) [ $# -ge 2 ] || usage; since=$2; shift 2 ;;
+    --until) [ $# -ge 2 ] || usage; until=$2; shift 2 ;;
+    --authors) [ $# -ge 2 ] || usage; authors=$2; has_authors=1; shift 2 ;;
+    --close) close=1; shift ;;
+    --no-fetch) fetch=0; shift ;;
+    -*) usage ;;
+    *) repos+=("$1"); shift ;;
+  esac
+done
+
+# INV-1: strict values; anything starting with "-" fails these patterns.
+date_ok() {
+  [[ $1 =~ ^([0-9]{4})-([0-9]{2})-([0-9]{2})(T([0-9]{2}):([0-9]{2}))?$ ]] || return 1
+  local m=$((10#${BASH_REMATCH[2]})) d=$((10#${BASH_REMATCH[3]}))
+  [ "$m" -ge 1 ] && [ "$m" -le 12 ] && [ "$d" -ge 1 ] && [ "$d" -le 31 ] || return 1
+  [ -z "${BASH_REMATCH[4]}" ] && return 0
+  [ $((10#${BASH_REMATCH[5]})) -le 23 ] && [ $((10#${BASH_REMATCH[6]})) -le 59 ]
+}
+email_ok() { [[ $1 =~ ^[A-Za-z0-9._%+][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+$ ]]; }
+gitdate() { case $1 in *T*) echo "${1/T/ }:00" ;; *) echo "$1 $2" ;; esac; } # date-only → day start/end
+[ -n "$since" ] && date_ok "$since" || usage
+[ -z "$until" ] || date_ok "$until" || usage
+[ ${#repos[@]} -gt 0 ] || usage
+filters=("--since=$(gitdate "$since" 00:00:00)")
+[ -z "$until" ] || filters+=("--until=$(gitdate "$until" 23:59:59)")
+wanted=''
+if [ "$has_authors" = 1 ]; then
+  [ -n "$authors" ] || usage
+  IFS=, read -r -a list <<<"$authors"
+  for a in "${list[@]}"; do email_ok "$a" || usage; done
+  wanted=",$(printf '%s' "$authors" | tr 'A-Z' 'a-z'),"
+fi
+
+# INV-2/INV-4: read-only, and no program from the repository's config.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
+export GIT_OPTIONAL_LOCKS=0 GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true SSH_ASKPASS=true GIT_NO_LAZY_FETCH=1
+export GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=10'
+# git:// is refused (core.gitProxy); reads after the fetch use no network at all (lazy fetch).
+g() { git --no-pager -c core.hooksPath=/dev/null -c core.fsmonitor=false -c credential.helper= \
+  -c core.askPass=true -c protocol.ext.allow=never -c protocol.git.allow=never -c log.showSignature=false \
+  -c core.alternateRefsCommand= "$@"; }
+gr() { g -c protocol.allow=never "$@"; }
+clean() { LC_ALL=C tr -d '\000-\010\013-\037\177'; }
+
+# Change ID: scope of type(<id>):, or the first word after test(red|green|amend):; otherwise "-".
+ID_AWK='function cid(s,  t, sc, w) {
+  if (!match(s, /^[a-z]+\([^)]+\)!?: /)) return "-"
+  t = substr(s, 1, index(s, "(") - 1); sc = substr(s, index(s, "(") + 1); sc = substr(sc, 1, index(sc, ")") - 1)
+  if (t == "test" && (sc == "red" || sc == "green" || sc == "amend")) { split(substr(s, index(s, ": ") + 2), w, " "); return (w[1] == "" ? "-" : w[1]) }
+  return sc
+}'
+
+if [ "$close" = 1 ]; then printf 'repo\tid\tdate\tsubject\n'; else printf 'repo\tid\tcommits\tfirst\tlast\tlast-subject\n'; fi
+read=0 failed=0 missing='' notes=''
+fail() { failed=$((failed + 1)); missing="${missing:+$missing; }$1"; }
+for r in "${repos[@]}"; do
+  # Only the top of a repository or worktree: never a parent repository or an embedded bare one.
+  top=$(g -C "$r" rev-parse --show-toplevel 2>/dev/null) && here=$(cd "$r" 2>/dev/null && pwd -P) \
+    && [ "$(cd "$top" && pwd -P)" = "$here" ] || { fail "$r"; continue; }
+  name=$(basename "$here")
+  if [ "$fetch" = 1 ] && [ -n "$(g -C "$r" remote 2>/dev/null)" ]; then
+    g -C "$r" fetch --quiet --all --upload-pack=git-upload-pack >/dev/null 2>&1 </dev/null || notes="${notes}fetch failed: $name"$'\n'
+  fi
+  body=$(gr -C "$r" log --all --no-merges "${filters[@]}" --date=format:%Y-%m-%d --format=$'%H\t%cd\t%ae\t%s') || { fail "$r"; continue; }
+  body=$(printf '%s\n' "$body" | awk -F'\t' -v w="$wanted" 'NF && (w == "" || index(w, "," tolower($3) ",") > 0)')
+  if [ "$close" = 1 ]; then
+    printf '%s\n' "$body" | awk -F'\t' "$ID_AWK"'NF { s = substr($0, length($1 $2 $3) + 4); if (s ~ /\[close\]$/) print $1 "\t" $2 "\t" cid(s) "\t" s }' |
+      while IFS=$'\t' read -r hash day id subject; do
+        printf '%s\t%s\t%s\t%s\n' "$name" "$id" "$day" "$subject" | clean
+        gr -C "$r" show -s --format=%b "$hash" | grep -E '^(Outcome|Validation):' | sed 's/^/  /' | clean
+      done
+  else
+    printf '%s\n' "$body" | awk -F'\t' -v repo="$name" "$ID_AWK"'
+      NF { s = substr($0, length($1 $2 $3) + 4); gsub(/\t/, " ", s); id = cid(s); count[id]++; first[id] = $2
+           if (!(id in last)) { last[id] = $2; subj[id] = s; order[++n] = id } }
+      END { for (i = 1; i <= n; i++) { id = order[i]; print repo "\t" id "\t" count[id] "\t" first[id] "\t" last[id] "\t" subj[id] } }' | clean
+  fi
+  read=$((read + 1))
+done
+
+printf '%s' "$notes" | clean
+echo "repos: $read read, $failed failed${missing:+ ($missing)}" | clean
+[ "$failed" = 0 ] || exit 3

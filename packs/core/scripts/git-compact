@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# git-compact <log|diff|status> [--full] [git args...] — compact, read-only git reads for agents.
+# Truncated output keeps the full output in a per-run log; git's stderr and exit code pass through.
+# The repository's config never runs a program (hooks, fsmonitor, external diff, textconv are off).
+set -uo pipefail
+usage() { echo "usage: git-compact <log|diff|status> [--full (diff)] [git args...]" >&2; exit 2; }
+[ $# -gt 0 ] || usage
+sub=$1; shift
+
+# INV-2: options that write files or run programs are refused.
+for a in "$@"; do
+  case $a in --output|--output=*|-o|-o?*|--ext-diff|--textconv|--no-index|--show-signature) usage ;; esac
+done
+
+out=$(mktemp "${TMPDIR:-/tmp}/rigorkit-git-compact.XXXXXX") || exit 1
+idx=''
+trap 'rm -f "$out" ${idx:+"$idx"}' EXIT
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
+export GIT_OPTIONAL_LOCKS=0 GIT_NO_LAZY_FETCH=1
+# No program and no network from the repository's config (signatures, lazy fetch, alternates, split index).
+g() { git --no-pager -c color.ui=never -c core.hooksPath=/dev/null -c core.fsmonitor=false -c diff.external= \
+  -c log.showSignature=false -c protocol.allow=never -c core.alternateRefsCommand= -c core.splitIndex=false \
+  -c core.quotePath=false "$@"; }
+[ "$(g rev-parse --is-bare-repository 2>/dev/null)" != true ] || { echo "git-compact: refusing a bare repository" >&2; exit 2; }
+
+# git diff refreshes and rewrites the index even with optional locks off: give it a private copy.
+if [ "$sub" = diff ]; then
+  real=$(g rev-parse --git-path index 2>/dev/null) && [ -f "$real" ] \
+    && idx=$(mktemp "${TMPDIR:-/tmp}/rigorkit-git-compact-index.XXXXXX") && cp "$real" "$idx" \
+    && export GIT_INDEX_FILE=$idx
+fi
+
+case $sub in
+  log) limit=30; g log --no-textconv --format='%h %ad %s' --date=short "$@" >"$out"; code=$? ;;
+  status) limit=50; g status --short --branch "$@" >"$out"; code=$? ;;
+  diff)
+    full=0; args=()
+    for a in "$@"; do if [ "$a" = --full ]; then full=1; else args+=("$a"); fi; done
+    if [ "$full" = 1 ]; then
+      limit=200; g diff --no-ext-diff --no-textconv ${args[@]+"${args[@]}"} >"$out"; code=$?
+    else
+      limit=60; g diff --no-ext-diff --no-textconv --stat ${args[@]+"${args[@]}"} >"$out"; code=$?
+      if [ "$code" = 0 ]; then
+        # Per file: "<path>:" from the "+++ b/<path>" line (spaces kept), then its hunk headers.
+        g diff --no-ext-diff --no-textconv --src-prefix=a/ --dst-prefix=b/ -U0 ${args[@]+"${args[@]}"} \
+          | awk '/^\+\+\+ "?b\//{n = substr($0, 5); sub(/^"?b\//, "", n); sub(/"?\t?$/, "", n); print n ":"; f = ""; next} /^\+\+\+ \/dev\/null/{next}
+                 /^--- "?a\//{f = substr($0, 5); sub(/^"?a\//, "", f); sub(/"?\t?$/, "", f); next} /^@@ /{if (f != "") {print f ":"; f = ""} print "  " $0; next}
+                 /^diff --git /{f = ""}' >>"$out"
+        code=$?
+      fi
+    fi ;;
+  *) usage ;;
+esac
+
+clean() { LC_ALL=C tr -d '\000-\010\013-\037\177'; }
+lines=$(wc -l <"$out" | tr -d ' ')
+if [ "$lines" -gt "$limit" ]; then
+  head -n "$limit" "$out" | clean
+  log=$(mktemp "${TMPDIR:-/tmp}/rigorkit-git-compact.XXXXXX") && cp "$out" "$log"
+  echo "… $((lines - limit)) more · full log: $log"
+else
+  clean <"$out"
+fi
+exit "$code"

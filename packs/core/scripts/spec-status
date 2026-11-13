@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# spec-status [repo] — state of every SDD change: id, state, tasks done/total (TSV).
+# Active: defined | in-progress | implemented | validated. Archived: archived | archived-unvalidated.
+# Exit 2 = usage or no specs/, 3 = git history unreadable. Read-only; repository config runs nothing.
+set -uo pipefail
+usage() { echo "usage: spec-status [repo]" >&2; exit 2; }
+[ $# -le 1 ] || usage
+root=${1:-.}
+case $root in -*) usage ;; esac
+[ -d "$root/specs" ] || { echo "spec-status: no specs/ in $root" >&2; exit 2; }
+
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
+export GIT_OPTIONAL_LOCKS=0 GIT_NO_LAZY_FETCH=1
+g() { git --no-pager -c core.hooksPath=/dev/null -c core.fsmonitor=false -c log.showSignature=false \
+  -c protocol.allow=never -c core.alternateRefsCommand= "$@"; }
+clean() { LC_ALL=C tr -d '\000-\010\013-\037\177'; }
+
+# Only the top of a repository or worktree (never a parent or an embedded bare repository).
+top=$(g -C "$root" rev-parse --show-toplevel 2>/dev/null) && [ "$(cd "$top" && pwd -P)" = "$(cd "$root" && pwd -P)" ] \
+  || { echo "spec-status: $root is not the top of a git repository" >&2; exit 3; }
+# One line per commit: hash, subject. Bodies are read only for [close] commits.
+history=$(g -C "$root" log --all --format=$'%H\t%s' 2>/dev/null) \
+  || { echo "spec-status: cannot read git history in $root" >&2; exit 3; }
+
+# Same change-ID rule as git-activity; IDs compared as text (ENVIRON avoids regex and escapes).
+ID_AWK='function cid(s,  t, sc, w) {
+  if (!match(s, /^[a-z]+\([^)]+\)!?: /)) return "-"
+  t = substr(s, 1, index(s, "(") - 1); sc = substr(s, index(s, "(") + 1); sc = substr(sc, 1, index(sc, ")") - 1)
+  if (t == "test" && (sc == "red" || sc == "green" || sc == "amend")) { split(substr(s, index(s, ": ") + 2), w, " "); return (w[1] == "" ? "-" : w[1]) }
+  return sc
+}'
+
+# Prints "<code|none> <close-hash|none>" for an ID: code = a feat|fix|refactor|perf|test(green) commit.
+scan() {
+  printf '%s\n' "$history" | A=$1 B=$2 awk -F'\t' "$ID_AWK"'
+    NF { s = substr($0, length($1) + 2); id = cid(s)
+         if (id != ENVIRON["A"] && id != ENVIRON["B"]) next
+         if (s ~ /^(feat|fix|refactor|perf)(\(|!|:)/ || s ~ /^test\(green\):/) code = 1
+         if (s ~ /\[close\]$/ && ch == "") ch = $1 }
+    END { print (code ? "code" : "none") " " (ch != "" ? ch : "none") }'
+}
+
+printf 'id\tstate\ttasks\n'
+for kind in changes archive; do
+  for dir in "$root/specs/$kind"/*/; do
+    [ -d "$dir" ] || continue
+    id=$(basename "$dir"); num=${id%%-*}
+    case $num in *[!0-9]*|'') num=$id ;; esac
+    done_=0 open=0
+    if [ -f "$dir/tasks.md" ]; then
+      done_=$(grep -cE '^[[:space:]]*- \[[xX]\]' "$dir/tasks.md" || true)
+      open=$(grep -cE '^[[:space:]]*- \[ \]' "$dir/tasks.md" || true)
+    fi
+    total=$((done_ + open))
+    read -r code close <<<"$(scan "$id" "$num")"
+    if [ "$kind" = archive ]; then
+      state=archived
+      [ "$close" != none ] && g -C "$root" show -s --format=%b "$close" | grep -qE '^Validation:[[:space:]]*pending' \
+        && state=archived-unvalidated
+    elif [ "$total" -gt 0 ] && [ "$done_" = "$total" ]; then
+      [ -f "$dir/validation.md" ] && state=validated || state=implemented
+    elif [ "$done_" -gt 0 ] || [ "$code" = code ]; then
+      state=in-progress
+    else
+      state=defined
+    fi
+    printf '%s\t%s\t%s/%s\n' "$id" "$state" "$done_" "$total" | clean
+  done
+done
