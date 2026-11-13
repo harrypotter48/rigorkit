@@ -1041,6 +1041,7 @@ test('RF-34.H1: the documented commands move a 0.2.0 clone to the first release 
   const h = home(t);
   const r = testRemote(t, h.root);
   r.release('0.2.0', d => rmSync(path.join(d, 'lib'), { recursive: true, force: true }));
+  r.release('0.3.0'); // AMEND-3 (012): the README moves 0.2.0 clones to v0.3.0
   r.release(read(path.join(repo, 'VERSION')).trim());
   const clone = cloneAt(h.HOME, r.bare, 'v0.2.0');
   const { cmds } = readmeCommands();
