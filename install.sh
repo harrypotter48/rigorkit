@@ -110,7 +110,7 @@ WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT   # temp files only here, always
 # Format and fingerprints are twins of lib/common.sh (tools/test/010-twins.test.mjs). Recorded only for the
 # clone at ~/.rigorkit (a development clone is HU-3) or a staging run of rigorkit update (RK_STAGE=1, internal);
 # RK_NO_RECORD=1 (internal) turns it off.
-REC_DIR="$HOME/.local/state/rigorkit"; REC="$REC_DIR/global"; REC_ON=0; REC_NEW="$WORK/record.new"; : > "$REC_NEW"
+REC_DIR="$HOME/.local/state/rigorkit"; REC="$REC_DIR/global"; REC_ON=0; REC_KIND=global; REC_HDR="rigorkit-global-record 1"; REC_PATH=""; REC_DEV=""; REC_NEW="$WORK/record.new"; : > "$REC_NEW"
 TAB="$(printf '\t')"
 sha256() { if command -v shasum >/dev/null 2>&1; then shasum -a 256 | cut -d' ' -f1; else sha256sum | cut -d' ' -f1; fi; }
 fp_text() { LC_ALL=C sed -e 's/[[:space:]]*$//' | sha256; }   # stdin; CR and trailing blanks ignored
@@ -124,21 +124,22 @@ fp_block() { # pack file -> fingerprint of the lines between its markers, "-" wh
     awk -v s="$s" -v e="$e" '$0==e{f=0} f{print} $0==s{f=1}' "$2" | fp_text
   else echo -; fi
 }
-record_valid() { # file: header line plus known lines only
-  awk -F'\t' 'NR==1 { if ($0 != "rigorkit-global-record 1") bad=1; next }
+record_valid() { # file [header]: that header (default global) plus the lines its kind allows
+  awk -F'\t' -v want="${2:-rigorkit-global-record 1}" 'NR==1 { if ($0 != want) bad=1; proj = ($0 == "rigorkit-project-record 1"); next }
+    proj && $1=="path" && NF==2 && $2 ~ /^\// { np++; next }
+    proj && $1=="dev" && NF==2 && $2 ~ /^\// { next }
     $1=="version" && NF==2 && $2 ~ /^[0-9]+\.[0-9]+\.[0-9]+$/ { next }
     $1=="pair" && NF==3 { next }
     $1=="copy" && NF==7 && ($2=="skill" || $2=="agent") { next }
-    $1=="rules" && NF==5 { next }
-    { bad=1 } END { exit (bad || NR == 0) }' "$1" 2>/dev/null
+    !proj && $1=="rules" && NF==5 { next }
+    { bad=1 } END { exit (bad || NR == 0 || (proj && np != 1)) }' "$1" 2>/dev/null
 }
-rec_warn() { echo "warning: cannot write the global record ($REC); updates cannot manage the global scope" >&2; REC_ON=0; }
+rec_warn() { echo "warning: cannot write the $REC_KIND record ($REC); updates cannot manage the $([ "$REC_KIND" = global ] && echo 'global scope' || echo 'project')" >&2; REC_ON=0; }
 rec_line() { # fields... -> one tab-separated record line
   [ "$REC_ON" -eq 1 ] || return 0
   local IFS="$TAB"; printf '%s\n' "$*" >> "$REC_NEW"
 }
-rec_path_ok() { case "$1" in *"$TAB"*|*"
-"*) echo "warning: a path with a tab or a newline is not recorded" >&2; return 1 ;; esac; }
+rec_path_ok() { case "$1" in *[[:cntrl:]]*) echo "warning: a path with a control character (tab, newline, escape…) is not recorded" >&2; return 1 ;; esac; }
 dir_agents() { # skill folder -> agents that read it
   case "$1" in */.claude/skills) echo claude ;; *) for a in codex cursor opencode; do has_agent "$a" && echo "$a"; done ;; esac
 }
@@ -164,10 +165,11 @@ rec_write() { # merge REC_NEW into the record: new copies replace old ones, "=" 
   [ "$REC_ON" -eq 1 ] || return 0
   local old=/dev/null tmp
   [ -f "$REC" ] && old="$REC"
-  ( umask 077; mkdir -p "$REC_DIR" ) 2>/dev/null
-  tmp="$( ( umask 077; mktemp "$REC_DIR/global.XXXXXX" ) 2>/dev/null )" || { rec_warn; return 0; }
-  if { cat "$old"; echo '@@new@@'; cat "$REC_NEW"; } | awk -F'\t' -v OFS='\t' -v ver="$VERSION" '
+  ( umask 077; mkdir -p "$REC_DIR" ) 2>/dev/null || true
+  tmp="$( ( umask 077; mktemp "$REC.XXXXXX" ) 2>/dev/null )" || { rec_warn; return 0; }
+  if { cat "$old"; echo '@@new@@'; cat "$REC_NEW"; } | awk -F'\t' -v OFS='\t' -v ver="$VERSION" -v hdr="$REC_HDR" -v rpath="$REC_PATH" -v rdev="$REC_DEV" '
       $0 == "@@new@@" { neu = 1; next }
+      $1 == "path" || $1 == "dev" { next }
       $1 == "version" { if (!neu) v = $2; next }
       $1 == "pair" { k = $2 FS $3; if (!(k in P)) { P[k] = 1; po[++np] = k }; next }
       $1 == "copy" { k = $5 FS $4; fp = $6; dc = $7
@@ -176,7 +178,8 @@ rec_write() { # merge REC_NEW into the record: new copies replace old ones, "=" 
         if (!(k in C)) co[++nc] = k
         C[k] = $1 OFS $2 OFS $3 OFS $4 OFS $5 OFS fp OFS dc; F[k] = fp; D[k] = dc; next }
       $1 == "rules" { k = $4 FS $3 FS $2; if (!(k in R)) ro[++nr] = k; R[k] = $0; next }
-      END { print "rigorkit-global-record 1"; print "version", (v != "" ? v : ver)
+      END { print hdr; if (rpath != "") print "path", rpath; if (rdev != "") print "dev", rdev
+        print "version", ((v != "" && rpath == "") ? v : ver)
         for (i = 1; i <= np; i++) { split(po[i], a, FS); print "pair", a[1], a[2] }
         for (i = 1; i <= nc; i++) print C[co[i]]
         for (i = 1; i <= nr; i++) print R[ro[i]] }' > "$tmp" && mv -f "$tmp" "$REC"; then return 0; fi
@@ -197,6 +200,25 @@ if [ "$SCOPE" = "global" ] && [ "$DRY" -eq 0 ] && [ "$UNINSTALL" -eq 0 ] && [ "$
   if [ "$REC_ON" -eq 1 ] && [ -e "$REC" ] && ! record_valid "$REC"; then   # RF-35: moved aside, never printed
     if mv -f "$REC" "$REC.corrupt" 2>/dev/null; then say "note: unreadable global record moved to $REC.corrupt; a new record starts with this install"
     else rec_warn; fi
+  fi
+elif [ "$SCOPE" != "global" ] && [ "$DRY" -eq 0 ] && [ "$UNINSTALL" -eq 0 ] && [ "${RK_NO_RECORD-}" != 1 ]; then
+  # 015 RF-1–RF-4: one record per project, keyed by its real path; a development clone is named in "dev".
+  REC_KIND=project; REC_HDR="rigorkit-project-record 1"; REC_PATH="$(cd -- "$BASE" 2>/dev/null && pwd -P)" || REC_PATH=""
+  if [ -n "$REC_PATH" ] && rec_path_ok "$REC_PATH" && { command -v shasum >/dev/null 2>&1 || command -v sha256sum >/dev/null 2>&1; }; then
+    REC_DIR="$REC_DIR/projects"; REC="$REC_DIR/$(printf '%s' "$REC_PATH" | sha256 | cut -c1-16)"; REC_ON=1
+    rec_home_clone || REC_DEV="$(cd "$RENDER_ROOT" && pwd -P)"
+    if [ -n "$REC_DEV" ] && ! rec_path_ok "$REC_DEV"; then rec_warn; fi
+    if [ -L "$HOME/.local/state/rigorkit" ] || [ -L "$REC_DIR" ] || [ -L "$REC" ]; then rec_warn; fi
+    if [ "$REC_ON" -eq 1 ] && [ -e "$REC" ] && ! record_valid "$REC" "$REC_HDR"; then
+      if mv -f "$REC" "$REC.corrupt" 2>/dev/null; then say "note: unreadable project record moved to $REC.corrupt; a new record starts with this install"
+      else rec_warn; fi
+    fi
+    # Same key, other project (hash collision or a copied file): never merge into it.
+    if [ "$REC_ON" -eq 1 ] && [ -f "$REC" ] && [ "$(awk -F'\t' '$1 == "path" { print $2; exit }' "$REC")" != "$REC_PATH" ]; then
+      echo "warning: the project record $REC belongs to another path; this install is not recorded" >&2; REC_ON=0
+    fi
+  else
+    rec_warn
   fi
 fi
 
