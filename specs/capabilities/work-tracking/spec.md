@@ -17,13 +17,20 @@ Reports (daily, weekly, lead summaries) read work from git history. Commits name
 - RF-5: The close body carries `Outcome`, `Validation` (`done: how/env/date` or `pending: what`), `Deferred`, `Follow-ups` and a `Refs` footer. (011)
 - RF-6: `sdd-implement` proposes `refactor(<id>):`; the sdd README lists it. (011)
 - INV-1: `test(red):`/`test(amend):` prefixes stay as `factory-checks.mjs` enforces them.
+- RF-7: `packs/core/scripts/git-compact <log|diff|status>` prints one line per commit (30), stat + hunk headers (60, `--full` 200) or short status (50); truncation keeps a per-run full log; refuses `--output`, `-o`, `--ext-diff`, `--textconv`, `--no-index`, `--show-signature`, `%G` formats and bare repositories. (012)
+- RF-8: `git-activity --since <date> [--until] [--authors] [--close] [--no-fetch] <repo>...` prints TSV per repository and change ID (scope, or first word after `test(red|green|amend):`, else `-`), exact case-insensitive author emails, commit dates, `--close` with Outcome/Validation; coverage line last, exit 3 when a path is not a repository top. (012)
+- RF-9: `spec-status [repo]` prints `id state tasks` for `specs/changes/` (defined, in-progress, implemented, validated) and `specs/archive/` (archived, archived-unvalidated); IDs compared as text; exit 3 when git history is unreadable. (012)
+- INV-2: Helpers only read (no index write, `GIT_OPTIONAL_LOCKS=0`, private index copy for diff) except `git-activity`'s fetch. (012)
+- INV-3: The inspected repository's config never runs a program: hooks, fsmonitor, signatures, textconv, external diff, clean/smudge filters, alternates, credential helpers and prompts are off; reads use no transport (lazy fetch blocked); `git://` refused for fetch. (012)
 
 ## Scenario coverage
 `tools/test/011-close-commit.test.mjs`: RF-1.H1/E1, RF-2.H1/E1/E2/F1, RF-3.H1, RF-4.H1/E1, RF-5.H1/E1, RF-6.H1/E1, INV-2.H1 (content ratchet).
+`tools/test/012-git-scripts.test.mjs`: 37 scenarios for RF-7–RF-9 and INV-2/INV-3 (marker tests cover hooks and fsmonitor; signature, lazy-fetch, filter and `git://` hardening checked by hand and in review).
 
 ## Out of scope
 - Where the archive commit lands (owner branch practice).
-- Parsing history (HU-6), deferred file (HU-7), roadmap rename (HU-8).
+- Deferred file (HU-7), roadmap rename (HU-8).
 
 ## Verification references
 - `specs/archive/011-close-commit/` (spec with AMEND-1, tasks).
+- `specs/archive/012-git-scripts/` (spec with AMEND-1–3, tasks).
