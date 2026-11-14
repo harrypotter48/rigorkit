@@ -102,5 +102,7 @@ Tests in `tools/test/017-project-updates.test.mjs` with a local test remote, a c
 
 - AMEND-2 (owner delegation, 2026-11-13): `tools/test/014-roadmap.test.mjs` RF-3.E1 also accepts lines that name `roadmap.md` (the rename this change performs), not only the fallback sentence.
 
+- AMEND-3 (owner delegation, 2026-11-13): release 0.6.0 (015–019): `tools/test/014-roadmap.test.mjs` RF-6.H1 checks the 0.5.0 changelog section and a VERSION of 0.5.0 or later instead of exactly 0.5.0.
+
 ## Open questions
 None.
