@@ -10,6 +10,7 @@ Commands:
   install [options]      Install packs into your coding agents (same as install.sh)
   update [\-\-dry\-run]     Move to the newest release and refresh your global scope
   scan [<folder>...]     Find installed projects and register them for updates
+  doctor                 Report versions, edited copies and problems; change nothing
   script <name> [args]   Run a helper script, custom first, then official
   help [<command>]       Show this list, or the help of one command
 
@@ -145,6 +146,33 @@ Writes:
 
 Exit status: 2 for invalid options or no folder to scan, 3 when a folder
 does not exist.
+.fi
+.SH DOCTOR
+.nf
+Usage: rigorkit doctor
+
+Reports the health of your installations without changing them:
+the clone's version and local changes, custom scripts and packs that shadow
+official ones, the global record's version with its edited or missing copies
+and packs no longer shipped, and for every registered project its version,
+whether it is outdated, installed from a development clone, has edited
+copies, or no longer exists.
+
+The only repair is the execute bit of official helper scripts in the clone;
+custom scripts are only reported.
+
+Options:
+  \-\-help                Show this help
+
+Examples:
+  rigorkit doctor
+
+Writes:
+  Nothing, except the execute bit of official helper scripts.
+
+Exit status: 0 when nothing needs attention, 1 when something does
+(outdated, edited, missing, shadowing, local changes, unreadable records),
+2 for invalid arguments.
 .fi
 .SH SCRIPT
 .nf

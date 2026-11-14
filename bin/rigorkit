@@ -69,6 +69,7 @@ case $cmd in
   install) exec "$ROOT/install.sh" "$@" ;;
   update) exec "$ROOT/lib/update.sh" "$@" ;;
   scan) exec "$ROOT/lib/scan.sh" "$@" ;;
+  doctor) exec "$ROOT/lib/doctor.sh" "$@" ;;
   script) run_script "$@" ;;
   help) run_help "$@" ;;
   ''|--help|-h) show rigorkit; exit 0 ;;
