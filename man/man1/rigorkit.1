@@ -10,7 +10,7 @@ Commands:
   install [options]      Install packs into your coding agents (same as install.sh)
   update [\-\-dry\-run]     Move to the newest release and refresh your global scope
   scan [<folder>...]     Find installed projects and register them for updates
-  doctor                 Report versions, edited copies and problems; change nothing
+  doctor                 Report versions, edited copies and problems (read\-only)
   script <name> [args]   Run a helper script, custom first, then official
   help [<command>]       Show this list, or the help of one command
 
@@ -171,7 +171,8 @@ Writes:
   Nothing, except the execute bit of official helper scripts.
 
 Exit status: 0 when nothing needs attention, 1 when something does
-(outdated, edited, missing, shadowing, local changes, unreadable records),
+(outdated, edited, missing, shadowing, local changes, unreadable records,
+packs recorded but no longer shipped),
 2 for invalid arguments.
 .fi
 .SH SCRIPT

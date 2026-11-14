@@ -20,5 +20,6 @@ Writes:
   Nothing, except the execute bit of official helper scripts.
 
 Exit status: 0 when nothing needs attention, 1 when something does
-(outdated, edited, missing, shadowing, local changes, unreadable records),
+(outdated, edited, missing, shadowing, local changes, unreadable records,
+packs recorded but no longer shipped),
 2 for invalid arguments.

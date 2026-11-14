@@ -33,7 +33,7 @@ Tests in `tools/test/018-doctor.test.mjs` with a temporary HOME and a clone copy
 |---|---|---|---|---|
 | RF-1.H1 | happy | clean clone | `doctor` | `clone <VERSION>`, exit 0 |
 | RF-1.E1 | edge | an edited tracked file in the clone | `doctor` | `local changes` line, exit 1 |
-| RF-1.F | n/a — a clone without git reports no local-change line; covered by RF-1.H1 setup | | | |
+| RF-1.F | n/a — a clone that is not the top of its own git repository (no git, or inside a parent repository) reports no local-change line; checked by review, not by a test | | | |
 | RF-1.S | n/a — no input | | | |
 ### RF-2
 | ID | Type | Given | When | Then |

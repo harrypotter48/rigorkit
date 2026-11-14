@@ -16,16 +16,18 @@ case "${1-}" in
 esac
 say() { say_safe "$*"; }
 issue() { say "$*"; ISSUES=1; }
+export GIT_OPTIONAL_LOCKS=0   # git status never rewrites the clone's index (INV-1)
 G() { git --no-pager -C "$CODE" -c core.hooksPath=/dev/null -c core.fsmonitor=false -c core.fileMode=false "$@"; }
 
 # --- clone (RF-1, RF-2) ------------------------------------------------------------------------------------
 say "clone $(tr -d ' \t\r\n' < "$CODE/VERSION" 2>/dev/null) ($CODE)"
-if G rev-parse --git-dir >/dev/null 2>&1; then   # mode-only changes are ignored: official script bits are repaired below
+if [ "$(G rev-parse --show-toplevel 2>/dev/null)" = "$CODE" ]; then   # the clone itself, never a parent repository   # mode-only changes are ignored: official script bits are repaired below
   [ -z "$(G status --porcelain --untracked-files=no -- . ':(exclude)custom' 2>/dev/null)" ] ||
     issue "local changes in $CODE (move your edits to $CODE/custom; rigorkit update refuses them)"
 fi
 for f in "$CODE"/packs/*/scripts/*; do
   [ -f "$f" ] && [ ! -L "$f" ] && [ ! -x "$f" ] || continue
+  d="${f%/*}"; [ -L "$d" ] || [ -L "${d%/*}" ] && continue   # never chmod through a linked pack or scripts folder
   if chmod u+x "$f" 2>/dev/null; then say "made executable: ${f#"$CODE"/}"; else issue "cannot make ${f#"$CODE"/} executable"; fi
 done
 c="$CODE/custom"
@@ -56,7 +58,8 @@ copies() { # record -> "edited: <path>" / "missing: <path>" lines for its copies
 if [ -e "$REC" ]; then
   if ! record_valid "$REC"; then issue "the global record $REC cannot be read (rigorkit install --global starts a new one)"
   else
-    say "global $(awk -F'\t' '$1=="version"{print $2; exit}' "$REC")"
+    v="$(awk -F'\t' '$1=="version"{print $2; exit}' "$REC")"
+    if [ -n "$v" ]; then say "global $v"; else issue "global record without a version"; fi
     while IFS= read -r l; do issue "  $l"; done < <(copies "$REC")
     while IFS="$TAB" read -r pack agent; do
       shipped "$pack" || issue "  pack $pack ($agent) is recorded but no longer shipped"
@@ -77,10 +80,13 @@ if [ -d "$STATE/projects" ] && [ ! -L "$STATE/projects" ]; then
     line="project $p $v"
     if [ ! -d "$p" ]; then issue "$line missing (rigorkit update offers to remove its record)"; continue; fi
     attn=0
-    valid_version "$cur" && newer "$cur" "$v" && { line="$line outdated"; attn=1; }
+    [ -n "$v" ] && valid_version "$cur" && newer "$cur" "$v" && { line="$line outdated"; attn=1; }
     [ -n "$dev" ] && line="$line dev $dev"
-    ne="$(copies "$f" | grep -c . || true)"
+    [ -n "$v" ] || { line="$line (no version)"; attn=1; }
+    cs="$(copies "$f")"
+    ne="$(printf '%s\n' "$cs" | grep -c '^edited:' || true)"; nm="$(printf '%s\n' "$cs" | grep -c '^missing:' || true)"
     [ "$ne" -gt 0 ] && { line="$line $ne edited"; attn=1; }
+    [ "$nm" -gt 0 ] && { line="$line $nm missing copies"; attn=1; }
     if [ "$attn" -eq 1 ]; then issue "$line"; else say "$line"; fi
   done
 fi

@@ -4,7 +4,7 @@ Stage: owner acceptance · Approvals: owner asked to finish everything autonomou
 Authorized blocks: B1 · Current block: B1 · Current task: done.
 Pending/blockers: none.
 Next step: review with 019; release 0.6.0.
-Review stations: sdd-reviewer + security-reviewer (critical path `bin/rigorkit`).
+Review stations: sdd+security review (with 019): 2 medium (missing copies counted as edited; untested non-git clone) + 4 low → fixed: separate edited/missing counts, git check only when the clone is its own repository top, GIT_OPTIONAL_LOCKS=0, no chmod through linked pack/scripts folders, records without version flagged, docs wording (read-only, stale pairs). Not re-reviewed. 019: no findings.
 References: spec.md; `lib/update.sh` `shadows()` and execute-bit repair (phase 1); `lib/common.sh` (`fp_path`, `record_valid`); 015/016 project records.
 Freeze: `tools/test/018-doctor.test.mjs` (red c4c36ac); 008/010 command lists amended (AMEND-1). Evidence: 018 suite 13/13; generate-man --check PASS.
 
