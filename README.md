@@ -109,6 +109,8 @@ rigorkit update
 `rigorkit update` moves `~/.rigorkit` to the newest release, prints the changelog of every version in between, and then asks before it rewrites your startup block, global rules, global skills and agents (edited copies one by one, with the diff), installs new packs or removes old scripts. A global install made before 0.3.0 has no record: run `rigorkit install --global --pack <packs> --agent <agents>` once (without `--force`) so updates can manage it.
 
 ### Find and register your projects
+Every `rigorkit install --project <dir>` registers that project in `~/.local/state/rigorkit/projects`; projects installed before 0.6.0 are found with `rigorkit scan`.
+
 `rigorkit scan` finds the projects where rigorkit is installed (folders holding `.rigorkit-version`, up to 4 levels deep) and registers each new one, so `rigorkit update` can update them later. It asks which tools each project serves and marks copies you edited since 0.1.0, so updates ask before replacing them. Set the folders once in `~/.config/rigorkit/config`, or save them with `--save`:
 ```
 scan_paths=~/workspace

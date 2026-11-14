@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0
+Global rules: unchanged
+New packs: none
+
+- `rigorkit scan [--save] [<folder>...]`: finds the projects where rigorkit is installed (folders with `.rigorkit-version` below `scan_paths` in `~/.config/rigorkit/config`, skipping `scan_exclude`), asks which tools each serves, marks copies you edited since 0.1.0 and registers them.
+- `rigorkit update` now also updates registered projects: one question per outdated project, edited copies asked overwrite or keep with the diff, development installs asked apart, records of deleted folders removable, and the `specs/backlog.md` → `specs/roadmap.md` rename offered. Nothing is committed or staged.
+- `rigorkit install --project` registers each project in `~/.local/state/rigorkit/projects`.
+- `rigorkit doctor`: read-only report of versions, edited or missing copies, shadowing custom items and outdated or missing projects; it only repairs the execute bit of official scripts.
+- The one-line installer and the records reject versions with leading zeros, like `rigorkit update`.
+- After updating: run `rigorkit scan --save ~/workspace` (or your folders) once, then `rigorkit update` to bring your projects up to date.
+
 ## 0.5.0
 Global rules: unchanged
 New packs: none
