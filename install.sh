@@ -128,7 +128,7 @@ record_valid() { # file [header]: that header (default global) plus the lines it
   awk -F'\t' -v want="${2:-rigorkit-global-record 1}" 'NR==1 { if ($0 != want) bad=1; proj = ($0 == "rigorkit-project-record 1"); next }
     proj && $1=="path" && NF==2 && $2 ~ /^\// { np++; next }
     proj && $1=="dev" && NF==2 && $2 ~ /^\// { next }
-    $1=="version" && NF==2 && $2 ~ /^[0-9]+\.[0-9]+\.[0-9]+$/ { next }
+    $1=="version" && NF==2 && $2 ~ /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/ { next }
     $1=="pair" && NF==3 { next }
     $1=="copy" && NF==7 && ($2=="skill" || $2=="agent") { next }
     !proj && $1=="rules" && NF==5 { next }
