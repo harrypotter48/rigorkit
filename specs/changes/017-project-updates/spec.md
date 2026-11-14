@@ -18,7 +18,7 @@ After a release, `rigorkit update` asks once per outdated registered project; on
 ## Invariants
 - INV-1: Project updates never commit, push or stage (008 INV-6); only copies, the project's `.rigorkit-version`, the optional rename and the project record change.
 - INV-2: The global refresh keeps its 010 behaviour (010 suites unchanged).
-- INV-3: A project record's version advances only when nothing in that project was declined, skipped or failed.
+- INV-3: A project record's version advances only when nothing in that project was answered no, skipped or failed; a kept edited copy is a decision remembered by its declined fingerprint and does not hold the version back (same as the global refresh, 010 RF-19).
 
 ## Functional requirements (EARS)
 ### Projects (H1)
@@ -43,7 +43,7 @@ Tests in `tools/test/017-project-updates.test.mjs` with a local test remote, a c
 ### RF-2
 | ID | Type | Given | When | Then |
 |---|---|---|---|---|
-| RF-2.H1 | happy | edited skill copy | update, y, then k | copy kept, record keeps the declined new fingerprint, record version not advanced |
+| RF-2.H1 | happy | edited skill copy | update, y, then k | copy kept, record keeps the declined new fingerprint, record version advanced |
 | RF-2.E1 | edge | edited skill copy | update, y, then o | copy overwritten |
 | RF-2.E2 | edge | record fingerprint `-` and copy equal to the new text | update, y | no overwrite question |
 | RF-2.F | n/a — a failed write is reported and fails the project like RF-1.F1 | | | |
@@ -96,6 +96,9 @@ Tests in `tools/test/017-project-updates.test.mjs` with a local test remote, a c
 3. `.rigorkit-version` moves with the record version. Delegated, 2026-11-13.
 4. Development installs asked apart (RF-36); missing folders offered for removal (RF-23). Owner answers 008, 2026-11-11.
 5. `backlog.md` rename asked per project, plain `mv` (never staged). Owner, 2026-11-13 (014 Q6).
+
+## Amendments
+- AMEND-1 (owner delegation, 2026-11-13): a kept edited copy does not hold the project version back, as in the global refresh; RF-2.H1 expects version 0.4.0.
 
 ## Open questions
 None.
