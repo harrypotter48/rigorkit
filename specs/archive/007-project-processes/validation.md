@@ -91,3 +91,4 @@ All rows have source support from the RF trace above. Observations below disting
 - Full website build/typecheck/rendered browser verification, Docker/e2e and deployment were NOT requested/run. Source import and unit suites do not substitute for them.
 - Both local delivery commits explicitly authorized: a192a3a contains reviewed source; the second packages its immutable baseline, active reference and current evidence. The full 007 ratchet is green. Commit approval does not imply native/adoption evidence, push/merge or release acceptance.
 - Owner accepts this software slice after reviewing evidence/gaps. No archive, next prompt slice, push, merge or release is automatic.
+- 2026-11-14: owner accepted this slice and asked to archive it. T6 stays open: the manual scenarios were not run and remain pending in the capability coverage table. No push, merge or release was inferred.

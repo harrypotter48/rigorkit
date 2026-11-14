@@ -1,5 +1,5 @@
 # Spec 007 — Project processes and common factory departments
-> Status: approved · Tier: feature · DoD: normal · Owner repo: rigorkit · Affected repos: rigorkit
+> Status: delivered 2026-11-14 (owner accepted the software slice; T6 manual scenarios pending, none observed) · Tier: feature · DoD: normal · Owner repo: rigorkit · Affected repos: rigorkit
 > Origin: none — Owner requested starting the agreed project-process evolution in Rigorkit.
 
 ## Context and goal
