@@ -22,7 +22,7 @@ Flat owner-ordered index: one HU/story/ticket per useful vertical slice, never a
 | HU-10 | Update registered projects | `rigorkit update` lists outdated projects, updates only the ones the owner picks (skills, agents, `backlog.md`→`roadmap.md`), never commits or stages | updater | M | HU-9, HU-11 | wip | 017-project-updates |
 | HU-11 | Migrate 0.1.0 installs | Finds 0.1.0 installs in global folders and `--scan` paths, asks which tools each serves, tells edited copies by matching any 0.1.0 commit (G9: option c), and registers them | updater | M | HU-9 | done | 016-migrate-0-1-0 |
 | HU-12 | rigorkit doctor | Reports versions, edited copies, shadowing custom items, missing locations and stale pair lines; repairs only official script permissions | updater | S | HU-9 | wip | 018-doctor |
-| HU-13 | One version rule | The remote installer and the global record reject leading zeros like the update does | release | S | — | proposed | |
+| HU-13 | One version rule | The remote installer and the global record reject leading zeros like the update does | release | S | — | wip | 019-version-rule |
 
 ## Open questions
 - HU-2/HU-3 reuse the owner answers and clarification findings recorded in `specs/archive/008-updater/full-draft.md` and `clarification.md` (rounds 1–2, 2026-11-11). Pending owner choices: HU-3 — G9 (HU-2's choices were answered or delegated in `specs/archive/010-update/spec.md` answers 3–5). HU-3 follow-ups from 010: remove `pair` lines when a pack is no longer installed (architecture review L11); align `tools/install-remote.sh`'s newest-tag rule with the update's (no leading zeros, 010 K15). G9 (owner, 2026-11-13): an installed copy counts as unedited if it matches the content at any commit whose VERSION was 0.1.0 (option c).
