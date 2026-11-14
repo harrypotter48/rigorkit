@@ -119,6 +119,8 @@ rigorkit scan --save ~/workspace
 ```
 `.git`, `node_modules` and the names in `scan_exclude` (folder name patterns) are never entered; `--tools claude,codex` answers the tools question for every project (for scripts); `--dry-run` shows what would be registered and writes nothing.
 
+Then `rigorkit update` also asks, per outdated project, whether to update it: unedited copies are replaced, edited ones are asked overwrite or keep with the diff, projects installed from another clone get their own question, records of deleted folders can be removed and an old `specs/backlog.md` can be renamed to `specs/roadmap.md`. Nothing is committed or staged; review the changes with git.
+
 ### Update from 0.2.0
 0.2.0 has no `rigorkit update`. Move the clone to 0.3.0 once by hand; if git refuses because you edited a file in `~/.rigorkit`, move that edit to the custom area (`~/.rigorkit/custom`) first:
 ```bash

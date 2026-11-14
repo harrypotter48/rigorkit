@@ -154,7 +154,9 @@ rec_copy() { # kind pack agent dst: after copy_dir/write_file
       [ "$LAST" = same ] && declined="=" ;;
     *) fp="="; declined="=" ;;   # skipped differing copy: keep what the record had, else none
   esac
-  rec_line copy "$1" "$2" "$3" "$4" "$fp" "$declined"
+  local dst="$4"   # 017: a project's copies are recorded under its real path, like its path line
+  if [ "$REC_KIND" = project ] && [ "${dst#"$BASE"/}" != "$dst" ]; then dst="$REC_PATH/${dst#"$BASE"/}"; fi
+  rec_line copy "$1" "$2" "$3" "$dst" "$fp" "$declined"
 }
 rec_rules() { # pack agent file: after merge_rules
   [ "$REC_ON" -eq 1 ] || return 0
