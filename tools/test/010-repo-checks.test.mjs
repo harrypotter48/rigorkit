@@ -62,7 +62,7 @@ test('RF-29.E1: rigorkit help lists update in the usual order', t => {
   const h = home(t);
   const r = run(path.join(repo, 'bin/rigorkit'), ['help'], { env: { HOME: h.HOME, PATH: process.env.PATH } });
   const cmds = r.stdout.split('\n').map(l => l.match(/^ {2}(\S+)/)?.[1]).filter(Boolean);
-  assert.deepEqual(cmds, ['install', 'update', 'scan', 'script', 'help']); // AMEND-1 (016): scan
+  assert.deepEqual(cmds, ['install', 'update', 'scan', 'doctor', 'script', 'help']); // AMEND-1 (016): scan; AMEND-1 (018): doctor
 });
 
 test('RF-29.F1: an update option without help fails the checks naming it', t => {
