@@ -83,5 +83,8 @@ Tests in `tools/test/018-doctor.test.mjs` with a temporary HOME and a clone copy
 2. Only the execute bit of official scripts is repaired (answer 24). Owner, 2026-11-11.
 3. Stale pairs are reported, not removed (010 L11 follow-up). Delegated, 2026-11-13.
 
+## Amendments
+- AMEND-1 (owner delegation, 2026-11-13): the command lists in `tools/test/008-rigorkit-cli.test.mjs` RF-25.H1 and `tools/test/010-repo-checks.test.mjs` RF-29.E1 now include `doctor`.
+
 ## Open questions
 None.
