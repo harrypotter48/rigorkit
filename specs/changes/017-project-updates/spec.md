@@ -13,7 +13,7 @@ Projects are registered by `install --project` (015) and `rigorkit scan` (016), 
 - H2: As the owner I want my edited copies, development installs and missing folders handled explicitly.
 
 ## Acceptance
-After a release, `rigorkit update` asks once per outdated registered project; on a yes its unedited copies are replaced, edited ones asked overwrite/keep with a diff, its record and `.rigorkit-version` move to the new version and nothing is staged; development installs get their own question; missing folders can be unregistered; `specs/backlog.md` can be renamed; `--dry-run` writes nothing; the global refresh is unchanged.
+After a release, `rigorkit update` asks once per outdated registered project; on a yes its unedited copies are replaced, edited ones asked overwrite/keep with a diff, its record and `.rigorkit-version` move to the new version and nothing is staged; development installs get their own question; missing folders can be unregistered; `specs/backlog.md` can be renamed to `specs/roadmap.md`; `--dry-run` writes nothing; the global refresh is unchanged.
 
 ## Invariants
 - INV-1: Project updates never commit, push or stage (008 INV-6); only copies, the project's `.rigorkit-version`, the optional rename and the project record change.
@@ -95,10 +95,12 @@ Tests in `tools/test/017-project-updates.test.mjs` with a local test remote, a c
 2. Unedited copies of a confirmed project are replaced without another question; edited copies asked with diff. Delegated, 2026-11-13.
 3. `.rigorkit-version` moves with the record version. Delegated, 2026-11-13.
 4. Development installs asked apart (RF-36); missing folders offered for removal (RF-23). Owner answers 008, 2026-11-11.
-5. `backlog.md` rename asked per project, plain `mv` (never staged). Owner, 2026-11-13 (014 Q6).
+5. The `specs/backlog.md` → `specs/roadmap.md` rename asked per project, plain `mv` (never staged). Owner, 2026-11-13 (014 Q6).
 
 ## Amendments
 - AMEND-1 (owner delegation, 2026-11-13): a kept edited copy does not hold the project version back, as in the global refresh; RF-2.H1 expects version 0.4.0.
+
+- AMEND-2 (owner delegation, 2026-11-13): `tools/test/014-roadmap.test.mjs` RF-3.E1 also accepts lines that name `roadmap.md` (the rename this change performs), not only the fallback sentence.
 
 ## Open questions
 None.
