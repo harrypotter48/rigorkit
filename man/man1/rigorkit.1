@@ -9,6 +9,7 @@ Usage: rigorkit <command> [args]
 Commands:
   install [options]      Install packs into your coding agents (same as install.sh)
   update [\-\-dry\-run]     Move to the newest release and refresh your global scope
+  scan [<folder>...]     Find installed projects and register them for updates
   script <name> [args]   Run a helper script, custom first, then official
   help [<command>]       Show this list, or the help of one command
 
@@ -99,6 +100,43 @@ set in ~/.config/rigorkit/config as key = value lines:
 Examples:
   rigorkit update \-\-dry\-run
   rigorkit update
+.fi
+.SH SCAN
+.nf
+Usage: rigorkit scan [\-\-dry\-run] [\-\-save] [\-\-tools <list>] [<folder>...]
+
+Finds the projects where rigorkit is installed (folders holding
+\&.rigorkit\-version, up to 4 levels below each folder) and registers each new
+one in ~/.local/state/rigorkit/projects, so rigorkit update can update them.
+For every new project it shows the tool folders it holds and asks which
+tools it serves (Enter accepts the suggested ones, \- skips it). Copies that
+match a 0.1.0 release keep their fingerprint; copies you edited are marked
+so later updates ask before replacing them. Projects already registered are
+left as they are.
+
+Without folders it scans scan_paths from ~/.config/rigorkit/config
+(comma\-separated, ~ allowed) and never enters .git, node_modules or the
+names in scan_exclude:
+  scan_paths=~/workspace
+  scan_exclude=archive,dist
+
+Options:
+  \-\-dry\-run             Show what would be registered; ask and write nothing
+  \-\-save                Add the given folders to scan_paths
+  \-\-tools <list>        Tools for every new project (claude,codex,cursor,opencode)
+  \-\-help                Show this help
+
+Examples:
+  rigorkit scan \-\-save ~/workspace
+  rigorkit scan
+  rigorkit scan \-\-dry\-run \-\-tools claude ~/code
+
+Writes:
+  New project records in ~/.local/state/rigorkit/projects and, with \-\-save,
+  the scan_paths line of ~/.config/rigorkit/config. Nothing inside projects.
+
+Exit status: 2 for invalid options or no folder to scan, 3 when a folder
+does not exist.
 .fi
 .SH SCRIPT
 .nf

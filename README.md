@@ -108,6 +108,17 @@ rigorkit update
 ```
 `rigorkit update` moves `~/.rigorkit` to the newest release, prints the changelog of every version in between, and then asks before it rewrites your startup block, global rules, global skills and agents (edited copies one by one, with the diff), installs new packs or removes old scripts. A global install made before 0.3.0 has no record: run `rigorkit install --global --pack <packs> --agent <agents>` once (without `--force`) so updates can manage it.
 
+### Find and register your projects
+`rigorkit scan` finds the projects where rigorkit is installed (folders holding `.rigorkit-version`, up to 4 levels deep) and registers each new one, so `rigorkit update` can update them later. It asks which tools each project serves and marks copies you edited since 0.1.0, so updates ask before replacing them. Set the folders once in `~/.config/rigorkit/config`, or save them with `--save`:
+```
+scan_paths=~/workspace
+scan_exclude=archive,dist
+```
+```bash
+rigorkit scan --save ~/workspace
+```
+`.git`, `node_modules` and the names in `scan_exclude` (folder name patterns) are never entered; `--tools claude,codex` answers the tools question for every project (for scripts); `--dry-run` shows what would be registered and writes nothing.
+
 ### Update from 0.2.0
 0.2.0 has no `rigorkit update`. Move the clone to 0.3.0 once by hand; if git refuses because you edited a file in `~/.rigorkit`, move that edit to the custom area (`~/.rigorkit/custom`) first:
 ```bash
@@ -165,8 +176,8 @@ opencode.cheap=<provider/model>
 ```
 Legacy barato/fuerte tiers and keys still work; English keys take precedence, even when empty (inherit session). Missing file/tool mapping also inherits session; one-model/free-model setups need none. Override path with RIGORKIT_MODELS.
 
-## SDD and the other lanes
-Install `sdd`, then ask for `sdd-init`. For existing code, continue with `sdd-adopt`. `sdd` is the core lane; `design` and `security` staff their own lanes and join the SDD review station when the change needs them.
+## SDD and its specialists
+Install `sdd`, then ask for `sdd-init`. For existing code, continue with `sdd-adopt`. `sdd` staffs the software lane; `design` and `security` are specialists in that lane, not lanes of their own, and join the SDD review station when the change needs them.
 
 Change flow (the entry stage is being added in the Factory v2 work):
 

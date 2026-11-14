@@ -1,4 +1,4 @@
-# rigorkit shared helpers for lib/update.sh (bash). Sourced, never run.
+# rigorkit shared helpers for lib/update.sh and lib/scan.sh (bash). Sourced, never run.
 # Fingerprints and the record format are twins of install.sh ("global record"); keep both equal.
 
 RK_VERSION_RE='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'

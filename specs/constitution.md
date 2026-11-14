@@ -12,6 +12,7 @@ Non-negotiable principles for every spec, plan and task.
 6. **Reference, do not copy** third-party skills.
 7. **Preserve user files**: installer writes only between markers and keeps `<file>.rigorkit.bak` with the original's mode; never writes a user's own `<file>.bak` and never replaces user instructions.
 8. **Context economy**: each `rules.md` has a token estimate at most 300; content loaded every turn costs every turn.
+9. **Docs travel with behaviour**: a change that adds, changes or removes something users see (command, option, script, config key, skill trigger) updates `README.md` (source of the site), `help/` and the pack README in that change; reviewers check it, and every release checks README/site against the changelog.
 
 ## Critical paths (reinforced DoD)
 | Path | Why critical | Critical-path regression |

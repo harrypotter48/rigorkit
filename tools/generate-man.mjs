@@ -107,10 +107,34 @@ export function check(root) {
     for (const o of updHelp) if (!updates.includes(o)) problems.push(`help/update.txt names an option lib/update.sh does not have: ${o}`);
   }
   problems.push(...changelogProblems(root));
+  problems.push(...docsProblems(root));
   const man = path.join(root, MAN);
   if (!existsSync(man) || readFileSync(man, 'utf8') !== renderMan(root)) problems.push(`${MAN} differs from help/*.txt: run node tools/generate-man.mjs`);
   const binDir = path.join(root, 'bin');
   for (const f of existsSync(binDir) ? readdirSync(binDir).filter(f => f !== 'rigorkit') : []) problems.push(`bin/${f}: bin/ must hold only rigorkit`);
+  return problems;
+}
+
+// Principle 9 (docs travel with behaviour): every dispatched command appears in README.md as `rigorkit <command>`,
+// every file in packs/<pack>/scripts/ is named in packs/<pack>/README.md, and every key read with `conf <key>`
+// in lib/*.sh is named in README.md. Lexical only: it proves the docs exist, not that they are right.
+export function docsProblems(root) {
+  const problems = [], read = rel => (existsSync(path.join(root, rel)) ? readFileSync(path.join(root, rel), 'utf8') : '');
+  const readme = read('README.md');
+  for (const c of commandsInDispatch(root) || []) if (!readme.includes(`rigorkit ${c}`)) problems.push(`README.md does not mention "rigorkit ${c}"`);
+  const packs = path.join(root, 'packs');
+  for (const pack of existsSync(packs) ? readdirSync(packs) : []) {
+    const dir = path.join(packs, pack, 'scripts');
+    if (!existsSync(dir)) continue;
+    const doc = read(`packs/${pack}/README.md`);
+    for (const f of readdirSync(dir)) if (!doc.includes(f)) problems.push(`packs/${pack}/README.md does not name its script ${f}`);
+  }
+  const lib = path.join(root, 'lib');
+  const keys = new Set();
+  for (const f of existsSync(lib) ? readdirSync(lib).filter(f => f.endsWith('.sh')) : []) {
+    for (const m of read(`lib/${f}`).matchAll(/\bconf ([a-z][a-z_]*)\b/g)) keys.add(m[1]);
+  }
+  for (const k of keys) if (!readme.includes(k)) problems.push(`README.md does not name the config key ${k}`);
   return problems;
 }
 
