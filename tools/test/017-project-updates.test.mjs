@@ -85,7 +85,7 @@ test('RF-1.S1: a record with the wrong header is ignored', { skip: SKIP }, t => 
   assert.doesNotMatch(o.out, /Update project/);
 });
 
-test('RF-2.H1: an edited copy kept on "k" keeps the declined fingerprint and the version', { skip: SKIP }, t => {
+test('RF-2.H1: an edited copy kept on "k" keeps the declined fingerprint; the version advances (AMEND-1)', { skip: SKIP }, t => {
   const s = setup(t);
   const p = s.project('proj');
   appendFileSync(skill(p), '\nmy edit\n');
@@ -95,7 +95,7 @@ test('RF-2.H1: an edited copy kept on "k" keeps the declined fingerprint and the
   const rec = recOf(s.h.HOME, p).text;
   const c = field(rec, 'copy').find(f => f[4] === path.dirname(skill(p)));
   assert.match(c[6], /^[0-9a-f]{64}$/, rec);
-  assert.deepEqual(field(rec, 'version').map(f => f[1]), ['0.3.0']);
+  assert.deepEqual(field(rec, 'version').map(f => f[1]), ['0.4.0']);
 });
 
 test('RF-2.E1: an edited copy overwritten on "o" gets the new text', { skip: SKIP }, t => {
