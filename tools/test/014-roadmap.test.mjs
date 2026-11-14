@@ -1,4 +1,4 @@
-// 014-roadmap HU-8 — project roadmap instead of backlog, external backlog and fallback (static checks).
+// 014-roadmap HU-8 (RF-3.E1 amended by 017 AMEND-2) — project roadmap instead of backlog, external backlog and fallback (static checks).
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
@@ -48,7 +48,7 @@ test('RF-3.H1: rigorkit keeps its own roadmap with proposed statuses', () => {
 test('RF-3.E1: backlog.md appears only in the fallback sentence', () => {
   const hits = [];
   for (const f of [...files('packs'), 'README.md', ...files('specs/changes').filter(f => !f.includes('014-roadmap'))]) {
-    read(f).split('\n').forEach((line, i) => { if (line.includes('backlog.md') && !line.includes(FALLBACK)) hits.push(`${f}:${i + 1}`); });
+    read(f).split('\n').forEach((line, i) => { if (line.includes('backlog.md') && !line.includes(FALLBACK) && !line.includes('roadmap.md')) hits.push(`${f}:${i + 1}`); });
   }
   assert.deepEqual(hits, []);
 });
