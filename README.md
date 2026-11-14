@@ -176,8 +176,8 @@ opencode.cheap=<provider/model>
 ```
 Legacy barato/fuerte tiers and keys still work; English keys take precedence, even when empty (inherit session). Missing file/tool mapping also inherits session; one-model/free-model setups need none. Override path with RIGORKIT_MODELS.
 
-## SDD and the other lanes
-Install `sdd`, then ask for `sdd-init`. For existing code, continue with `sdd-adopt`. `sdd` is the core lane; `design` and `security` staff their own lanes and join the SDD review station when the change needs them.
+## SDD and its specialists
+Install `sdd`, then ask for `sdd-init`. For existing code, continue with `sdd-adopt`. `sdd` staffs the software lane; `design` and `security` are specialists in that lane, not lanes of their own, and join the SDD review station when the change needs them.
 
 Change flow (the entry stage is being added in the Factory v2 work):
 
