@@ -68,7 +68,7 @@ test('RF-5.H1: sdd-slice falls back to backlog.md with the rename command', () =
 });
 
 test('RF-6.H1: VERSION 0.5.0 with its changelog section', () => {
-  assert.equal(read('VERSION').trim(), '0.5.0');
+  assert.match(read('VERSION').trim(), /^0\.(5|[6-9]|[1-9][0-9])\.\d+$/); // AMEND-3 (017): later releases keep the 0.5.0 section
   const sec = read('CHANGELOG.md').split(/^## /m).find(x => x.startsWith('0.5.0'));
   assert.ok(sec, 'section 0.5.0');
   assert.match(sec, /^Global rules: unchanged$/m);
