@@ -128,7 +128,7 @@ record_valid() { # file [header]: that header (default global) plus the lines it
   awk -F'\t' -v want="${2:-rigorkit-global-record 1}" 'NR==1 { if ($0 != want) bad=1; proj = ($0 == "rigorkit-project-record 1"); next }
     proj && $1=="path" && NF==2 && $2 ~ /^\// { np++; next }
     proj && $1=="dev" && NF==2 && $2 ~ /^\// { next }
-    $1=="version" && NF==2 && $2 ~ /^[0-9]+\.[0-9]+\.[0-9]+$/ { next }
+    $1=="version" && NF==2 && $2 ~ /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/ { next }
     $1=="pair" && NF==3 { next }
     $1=="copy" && NF==7 && ($2=="skill" || $2=="agent") { next }
     !proj && $1=="rules" && NF==5 { next }
@@ -154,7 +154,9 @@ rec_copy() { # kind pack agent dst: after copy_dir/write_file
       [ "$LAST" = same ] && declined="=" ;;
     *) fp="="; declined="=" ;;   # skipped differing copy: keep what the record had, else none
   esac
-  rec_line copy "$1" "$2" "$3" "$4" "$fp" "$declined"
+  local dst="$4"   # 017: a project's copies are recorded under its real path, like its path line
+  if [ "$REC_KIND" = project ] && [ "${dst#"$BASE"/}" != "$dst" ]; then dst="$REC_PATH/${dst#"$BASE"/}"; fi
+  rec_line copy "$1" "$2" "$3" "$dst" "$fp" "$declined"
 }
 rec_rules() { # pack agent file: after merge_rules
   [ "$REC_ON" -eq 1 ] || return 0

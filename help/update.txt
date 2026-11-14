@@ -1,7 +1,8 @@
 Usage: rigorkit update [--dry-run]
 
 Moves ~/.rigorkit to the newest release (vX.Y.Z tag of its remote), shows the
-changelog of every version in between, then refreshes your global scope. It
+changelog of every version in between, then refreshes your global scope and
+the projects registered by rigorkit install --project or rigorkit scan. It
 refuses when the clone has local changes (move them to ~/.rigorkit/custom),
 when the newest tag does not descend from your clone, or when the tag's
 VERSION does not match its name. Only one update runs at a time.
@@ -20,11 +21,18 @@ Questions (each one writes only on a yes; anything else is a no):
                                                       keep is remembered until it changes again
   Install new pack <pack> globally ...?               one per pack new in the changelog
   Remove <n> old rigorkit scripts from ...?           ~/.local/share/rigorkit/scripts
+  Remove the record of <path>?                        a registered project folder that no longer exists
+  Update project <path> (<old> -> <new>)?             one per outdated project; its unedited copies are
+                                                      replaced, edited ones asked overwrite or keep
+  <path> was installed from the development clone ... one per project installed from another clone
+  Rename specs/backlog.md to specs/roadmap.md in <path>?
   Without a terminal every question is answered no and the skipped items are listed.
 
 Writes:
   ~/.rigorkit (except custom/), its git data and ~/.local/state/rigorkit/
   ~/.zshrc, ~/.bashrc, ~/.bash_profile            startup block, with a <file>.rigorkit.bak backup
+  registered projects                             skill and agent copies, .rigorkit-version and the
+                                                  backlog.md rename; never committed or staged
   ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md, ~/.config/opencode/AGENTS.md
                                                   global rules, between rigorkit markers,
                                                   with a <file>.rigorkit.bak backup

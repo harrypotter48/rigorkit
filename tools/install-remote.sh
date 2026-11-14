@@ -207,6 +207,7 @@ resolve_ref() { # sets RK_REF: RIGORKIT_REF (checked) or the newest vX.Y.Z tag o
   fi
   RK_REF=$(printf '%s\n' "$RK_REFS" | cut -f2 |
     sed -n 's|^refs/tags/v\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)$|\1|p' |
+    grep -E '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' |   # 019: the update's rule, no leading zeros
     sort -t. -k1,1n -k2,2n -k3,3n | tail -n 1)
   [ -n "$RK_REF" ] || die "no release exists in $RK_REMOTE_NAME (no vX.Y.Z tag); set RIGORKIT_REF to a tag or branch"
   RK_REF=v$RK_REF

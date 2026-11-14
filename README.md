@@ -109,6 +109,8 @@ rigorkit update
 `rigorkit update` moves `~/.rigorkit` to the newest release, prints the changelog of every version in between, and then asks before it rewrites your startup block, global rules, global skills and agents (edited copies one by one, with the diff), installs new packs or removes old scripts. A global install made before 0.3.0 has no record: run `rigorkit install --global --pack <packs> --agent <agents>` once (without `--force`) so updates can manage it.
 
 ### Find and register your projects
+Every `rigorkit install --project <dir>` registers that project in `~/.local/state/rigorkit/projects`; projects installed before 0.6.0 are found with `rigorkit scan`.
+
 `rigorkit scan` finds the projects where rigorkit is installed (folders holding `.rigorkit-version`, up to 4 levels deep) and registers each new one, so `rigorkit update` can update them later. It asks which tools each project serves and marks copies you edited since 0.1.0, so updates ask before replacing them. Set the folders once in `~/.config/rigorkit/config`, or save them with `--save`:
 ```
 scan_paths=~/workspace
@@ -118,6 +120,10 @@ scan_exclude=archive,dist
 rigorkit scan --save ~/workspace
 ```
 `.git`, `node_modules` and the names in `scan_exclude` (folder name patterns) are never entered; `--tools claude,codex` answers the tools question for every project (for scripts); `--dry-run` shows what would be registered and writes nothing.
+
+Then `rigorkit update` also asks, per outdated project, whether to update it: unedited copies are replaced, edited ones are asked overwrite or keep with the diff, projects installed from another clone get their own question, records of deleted folders can be removed and an old `specs/backlog.md` can be renamed to `specs/roadmap.md`. Nothing is committed or staged; review the changes with git.
+
+`rigorkit doctor` reports the clone version and local changes, custom items that shadow official ones, edited or missing global copies, packs recorded but no longer shipped, and every registered project's version (outdated or not), development clone, edited copies and missing folders. It only repairs the execute bit of official scripts and exits 1 when something needs attention.
 
 ### Update from 0.2.0
 0.2.0 has no `rigorkit update`. Move the clone to 0.3.0 once by hand; if git refuses because you edited a file in `~/.rigorkit`, move that edit to the custom area (`~/.rigorkit/custom`) first:

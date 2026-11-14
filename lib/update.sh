@@ -15,6 +15,7 @@ OLDDIR="$HOME/.local/share/rigorkit/scripts"
 . "$CODE/lib/common.sh"
 
 DRY=0; IA=0; NO=0; FAILED=0; UNANSWERED=0; ASKED=0; REFRESH=0; LOCKED=0; STAGE=""; DRYTMP=""
+KIND=global; BASE="$HOME"; SBASE=""   # scope being refreshed: global (~) or project (017)
 SKIPPED=(); PENDING=()
 [ -t 0 ] && [ -t 2 ] && IA=1
 
@@ -246,7 +247,7 @@ replace_file() { # real-file content-file: a temporary file in the same folder w
 apply_edits() { # EDITS lines: fp <path> <fp> <declined> | add <copy line fields...> | rules <file> <pack> <fp>
   [ -s "$EDITS" ] || return 0
   local t
-  t="$( (umask 077; mktemp "$STATE/global.XXXXXX") 2>/dev/null )" || { err "cannot update the global record"; FAILED=1; return; }
+  t="$( (umask 077; mktemp "$REC.XXXXXX") 2>/dev/null )" || { err "cannot update the $KIND record"; FAILED=1; return; }
   if { cat "$EDITS"; echo '@@record@@'; cat "$REC"; } | awk -F'\t' -v OFS='\t' '
       $0=="@@record@@" { rec=1; next }
       !rec && $1=="fp" { FP[$2]=$3; DC[$2]=$4; next }
@@ -257,7 +258,7 @@ apply_edits() { # EDITS lines: fp <path> <fp> <declined> | add <copy line fields
       rec && $1=="rules" { if (($4 FS $2) in R) $5=R[$4 FS $2]; print; next }
       rec { print }
       END { for (i=1;i<=na;i++) if (ao[i] in A) print A[ao[i]] }' > "$t" && mv -f "$t" "$REC"; then : > "$EDITS"; return 0; fi
-  rm -f "$t"; err "cannot update the global record"; FAILED=1
+  rm -f "$t"; err "cannot update the $KIND record"; FAILED=1
 }
 
 refresh() {
@@ -279,12 +280,21 @@ refresh() {
   if ! command -v shasum >/dev/null 2>&1 && ! command -v sha256sum >/dev/null 2>&1; then
     err "neither shasum nor sha256sum is installed; the global scope cannot be compared"; FAILED=1; return 0
   fi
-  local recver pairs packs p agents stage models d path rel staged kind fp
+  KIND=global; BASE="$HOME"; scope_refresh "$from" "$to"
+}
+
+# Shared by the global scope and registered projects (017): stage the recorded pairs with install.sh,
+# then classify and write every copy against $REC, mapping staged paths under $SBASE to real ones under $BASE.
+scope_refresh() {
+  local from="$1" to="$2"
+  local recver pairs packs p agents stage models d path rel staged kind fp scope srec
   recver="$(awk -F'\t' '$1=="version"{print $2; exit}' "$REC")"
   pairs="$(awk -F'\t' '$1=="pair"{print $2 "\t" $3}' "$REC")"
   packs="$(printf '%s\n' "$pairs" | cut -f1 | awk 'NF && !s[$0]++')"
-  stage="$(mktemp -d)"; STAGE="$stage"; EDITS="$stage/edits"; : > "$EDITS"; : > "$stage/failed"
-  mkdir -p "$stage/h/.rigorkit"
+  stage="$(mktemp -d)"; [ -n "$STAGE" ] && rm -rf "$STAGE"; STAGE="$stage"; EDITS="$stage/edits"; : > "$EDITS"; : > "$stage/failed"
+  mkdir -p "$stage/h/.rigorkit" "$stage/p"
+  if [ "$KIND" = global ]; then scope=(--global); SBASE="$stage/h"; srec="$stage/h/.local/state/rigorkit/global"
+  else scope=(--project "$stage/p"); SBASE="$(cd "$stage/p" && pwd -P)"; srec=""; fi   # project copies are recorded under real paths
   [ -d "$CLONE/custom" ] && ln -s "$CLONE/custom" "$stage/h/.rigorkit/custom"
   models="${RIGORKIT_MODELS:-$HOME/.config/rigorkit/models}"
   # install.sh is the one writer of copy content: each recorded pack is installed into a staging HOME,
@@ -292,17 +302,19 @@ refresh() {
   while IFS= read -r p <&3; do
     agents="$(printf '%s\n' "$pairs" | awk -F'\t' -v p="$p" '$1==p{print $2}' | paste -sd, -)"
     d="$(pack_dir "$p")"
-    if [ -z "$d" ]; then say_safe "pack $p is no longer shipped; its copies are left as they are"; continue; fi
+    if [ -z "$d" ]; then say_safe "pack $p is no longer shipped; its copies are left as they are"; [ "$KIND" = project ] && FAILED=1; continue; fi
     if ! HOME="$stage/h" CODEX_HOME="$stage/h/.codex-home" RIGORKIT_MODELS="$models" RK_RENDER_ROOT="$CLONE" RK_PACKS_ROOT="$ROOT" RK_STAGE=1 \
-        bash "$CODE/install.sh" --global --force --pack "$p" --agent "$agents" > "$stage/log" 2>&1 </dev/null; then
+        bash "$CODE/install.sh" "${scope[@]}" --force --pack "$p" --agent "$agents" > "$stage/log" 2>&1 </dev/null; then
       err "cannot prepare pack $p:"; sed 's/^/  /' "$stage/log" | print_safe >&2
       echo "$p" >> "$stage/failed"; FAILED=1
     fi
   done 3<<< "$packs"
   : > "$stage/items"   # kind <tab> pack <tab> agent <tab> real path <tab> new fingerprint
-  if [ -f "$stage/h/.local/state/rigorkit/global" ]; then
-    awk -F'\t' -v OFS='\t' -v h="$stage/h/" -v home="$HOME/" '$1=="copy" && index($5, h)==1 { print $2, $3, $4, home substr($5, length(h) + 1), $6 }' \
-      "$stage/h/.local/state/rigorkit/global" > "$stage/items"
+  [ -n "$srec" ] || for srec in "$stage/h/.local/state/rigorkit/projects/"*; do break; done
+  if [ "$KIND" = project ] && [ ! -f "$srec" ]; then err "nothing could be staged for $BASE"; FAILED=1; return 0; fi
+  if [ -f "$srec" ]; then
+    awk -F'\t' -v OFS='\t' -v h="$SBASE/" -v home="$BASE/" '$1=="copy" && index($5, h)==1 { print $2, $3, $4, home substr($5, length(h) + 1), $6 }' \
+      "$srec" > "$stage/items"
   fi
 
   # Recorded copies of recorded pairs that the clone no longer ships (RF-28).
@@ -320,6 +332,9 @@ refresh() {
   while IFS="$TAB" read -r kind p a path fp <&3; do
     grep -qxF "$path" "$stage/done" 2>/dev/null && continue
     echo "$path" >> "$stage/done"
+    if [ "$KIND" = project ] && linked_below "$BASE" "$path"; then   # never write outside the project through a link
+      say_safe "$path: a symbolic link on the way out of $BASE; left as it is"; continue
+    fi
     newfp="$fp"
     recfp="$(rec_field "$path" 6)"; declined="$(rec_field "$path" 7)"
     if [ ! -e "$path" ] && [ ! -L "$path" ]; then
@@ -345,10 +360,11 @@ refresh() {
   local n; n="$(wc -l < "$stage/group" | tr -d ' ')"
   if [ "$n" -gt 0 ]; then
     while IFS="$TAB" read -r kind path newfp <&3; do say_safe "  $path"; done 3< "$stage/group"
-    if ask "Update $n unedited global copies?" "$n unedited global copies"; then
+    if [ "$KIND" = project ] || ask "Update $n unedited global copies?" "$n unedited global copies"; then   # a project was confirmed already
       while IFS="$TAB" read -r kind path newfp <&3; do
-        rel="${path#"$HOME"/}"
-        if write_copy "$kind" "$stage/h/$rel" "$path"; then add_lines "$path" "$newfp" -
+        rel="${path#"$BASE"/}"
+        if [ "$DRY" -eq 1 ]; then say_safe "would update $path"; continue; fi
+        if write_copy "$kind" "$SBASE/$rel" "$path"; then add_lines "$path" "$newfp" -
         else err "cannot write $path"; FAILED=1; fi
       done 3< "$stage/group"
     fi
@@ -386,7 +402,7 @@ refresh() {
   # Edited copies, one by one (RF-22).
   local rc
   while IFS="$TAB" read -r kind path newfp <&3; do
-    rel="${path#"$HOME"/}"; staged="$stage/h/$rel"
+    rel="${path#"$BASE"/}"; staged="$SBASE/$rel"
     if [ -L "$path" ]; then say_safe "$path is a symbolic link to $(readlink "$path")"; fi
     if [ "$kind" = skill ]; then show_diff "$path" "$staged"; else diff -u "$path" "$staged" 2>/dev/null | tail -n +3 | sed 's/^/    /' | print_safe; fi
     ask_ok "$path was edited. Overwrite or keep?" "$path"; rc=$?
@@ -400,6 +416,8 @@ refresh() {
   # A kept new copy without a record line gets fingerprint "-" (never an "=" in the record).
   awk -F'\t' -v OFS='\t' '$1=="add" && $7=="=" { $7="-" } { print }' "$EDITS" > "$EDITS.t" && mv "$EDITS.t" "$EDITS"
   [ "$DRY" -eq 1 ] || apply_edits
+
+  if [ "$KIND" = project ]; then project_rename; scope_version "$to"; return 0; fi
 
   # New packs named in the changelog since the recorded version (RF-23).
   local v names nm agentsall
@@ -421,11 +439,68 @@ refresh() {
 
   old_scripts "$pairs"
 
-  # Recorded global version (RF-19).
-  if [ "$DRY" -eq 0 ] && [ "$NO" -eq 0 ] && [ "$FAILED" -eq 0 ] && [ "$UNANSWERED" -eq 0 ] && [ -f "$REC" ]; then
-    tmp="$( (umask 077; mktemp "$STATE/global.XXXXXX") 2>/dev/null )" &&
-      awk -F'\t' -v OFS='\t' -v v="$to" '$1=="version"{$2=v} {print}' "$REC" > "$tmp" && mv -f "$tmp" "$REC" || rm -f "$tmp"
+  scope_version "$to"
+}
+
+linked_below() { # base path -> status 0 when a folder between base and path (or path itself) is a symbolic link
+  local rel="${2#"$1"/}" cur="$1" part
+  [ -L "$1" ] && return 0
+  while [ -n "$rel" ]; do
+    part="${rel%%/*}"; cur="$cur/$part"; [ -L "$cur" ] && return 0
+    [ "$part" = "$rel" ] && break; rel="${rel#*/}"
+  done
+  return 1
+}
+
+scope_version() { # release -> recorded version (RF-19; 017 RF-3: a project also drops "dev" and moves .rigorkit-version)
+  local tmp
+  [ "$DRY" -eq 0 ] && [ "$NO" -eq 0 ] && [ "$FAILED" -eq 0 ] && [ "$UNANSWERED" -eq 0 ] && [ -f "$REC" ] || return 0
+  tmp="$( (umask 077; mktemp "$REC.XXXXXX") 2>/dev/null )" &&
+    awk -F'\t' -v OFS='\t' -v v="$1" '$1=="version"{$2=v} $1=="dev"{next} {print}' "$REC" > "$tmp" && mv -f "$tmp" "$REC" || { rm -f "$tmp"; return 0; }
+  if [ "$KIND" = project ] && [ -f "$BASE/.rigorkit-version" ] && [ ! -L "$BASE/.rigorkit-version" ]; then
+    { printf '%s\n' "$1" > "$BASE/.rigorkit-version.rigorkit-new.$$" && mv -f "$BASE/.rigorkit-version.rigorkit-new.$$" "$BASE/.rigorkit-version"; } 2>/dev/null \
+      || { rm -f "$BASE/.rigorkit-version.rigorkit-new.$$"; err "cannot write $BASE/.rigorkit-version"; }   # renamed in: never written through a link
   fi
+}
+
+project_rename() { # 017 RF-6: only for a project updated without a no, a skip or a failure
+  local p="$BASE"
+  [ "$NO" -eq 0 ] && [ "$UNANSWERED" -eq 0 ] && [ "$FAILED" -eq 0 ] || return 0
+  [ ! -L "$p/specs" ] && [ -f "$p/specs/backlog.md" ] && [ ! -L "$p/specs/backlog.md" ] && [ ! -e "$p/specs/roadmap.md" ] || return 0
+  ask "Rename specs/backlog.md to specs/roadmap.md in $p?" "rename specs/backlog.md in $p" || return 0
+  mv -n "$p/specs/backlog.md" "$p/specs/roadmap.md" 2>/dev/null && [ ! -e "$p/specs/backlog.md" ] || { err "cannot rename $p/specs/backlog.md"; FAILED=1; }
+}
+
+projects() { # 017: registered projects older than the release; missing folders first, then outdated ones
+  local to="$1" dir="$STATE/projects" f n p ver dev q sNO sUN sF list=()
+  [ -d "$dir" ] && [ ! -L "$dir" ] || return 0
+  command -v shasum >/dev/null 2>&1 || command -v sha256sum >/dev/null 2>&1 || { err "neither shasum nor sha256sum is installed; projects cannot be compared"; FAILED=1; return 0; }
+  for f in "$dir"/*; do
+    n="${f##*/}"; [[ $n =~ ^[0-9a-f]{16}$ ]] && [ -f "$f" ] && [ ! -L "$f" ] && record_valid "$f" "rigorkit-project-record 1" && list+=("$f")
+  done
+  [ "${#list[@]}" -gt 0 ] || return 0
+  REFRESH=1
+  for f in "${list[@]}"; do   # RF-5
+    p="$(awk -F'\t' '$1=="path"{print $2; exit}' "$f")"
+    [ -d "$p" ] && continue
+    say_safe "registered project $p no longer exists"
+    if ask "Remove the record of $p?" "record of $p"; then rm -f "$f" 2>/dev/null || { err "cannot remove the record of $p"; FAILED=1; }; fi
+  done
+  for f in "${list[@]}"; do   # RF-1, RF-4, RF-6
+    [ -f "$f" ] || continue
+    p="$(awk -F'\t' '$1=="path"{print $2; exit}' "$f")"
+    if [ -L "$p" ] || [ "$(cd "$p" 2>/dev/null && pwd -P)" != "$p" ]; then [ -d "$p" ] && say_safe "registered project $p is now reached through a link; skipped"; continue; fi
+    ver="$(awk -F'\t' '$1=="version"{print $2; exit}' "$f")"
+    dev="$(awk -F'\t' '$1=="dev"{print $2; exit}' "$f")"
+    [ -d "$p" ] && { newer "$to" "$ver" || [ -n "$dev" ]; } || continue   # a development install is asked even at the release
+    if [ -n "$dev" ]; then q="$p was installed from the development clone $dev. Update it from ~/.rigorkit?"; else q="Update project $p ($ver -> $to)?"; fi
+    ask "$q" "project $p" || continue
+    sNO=$NO; sUN=$UNANSWERED; sF=$FAILED; NO=0; UNANSWERED=0; FAILED=0
+    REC="$f"; KIND=project; BASE="$p"
+    scope_refresh "$ver" "$to"
+    [ "$sNO" -eq 1 ] && NO=1; [ "$sUN" -eq 1 ] && UNANSWERED=1; [ "$sF" -eq 1 ] && FAILED=1
+  done
+  REC="$STATE/global"; KIND=global; BASE="$HOME"
 }
 
 old_scripts() { # RF-27
@@ -458,6 +533,7 @@ phase2() {
   shadows
   startup_blocks
   refresh "$from" "$to"
+  projects "$to"
   if [ "${#PENDING[@]}" -gt 0 ]; then echo "pending (answered no; asked again at the next update):"; for e in "${PENDING[@]}"; do say_safe "  $e"; done; fi
   if [ "${#SKIPPED[@]}" -gt 0 ]; then echo "skipped (no terminal; run rigorkit update in a terminal to answer):"; for e in "${SKIPPED[@]}"; do say_safe "  $e"; done; fi
   if [ "$DRY" -eq 1 ] && [ "$ASKED" -eq 0 ] && [ "$from" = "$to" ]; then echo "nothing to do"; fi
