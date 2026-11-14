@@ -21,7 +21,7 @@ Flat owner-ordered index: one HU/story/ticket per useful vertical slice, never a
 | HU-9 | Project registry | Every `rigorkit install` into a project records its path, packs, agents, version and copy fingerprints; installs from another clone are marked development, so updates and doctor know every installation | updater | S | HU-2 | done | 015-project-registry |
 | HU-10 | Update registered projects | `rigorkit update` lists outdated projects, updates only the ones the owner picks (skills, agents, `backlog.md`→`roadmap.md`), never commits or stages | updater | M | HU-9, HU-11 | wip | 017-project-updates |
 | HU-11 | Migrate 0.1.0 installs | Finds 0.1.0 installs in global folders and `--scan` paths, asks which tools each serves, tells edited copies by matching any 0.1.0 commit (G9: option c), and registers them | updater | M | HU-9 | done | 016-migrate-0-1-0 |
-| HU-12 | rigorkit doctor | Reports versions, edited copies, shadowing custom items, missing locations and stale pair lines; repairs only official script permissions | updater | S | HU-9 | proposed | |
+| HU-12 | rigorkit doctor | Reports versions, edited copies, shadowing custom items, missing locations and stale pair lines; repairs only official script permissions | updater | S | HU-9 | wip | 018-doctor |
 | HU-13 | One version rule | The remote installer and the global record reject leading zeros like the update does | release | S | — | proposed | |
 
 ## Open questions
