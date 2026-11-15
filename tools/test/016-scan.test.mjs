@@ -127,7 +127,7 @@ test('RF-2.E2: an already registered project is reported and left as it is', t =
 test('RF-3.H1: in a terminal, Enter accepts the suggested tools', { skip: NEED_PTY }, t => {
   const s = setup(t);
   const p = project(s, 'one');
-  const r = pty(path.join(s.clone, 'bin/rigorkit'), ['scan', s.work], { env: envFor(s.h), cwd: s.h.HOME, steps: [['tools', '']] });
+  const r = pty(path.join(s.clone, 'bin/rigorkit'), ['scan', s.work], { env: envFor(s.h), cwd: s.h.HOME, steps: [['Register them with the suggested tools?', 'y']] }); // AMEND-1 (020): one question
   assert.equal(r.status, 0, r.out);
   assert.deepEqual(field(recFor(s.h.HOME, p), 'pair').map(f => f[2]), ['claude']);
 });
@@ -135,7 +135,7 @@ test('RF-3.H1: in a terminal, Enter accepts the suggested tools', { skip: NEED_P
 test('RF-3.E1: in a terminal, "-" skips the project', { skip: NEED_PTY }, t => {
   const s = setup(t);
   const p = project(s, 'one');
-  const r = pty(path.join(s.clone, 'bin/rigorkit'), ['scan', s.work], { env: envFor(s.h), cwd: s.h.HOME, steps: [['tools', '-']] });
+  const r = pty(path.join(s.clone, 'bin/rigorkit'), ['scan', s.work], { env: envFor(s.h), cwd: s.h.HOME, steps: [['Register them with the suggested tools?', 'e'], ['tools for', '-']] }); // AMEND-1 (020)
   assert.equal(r.status, 0, r.out);
   assert.equal(recFor(s.h.HOME, p), undefined);
 });

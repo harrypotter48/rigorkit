@@ -35,7 +35,7 @@ Open the printed local URL under /rigorkit/. The browser suite builds real and f
 - Markdown examples are displayed, never executed. Source-relative links to public docs become website links; existing non-public targets remain source links. Missing targets or headings block a build check.
 
 ## Factory illustrations and examples
-The root README embeds the before/after illustration from `site/public/images/factory-before-after.png`. GitHub resolves the relative image directly; the importer validates the source path and emits its raw GitHub URL for generated documentation. Keep the asset and Markdown reference together. Public code examples live in `packs/sdd/examples.md`, so CI imports/searches them without copying internal specs. The website source copy describes the same slice/approval/brain loop.
+The root README embeds the factory diagram `site/public/images/factory-departments-lane.png` (exported from the owner's Excalidraw drawing). GitHub resolves the relative image directly; the importer validates the source path and emits its raw GitHub URL for generated documentation. Keep the asset and Markdown reference together. Public code examples live in `packs/sdd/examples.md`, so CI imports/searches them without copying internal specs. The website source copy describes the same slice/approval/brain loop.
 
 ## Publication
 

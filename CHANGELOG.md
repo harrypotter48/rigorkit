@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.1
+Global rules: unchanged
+New packs: none
+
+- `rigorkit scan` lists every project it finds first and asks one question: `y` registers all with the suggested tools, `e` asks per project, `n` none. It shows progress and skips copies of tools you did not choose, so a first scan is quicker and never looks stuck waiting for an answer.
+- README: quick start for new and existing installs, and the factory diagram.
+
 ## 0.6.0
 Global rules: unchanged
 New packs: none

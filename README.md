@@ -3,7 +3,7 @@ A factory for rigorous, tool-neutral work: common departments, specialized proce
 
 ## From a feature to an accepted slice
 
-![Before and after: one large request and a late review become small slices passing through explicit factory stations, with human approval, tests, a shared brain and learnings.](site/public/images/factory-before-after.png)
+![rigorkit: set up once, then every change passes five departments (Understand, Design, Build, Verify, Learn) with explicit owner approvals; the software lane delivers one useful slice across its layers and repositories, with the repo and the vault consulted at every department.](site/public/images/factory-departments-lane.png)
 
 The factory coordinates the work; **Spec-Driven Development (SDD) remains the method inside each slice**. A slice is the smallest useful behavior that works across its required layers and repositories. A user story or ticket describes that slice; technical tasks are its internal checklist, not separate deliveries.
 
@@ -89,6 +89,36 @@ Configuration is interpreted by the agent, not enforced by a new parser or runti
 | [security](packs/security/README.md) | Threat modeling, secure defaults and security review |
 
 ## Install
+### Quick start
+New to rigorkit:
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/harrypotter48/rigorkit/main/tools/install-remote.sh)"
+```
+Open a new shell, then install the packs for your tools (globally, or into one repository):
+```bash
+rigorkit install --pack core,sdd --agent claude --global
+```
+```bash
+rigorkit install --pack sdd --agent claude --project ~/code/my-repo
+```
+In that repository ask your agent for `sdd-init` (or `sdd-adopt` for existing code), then for a feature start with `sdd-slice`.
+
+Already using rigorkit (any version from 0.3.0): update, register the projects you installed before, update them, and check everything:
+```bash
+rigorkit update
+```
+```bash
+rigorkit scan --save ~/workspace
+```
+```bash
+rigorkit update
+```
+```bash
+rigorkit doctor
+```
+`scan` lists the projects it found and asks once whether to register them with the suggested tools (`e` lets you choose per project; `--tools claude` answers without asking); project updates are never committed, so review them with git in each repository. On 0.2.0, first follow "Update from 0.2.0" below.
+
+### Details
 One line clones the newest release into `~/.rigorkit` and enables the `rigorkit` command and `man rigorkit` in new zsh and bash shells. It installs no pack:
 ```bash
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/harrypotter48/rigorkit/main/tools/install-remote.sh)"
@@ -159,7 +189,7 @@ cd rigorkit
 
 Releases: bump `VERSION` in a pull request; after the merge, CI runs the toolkit tests and publishes the tag `v<VERSION>` (`.github/workflows/release-tag.yml`), which the one-line installer downloads.
 
-Update with git pull, then reinstall --force. --pack all --force replaces installed packs and adds new ones.
+A clone you manage yourself (not `~/.rigorkit`) updates with `git pull` and `./install.sh ... --force`; `--pack all --force` replaces installed packs and adds new ones. `rigorkit update` manages only `~/.rigorkit`.
 
 The version lives in `VERSION` at the repository root and is the only copy of it. The installer records the version it wrote in `.rigorkit-version` at the scope root (the project directory, or your home directory for a global install), and `--list` prints the local version next to the installed one. Without `--force` the installer never overwrites an installed copy, so a different installed version is reported instead of replaced.
 

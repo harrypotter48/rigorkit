@@ -92,10 +92,10 @@ pack_find() {
   done < "$OLD"
 }
 
-# --- one project ------------------------------------------------------------------------------------------
-FOUND=0 REG=0 ALREADY=0 SKIPPED=() MISSING=()
-register() { # real project path
-  local p=$1 key rec ver sugg tools ans d n pack kind a fp edited=0 copies=0 tmp
+# --- phase 1: find new projects (020: list everything before any question or fingerprint) ---------------------
+FOUND=0 REG=0 ALREADY=0 SKIPPED=() MISSING=() NP=() NV=() NS=()
+check() { # real project path -> appends to NP/NV/NS when it is new and recordable
+  local p=$1 key rec ver sugg d a
   FOUND=$((FOUND + 1))
   case "$p" in *[[:cntrl:]]*) say "not recorded (control characters in the path): $p"; return ;; esac
   for d in .claude .agents .codex .cursor .opencode .claude/skills .claude/agents .agents/skills; do
@@ -112,21 +112,53 @@ register() { # real project path
   valid_version "$ver" || { say "not recorded (unreadable .rigorkit-version): $p"; SKIPPED+=("$p"); return; }
   sugg=""
   for a in claude codex cursor opencode; do [ -d "$p/.$a" ] && sugg="${sugg:+$sugg,}$a"; done
-  say "found $p ($ver):$( for d in .claude .agents .codex .cursor .opencode; do [ -d "$p/$d" ] && printf ' %s' "$d"; done )"
-  if [ -n "$TOOLS" ]; then tools=$TOOLS
-  elif [ "$DRY" -eq 1 ] && [ -t 0 ] && [ -t 2 ]; then tools=$sugg; say "would ask: tools for $p [${sugg:-none}]"
-  elif [ "$DRY" -eq 1 ]; then tools=""
-  elif [ -t 0 ] && [ -t 2 ]; then
-    printf 'tools for %s (comma list; Enter = %s; - = skip): ' "$p" "${sugg:-none}" | print_safe >&2
-    read -r ans || ans=""
-    ans=$(printf '%s' "$ans" | tr -d '[:space:]')
-    case "$ans" in "") tools=$sugg ;; -) tools="" ;; *) tools=$ans ;; esac
-    if [ -n "$tools" ] && ! tools_ok "$tools"; then say "unknown tool in '$tools'; skipped"; tools=""; fi
-  else tools=""; fi
-  [ -n "$tools" ] || { SKIPPED+=("$p"); return; }
+  NP+=("$p"); NV+=("$ver"); NS+=("$sugg")
+}
 
+for r in "${ROOTS[@]}"; do
+  [ -d "$r" ] || { MISSING+=("$r"); say "missing folder: $r"; continue; }
+  while IFS= read -r -d '' f; do
+    check "$(cd -- "$(dirname "$f")" && pwd -P)"
+  done < <(find -H "$r" -maxdepth 5 \( "${EXCL[@]}" \) -prune -o -name .rigorkit-version -type f -print0 2>/dev/null)
+done
+
+# --- phase 2: one question (y = all with the suggested tools, e = each, n = none) ------------------------------
+NT=()
+if [ ${#NP[@]} -gt 0 ]; then
+  say "found ${#NP[@]} new projects:"
+  for i in "${!NP[@]}"; do say "  $((i + 1)). ${NP[$i]} (${NV[$i]}) -> ${NS[$i]:-none}"; done
+  Q="Register them with the suggested tools? [y = all / e = choose each / n = none]"
+  mode=n
+  if [ -n "$TOOLS" ]; then mode=tools
+  elif [ "$DRY" -eq 1 ] && [ -t 0 ] && [ -t 2 ]; then say "would ask: $Q"; mode=y
+  elif [ -t 0 ] && [ -t 2 ]; then
+    printf '%s ' "$Q" | print_safe >&2; read -r ans || ans=""
+    case "$ans" in [yY]|[yY][eE][sS]) mode=y ;; [eE]|[eE][aA][cC][hH]) mode=e ;; esac
+  fi
+  for i in "${!NP[@]}"; do
+    p=${NP[$i]}; sugg=${NS[$i]}; t=""
+    case $mode in
+      tools) t=$TOOLS ;;
+      y) t=$sugg ;;
+      e)
+        printf 'tools for %s (comma list; Enter = %s; - = skip): ' "$p" "${sugg:-none}" | print_safe >&2
+        read -r ans || ans=""
+        ans=$(printf '%s' "$ans" | tr -d '[:space:]')
+        case "$ans" in "") t=$sugg ;; -) t="" ;; *) t=$ans ;; esac
+        if [ -n "$t" ] && ! tools_ok "$t"; then say "unknown tool in '$t'; skipped"; t=""; fi ;;
+    esac
+    NT+=("$t")
+  done
+fi
+
+# --- phase 3: register with progress; copies only for the chosen tools ------------------------------------------
+write_project() { # path version tools
+  local p=$1 ver=$2 tools=$3 key rec d n pack a fp edited=0 copies=0 tmp dirs=()
+  key=$(printf '%s' "$p" | sha256 | cut -c1-16); rec="$PROJ/$key"
+  case ",$tools," in *,claude,*) dirs+=("$p"/.claude/skills/*/) ;; esac
+  case ",$tools," in *,codex,*|*,cursor,*|*,opencode,*) dirs+=("$p"/.agents/skills/*/) ;; esac
   : > "$WORK/pairs"; : > "$WORK/copies"
-  for d in "$p"/.claude/skills/*/ "$p"/.agents/skills/*/; do
+  for d in ${dirs[@]+"${dirs[@]}"}; do
     [ -f "$d.rigorkit" ] && grep -q '^installed-by: rigorkit' "$d.rigorkit" 2>/dev/null || continue
     d=${d%/}; n=${d##*/}
     case "$d" in *[[:cntrl:]]*) say "not recorded (control characters): $d"; continue ;; esac
@@ -166,12 +198,12 @@ register() { # real project path
   say "registered $p ($tools) · $ver · $copies copies, $edited without a 0.1.0 match"; REG=$((REG + 1))
 }
 
-for r in "${ROOTS[@]}"; do
-  [ -d "$r" ] || { MISSING+=("$r"); say "missing folder: $r"; continue; }
-  # find feeds fd 3 so the questions keep the terminal on standard input.
-  while IFS= read -r -d '' -u 3 f; do
-    register "$(cd -- "$(dirname "$f")" && pwd -P)"
-  done 3< <(find -H "$r" -maxdepth 5 \( "${EXCL[@]}" \) -prune -o -name .rigorkit-version -type f -print0 2>/dev/null)
+TOREG=0; for t in ${NT[@]+"${NT[@]}"}; do [ -n "$t" ] && TOREG=$((TOREG + 1)); done
+k=0
+for i in "${!NP[@]}"; do
+  [ -n "${NT[$i]-}" ] || { SKIPPED+=("${NP[$i]}"); continue; }
+  k=$((k + 1)); say "[$k/$TOREG] ${NP[$i]}"
+  write_project "${NP[$i]}" "${NV[$i]}" "${NT[$i]}"
 done
 
 if [ "$SAVE" -eq 1 ] && [ ${#FOLDERS[@]} -gt 0 ] && [ "$DRY" -eq 0 ]; then
