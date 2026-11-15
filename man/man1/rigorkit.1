@@ -117,8 +117,9 @@ Usage: rigorkit scan [\-\-dry\-run] [\-\-save] [\-\-tools <list>] [<folder>...]
 Finds the projects where rigorkit is installed (folders holding
 \&.rigorkit\-version, up to 4 levels below each folder) and registers each new
 one in ~/.local/state/rigorkit/projects, so rigorkit update can update them.
-For every new project it shows the tool folders it holds and asks which
-tools it serves (Enter accepts the suggested ones, \- skips it). Copies that
+It first lists every new project with the tools suggested from its folders,
+then asks once: y registers all of them with those tools, e asks project by
+project (Enter accepts the suggestion, \- skips it), n registers none. Copies that
 match a 0.1.0 release keep their fingerprint; copies you edited are marked
 so later updates ask before replacing them. Projects already registered are
 left as they are.

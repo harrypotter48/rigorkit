@@ -116,7 +116,7 @@ rigorkit update
 ```bash
 rigorkit doctor
 ```
-`scan` asks which tools each project serves (add `--tools claude` to answer for all); project updates are never committed, so review them with git in each repository. On 0.2.0, first follow "Update from 0.2.0" below.
+`scan` lists the projects it found and asks once whether to register them with the suggested tools (`e` lets you choose per project; `--tools claude` answers without asking); project updates are never committed, so review them with git in each repository. On 0.2.0, first follow "Update from 0.2.0" below.
 
 ### Details
 One line clones the newest release into `~/.rigorkit` and enables the `rigorkit` command and `man rigorkit` in new zsh and bash shells. It installs no pack:
