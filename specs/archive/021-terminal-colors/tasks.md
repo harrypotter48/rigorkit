@@ -1,9 +1,9 @@
 # Tasks — 021-terminal-colors
 ## Resume state
-Stage: B1 accepted · Department/config: legacy SDD, no project config · Approvals: owner accepted B1 and explicitly authorized this test(green) commit on 2026-11-16.
-Authorized blocks: B1 accepted · Current block: B1 · Current task: all T1–T5 complete; create the owner-authorized test(green) commit containing this acceptance record.
-Pending/blockers: none for B1 acceptance. Archive/close, further commits, push, merge and publication require their own authority; they are not part of this green commit.
-Next step: report the resulting green commit identity; no automatic archive, next slice, push or merge.
+Stage: archived · Department: Learn · Approvals: B1 accepted and green authorized; owner explicitly requested archive and close commit on 2026-11-16.
+Authorized blocks: B1 accepted/archived · Current block: none · Current task: owner-authorized archive/close commit; T1–T5 complete.
+Pending/blockers: none for accepted 021. No next-slice, push, merge or publication authority.
+Next step: report this authorized close commit; archived state and current capability/baseline are updated. No further action inferred.
 Review stations: SDD/architecture/security no findings; delivery recommendation approved · Approval decision: owner accepted B1 on 2026-11-16.
 References: `spec.md` RF-1–RF-7/INV-1–INV-4 and owner answers 1–7; `clarification.md` round 3; `plan.md` D1–D9, Contracts, Test strategy and Risks; `specs/constitution.md` critical paths; repo learnings 006/010.
 Dependencies checked: POSIX entry/notice, Bash installer/common/update/scan/doctor, final stdout/stderr consumers, script exec, release transition, staged installer logs, record/artifact/notice writers, current isolated fixture copy and TERM defaults. Recheck changed producers/consumers before Build; source paths do not bound impact.
@@ -86,3 +86,8 @@ Trace real dependencies; reuse valid evidence. No helper-only acceptance or arbi
 - Owner: "si dale, acepto B1 y autorizo el commit test(green) de 021". All B1 tasks are accepted with evidence in validation.md, review-reports.md and approval.md.
 - Green identity: the owner-authorized test(green) commit containing this record; its hash is reported after creation. No source changes since the validated/reviewed manifest and no frozen test changes.
 - Archive/close, another commit, push, merge or release was not requested and is not performed by this acceptance.
+
+## Archive — 2026-11-16
+- Owner requested archiving 021 and its close commit after accepting B1. Accepted green: c020de4bdcbc0373eeb8147b08e42242d9d59b37.
+- Moved to specs/archive/021-terminal-colors; HU-15 marked done without reordering. Current behavior promoted to installer capability RF-17 and CLI output baseline.
+- No runtime source, frozen tests or installed scope changed during archive. Existing validation reused; no tests rerun. The personal backlog retains its converted-spec link rather than duplicating progress.

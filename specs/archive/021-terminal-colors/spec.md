@@ -166,3 +166,6 @@ Owner decisions, 2026-11-14:
 
 ## Owner acceptance — 2026-11-16
 - B1 accepted and test(green) explicitly authorized by the owner. Scope/RFs/invariants/scenarios are unchanged; current evidence and independent delivery recommendation are in validation.md and approval.md.
+
+## Archive — 2026-11-16
+- Accepted B1 archived at the owner's explicit request. Current output contract: specs/capabilities/installer/spec.md RF-17; module baseline: specs/baselines/cli-output.md. Accepted green c020de4bdcbc0373eeb8147b08e42242d9d59b37; see closure.md.
