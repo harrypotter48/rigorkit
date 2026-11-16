@@ -1,4 +1,6 @@
 // 021-terminal-colors: real CLI fixtures. No product functions are stubbed.
+// RF-1.H1, RF-2.E2, RF-4.H1, RF-6.H1, RF-7.S1: shared real-CLI fixture for
+// terminal eligibility, exact bytes, script ownership and safe release display.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
