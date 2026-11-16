@@ -57,8 +57,10 @@ if [ "$kind" = --run ]; then
 elif [ "$kind" != --shell ]; then exit 0
 fi
 
+# 021: CLI presentation only; shell-start output and the persisted agent notice stay plain.
+if [ "$kind" = --run ]; then . "$self/lib/output.sh"; fi
 mode=$(conf update_mode); days=$(conf update_days)
-warn() { [ "$kind" = --run ] && printf 'rigorkit: warning: invalid %s in %s; using %s\n' "$1" "$CONF" "$2" >&2; }
+warn() { [ "$kind" = --run ] && { printf 'rigorkit: warning: invalid %s in %s; using %s\n' "$1" "$CONF" "$2" | rk_present warning >&2; }; }
 case $mode in
   ''|prompt) mode=prompt ;;
   reminder|disabled) ;;
@@ -97,7 +99,7 @@ else
 fi
 
 if [ "$kind" = --run ]; then
-  [ "$line" -eq 1 ] && printf '%s; run: rigorkit update\n' "$msg" >&2
+  [ "$line" -eq 1 ] && { printf '%s; run: rigorkit update\n' "$msg" | rk_present warning >&2; }
   exit 0
 fi
 if [ "$mode" = reminder ]; then printf '%s; run: rigorkit update\n' "$msg"; exit 0; fi

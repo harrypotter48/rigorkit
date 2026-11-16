@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.2
+Global rules: unchanged
+New packs: none
+
+- Rigorkit-owned CLI output now uses semantic colors only for terminal destinations, independently for stdout and stderr: additions/successes green, removals/errors red, questions/warnings yellow and headings cyan. Ordinary paths and typed answers keep the terminal default.
+- Non-empty `NO_COLOR` or `TERM=dumb` disables styling; agents using a pseudoterminal can set `NO_COLOR=1`. Pipes, files, installed content and agent notices stay plain, and `rigorkit script` preserves each script's own output and colors.
+
 ## 0.6.1
 Global rules: unchanged
 New packs: none

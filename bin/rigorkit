@@ -15,10 +15,11 @@ done
 ROOT=$(cd "$(dirname "$self")/.." && pwd -P)
 CUSTOM=$HOME/.rigorkit/custom
 HELP=$ROOT/help
+. "$ROOT/lib/output.sh"   # 021 RF-1/RF-2: presentation only; scripts retain exec below
 
-show() { cat "$HELP/$1.txt"; }
-usage_error() { printf 'rigorkit: %s\n\n' "$1" >&2; show rigorkit >&2; exit 2; }
-fail() { printf 'rigorkit: %s\n' "$2" >&2; exit "$1"; }
+show() { rk_helpfile "$HELP/$1.txt"; }
+usage_error() { printf 'rigorkit: %s\n\n' "$1" | rk_present error >&2; show rigorkit >&2; exit 2; }
+fail() { printf 'rigorkit: %s\n' "$2" | rk_present error >&2; exit "$1"; }
 
 run_script() {
   if [ "${1-}" = --help ]; then show script; exit 0; fi

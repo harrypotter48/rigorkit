@@ -19,33 +19,39 @@ KIND=global; BASE="$HOME"; SBASE=""   # scope being refreshed: global (~) or pro
 SKIPPED=(); PENDING=()
 [ -t 0 ] && [ -t 2 ] && IA=1
 
-err() { say_safe "rigorkit: $*" >&2; }
+err() { display_safe error "rigorkit: $*" >&2; }
 git_safe() { # git with the check's hardening (SR-3, PC-2)
   GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=false SSH_ASKPASS=false GIT_SSH_COMMAND='ssh -o BatchMode=yes' \
     GIT_ALLOW_PROTOCOL=https:ssh:file git -C "$CLONE" "$@" </dev/null
 }
 ask() { # question key -> status 0 on yes (y/yes); records no, skips or prints in a dry run
   ASKED=1
-  if [ "$DRY" -eq 1 ]; then say_safe "would ask: $1"; return 1; fi
+  if [ "$DRY" -eq 1 ]; then display_safe question "would ask: $1"; return 1; fi
   # Only refresh questions decide the recorded global version (RF-19); an unanswered one counts (RF-30).
   if [ "$IA" -eq 0 ]; then SKIPPED+=("$2"); [ "$REFRESH" -eq 1 ] && UNANSWERED=1; return 1; fi
   local a=""
-  printf '%s [y/N] ' "$1" | print_safe | tr -d '\n' >&2
+  # 021 RF-3: project questions are headings; choice markers remain yellow.
+  if [ "${3:-question}" = heading ]; then
+    printf '%s ' "$1" | print_safe | tr -d '\n' | rk_present heading >&2
+    printf '[y/N] ' | rk_present question >&2
+  else
+    printf '%s [y/N] ' "$1" | print_safe | tr -d '\n' | rk_present question >&2
+  fi
   read -r a || a=""
   case "$a" in [yY]|[yY][eE][sS]) return 0 ;; esac
   [ "$REFRESH" -eq 1 ] && NO=1; PENDING+=("$2"); return 1
 }
 ask_ok() { # question key -> 0 overwrite, 1 keep, 2 unanswered
   ASKED=1
-  if [ "$DRY" -eq 1 ]; then say_safe "would ask: $1"; return 2; fi
+  if [ "$DRY" -eq 1 ]; then display_safe question "would ask: $1"; return 2; fi
   if [ "$IA" -eq 0 ]; then SKIPPED+=("$2"); UNANSWERED=1; return 2; fi
   local a=""
-  printf '%s [o/k] ' "$1" | print_safe | tr -d '\n' >&2
+  printf '%s [o/k] ' "$1" | print_safe | tr -d '\n' | rk_present question >&2
   read -r a || a=""
   case "$a" in [oO]|[oO][vV][eE][rR][wW][rR][iI][tT][eE]) return 0 ;; [kK]|[kK][eE][eE][pP]) return 1 ;; esac
   UNANSWERED=1; PENDING+=("$2"); return 2
 }
-show_diff() { diff -ru -x .rigorkit "$1" "$2" 2>/dev/null | tail -n +3 | sed 's/^/    /' | print_safe; }
+show_diff() { diff -ru -x .rigorkit "$1" "$2" 2>/dev/null | tail -n +3 | sed 's/^/    /' | print_safe | rk_present_diff; }
 
 write_state() { # newest: checked now, declined cleared; agent notice removed
   [ -L "$STATE" ] && return 0
@@ -95,8 +101,8 @@ fix_exec_bits() { # official helper scripts without the user execute bit (RF-26)
   for f in "$CLONE"/packs/*/scripts/*; do
     [ -f "$f" ] && [ ! -L "$f" ] && [ ! -x "$f" ] || continue
     rel="${f#"$CLONE"/}"
-    if [ "$DRY" -eq 1 ]; then say_safe "would make executable: $rel"
-    elif chmod u+x "$f" 2>/dev/null; then say_safe "made executable: $rel"
+    if [ "$DRY" -eq 1 ]; then display_safe success "would make executable: $rel"
+    elif chmod u+x "$f" 2>/dev/null; then display_safe success "made executable: $rel"
     else err "cannot make $rel executable"; fi
   done
 }
@@ -118,10 +124,10 @@ phase1() {
   fi
   newest="$(git -C "$CLONE" tag -l 'v*' | sed 's/^v//' | sort_versions | tail -1)"
   if [ -z "$newest" ] || ! valid_version "$current" || ! newer "$newest" "$current"; then
-    if ! valid_version "$current"; then say_safe "the VERSION of $CLONE is not a valid version; not moving it"
-    elif [ -z "$newest" ]; then echo "no release found on $remote"
-    elif [ "$newest" = "$current" ]; then echo "rigorkit is up to date ($current)"
-    else say_safe "rigorkit $current is newer than the newest release $newest"; fi
+    if ! valid_version "$current"; then display_safe error "the VERSION of $CLONE is not a valid version; not moving it"
+    elif [ -z "$newest" ]; then echo "no release found on $remote" | rk_present warning
+    elif [ "$newest" = "$current" ]; then echo "rigorkit is up to date ($current)" | rk_present success
+    else display_safe warning "rigorkit $current is newer than the newest release $newest"; fi
     fix_exec_bits
     [ "$DRY" -eq 1 ] || write_state "${newest:-}"
     phase2 "$current"
@@ -139,7 +145,7 @@ phase1() {
     err "release v$newest tracks files under custom/, which updates never touch; not updating"; exit 1
   fi
   fix_exec_bits
-  echo "rigorkit $current -> $newest"
+  echo "rigorkit $current -> $newest" | rk_present heading
   if [ "$DRY" -eq 1 ]; then   # this code reads the staged release; nothing from it runs (threat model M1)
     DRYTMP="$(mktemp -d)"
     mkdir "$DRYTMP/new" && git -C "$CLONE" archive "v$newest" | tar -x -C "$DRYTMP/new" || { err "cannot read release v$newest"; exit 1; }
@@ -168,26 +174,26 @@ changelog() { # from to: sections of released versions in (from, to] from this c
     if valid_version "$1" && ! newer "$v" "$1"; then continue; fi
     newer "$v" "$2" && continue
     if grep -qxF "## $v" "$ROOT/CHANGELOG.md" 2>/dev/null; then
-      awk -v h="## $v" '$0==h{f=1; print; next} f && /^## /{exit} f' "$ROOT/CHANGELOG.md" | print_safe
+      awk -v h="## $v" '$0==h{f=1; print; next} f && /^## /{exit} f' "$ROOT/CHANGELOG.md" | print_safe | rk_present_changelog
     else
-      echo "no changelog entry for $v"
+      echo "no changelog entry for $v" | rk_present warning
     fi
   done
 }
 shadows() { # RF-25, RF-26 (custom scripts)
   local c="$CLONE/custom" f n
   [ -d "$c" ] || return 0
-  if [ ! -r "$c" ] || [ ! -x "$c" ]; then say_safe "warning: cannot read the custom area $c"; return 0; fi
+  if [ ! -r "$c" ] || [ ! -x "$c" ]; then display_safe warning "warning: cannot read the custom area $c"; return 0; fi
   for f in "$c"/scripts/*; do
     [ -e "$f" ] || continue
     n="$(basename "$f")"
-    ls "$ROOT"/packs/*/scripts/"$n" >/dev/null 2>&1 && say_safe "custom script $n shadows the official one"
-    [ -f "$f" ] && [ ! -x "$f" ] && say_safe "custom/scripts/$n is not executable (custom scripts are only reported)"
+    ls "$ROOT"/packs/*/scripts/"$n" >/dev/null 2>&1 && display_safe warning "custom script $n shadows the official one"
+    [ -f "$f" ] && [ ! -x "$f" ] && display_safe warning "custom/scripts/$n is not executable (custom scripts are only reported)"
   done
   for f in "$c"/packs/*/; do
     [ -d "$f" ] || continue
     n="$(basename "$f")"
-    [ -d "$ROOT/packs/$n" ] && say_safe "custom pack $n shadows the official one"
+    [ -d "$ROOT/packs/$n" ] && display_safe warning "custom pack $n shadows the official one"
   done
   return 0
 }
@@ -201,16 +207,16 @@ startup_blocks() { # RF-17
     case "$seen" in *"|$r|"*) continue ;; esac
     seen="$seen|$r|"
     grep -qxF '# rigorkit:start' "$r" || continue
-    if ! grep -qxF '# rigorkit:end' "$r"; then say_safe "$f has '# rigorkit:start' without '# rigorkit:end'; skipped"; continue; fi
+    if ! grep -qxF '# rigorkit:end' "$r"; then display_safe warning "$f has '# rigorkit:start' without '# rigorkit:end'; skipped"; continue; fi
     cur="$(mktemp)"; awk '$0=="# rigorkit:start"{f=1} f{print} $0=="# rigorkit:end"{f=0}' "$r" > "$cur"
     if cmp -s "$cur" "$new"; then rm -f "$cur"; continue; fi
-    diff -u "$cur" "$new" | tail -n +3 | sed 's/^/    /' | print_safe
+    diff -u "$cur" "$new" | tail -n +3 | sed 's/^/    /' | print_safe | rk_present_diff
     rm -f "$cur"
     if ask "Rewrite the rigorkit startup block in $f?" "$f"; then
       tmp="$(mktemp)"
       awk -v nf="$new" '$0=="# rigorkit:start"{while ((getline l < nf) > 0) print l; skip=1; next}
         skip && $0=="# rigorkit:end"{skip=0; next} !skip' "$r" > "$tmp"
-      if backup "$r" && replace_file "$r" "$tmp"; then say_safe "  rewrote $f"; else err "cannot rewrite $f"; fi
+      if backup "$r" && replace_file "$r" "$tmp"; then display_safe success "  rewrote $f"; else err "cannot rewrite $f"; fi
       rm -f "$tmp"
     fi
   done
@@ -235,7 +241,7 @@ write_copy() { # kind staged real -> status; the old entry is renamed aside firs
   if ! mkdir -p "$(dirname "$3")" 2>/dev/null || ! cp -R "$2" "$t" 2>/dev/null; then rm -rf "$t" 2>/dev/null; return 1; fi
   if [ -L "$3" ] || [ -e "$3" ]; then mv "$3" "$o" 2>/dev/null || { rm -rf "$t"; return 1; }; fi
   if ! mv "$t" "$3" 2>/dev/null; then rm -rf "$t"; [ -L "$o" ] || [ -e "$o" ] && mv "$o" "$3" 2>/dev/null; return 1; fi
-  if [ -L "$o" ] || [ -e "$o" ]; then rm -rf "$o" 2>/dev/null || say_safe "warning: could not remove $o"; fi
+  if [ -L "$o" ] || [ -e "$o" ]; then rm -rf "$o" 2>/dev/null || display_safe warning "warning: could not remove $o"; fi
   return 0
 }
 replace_file() { # real-file content-file: a temporary file in the same folder with the original mode, renamed in
@@ -265,14 +271,14 @@ refresh() {
   local from="$1" to="$2"
   if [ ! -e "$REC" ]; then
     if [ -f "$HOME/.rigorkit-version" ]; then
-      echo "Your global scope has no rigorkit record, so updates cannot manage it. Record it once with:"
+      echo "Your global scope has no rigorkit record, so updates cannot manage it. Record it once with:" | rk_present warning
       echo "  rigorkit install --global --pack <packs> --agent <agents>"
       echo "without --force: copies that differ are kept and asked one by one at the next update."
     fi
     return 0
   fi
   if ! record_valid "$REC"; then
-    say_safe "The global record $REC cannot be read, so updates cannot manage your global scope."
+    display_safe warning "The global record $REC cannot be read, so updates cannot manage your global scope."
     echo "Run rigorkit install --global --pack <packs> --agent <agents>: it moves the record aside and starts a new one."
     return 0
   fi
@@ -302,7 +308,7 @@ scope_refresh() {
   while IFS= read -r p <&3; do
     agents="$(printf '%s\n' "$pairs" | awk -F'\t' -v p="$p" '$1==p{print $2}' | paste -sd, -)"
     d="$(pack_dir "$p")"
-    if [ -z "$d" ]; then say_safe "pack $p is no longer shipped; its copies are left as they are"; [ "$KIND" = project ] && FAILED=1; continue; fi
+    if [ -z "$d" ]; then display_safe warning "pack $p is no longer shipped; its copies are left as they are"; [ "$KIND" = project ] && FAILED=1; continue; fi
     if ! HOME="$stage/h" CODEX_HOME="$stage/h/.codex-home" RIGORKIT_MODELS="$models" RK_RENDER_ROOT="$CLONE" RK_PACKS_ROOT="$ROOT" RK_STAGE=1 \
         bash "$CODE/install.sh" "${scope[@]}" --force --pack "$p" --agent "$agents" > "$stage/log" 2>&1 </dev/null; then
       err "cannot prepare pack $p:"; sed 's/^/  /' "$stage/log" | print_safe >&2
@@ -323,7 +329,7 @@ scope_refresh() {
   while IFS="$TAB" read -r path p <&3; do
     grep -q "^$p	" <<< "$pairs" || continue
     grep -qxF -- "$p" "$stage/failed" && continue
-    say_safe "$path: no longer shipped by pack $p; left as it is"
+    display_safe warning "$path: no longer shipped by pack $p; left as it is"
   done 3< "$stage/notshipped"
 
   # Classify each path once (RF-20, RF-22).
@@ -333,12 +339,12 @@ scope_refresh() {
     grep -qxF "$path" "$stage/done" 2>/dev/null && continue
     echo "$path" >> "$stage/done"
     if [ "$KIND" = project ] && linked_below "$BASE" "$path"; then   # never write outside the project through a link
-      say_safe "$path: a symbolic link on the way out of $BASE; left as it is"; continue
+      display_safe warning "$path: a symbolic link on the way out of $BASE; left as it is"; continue
     fi
     newfp="$fp"
     recfp="$(rec_field "$path" 6)"; declined="$(rec_field "$path" 7)"
     if [ ! -e "$path" ] && [ ! -L "$path" ]; then
-      [ -n "$recfp" ] && say_safe "$path is missing"
+      [ -n "$recfp" ] && display_safe warning "$path is missing"
       printf '%s\t%s\t%s\n' "$kind" "$path" "$newfp" >> "$stage/group"; continue
     fi
     curfp="$(fp_path "$kind" "$path")"
@@ -363,7 +369,7 @@ scope_refresh() {
     if [ "$KIND" = project ] || ask "Update $n unedited global copies?" "$n unedited global copies"; then   # a project was confirmed already
       while IFS="$TAB" read -r kind path newfp <&3; do
         rel="${path#"$BASE"/}"
-        if [ "$DRY" -eq 1 ]; then say_safe "would update $path"; continue; fi
+        if [ "$DRY" -eq 1 ]; then display_safe success "would update $path"; continue; fi
         if write_copy "$kind" "$SBASE/$rel" "$path"; then add_lines "$path" "$newfp" -
         else err "cannot write $path"; FAILED=1; fi
       done 3< "$stage/group"
@@ -378,12 +384,12 @@ scope_refresh() {
     new="$stage/new.block"; block_of "$pack" "$stagedfile" > "$new" || continue
     s="<!-- rigorkit:$pack:start -->"; e="<!-- rigorkit:$pack:end -->"
     if [ -f "$file" ] && grep -qxF "$s" "$file" && ! grep -qxF "$e" "$file"; then
-      say_safe "$file has '$s' without '$e'; skipped"; FAILED=1; continue
+      display_safe warning "$file has '$s' without '$e'; skipped"; FAILED=1; continue
     fi
     old="$stage/old.block"
     if block_of "$pack" "$file" > "$old"; then cmp -s "$old" "$new" && continue
     else : > "$old"; fi
-    diff -u "$old" "$new" | tail -n +3 | sed 's/^/    /' | print_safe
+    diff -u "$old" "$new" | tail -n +3 | sed 's/^/    /' | print_safe | rk_present_diff
     if ask "Rewrite the rigorkit block in $file?" "$file"; then
       local r; r="$(real_file "$file")" || r="$file"
       tmp="$stage/rules.tmp"
@@ -403,8 +409,8 @@ scope_refresh() {
   local rc
   while IFS="$TAB" read -r kind path newfp <&3; do
     rel="${path#"$BASE"/}"; staged="$SBASE/$rel"
-    if [ -L "$path" ]; then say_safe "$path is a symbolic link to $(readlink "$path")"; fi
-    if [ "$kind" = skill ]; then show_diff "$path" "$staged"; else diff -u "$path" "$staged" 2>/dev/null | tail -n +3 | sed 's/^/    /' | print_safe; fi
+    if [ -L "$path" ]; then display_safe warning "$path is a symbolic link to $(readlink "$path")"; fi
+    if [ "$kind" = skill ]; then show_diff "$path" "$staged"; else diff -u "$path" "$staged" 2>/dev/null | tail -n +3 | sed 's/^/    /' | print_safe | rk_present_diff; fi
     ask_ok "$path was edited. Overwrite or keep?" "$path"; rc=$?
     if [ "$rc" -eq 0 ]; then
       if write_copy "$kind" "$staged" "$path"; then add_lines "$path" "$newfp" -
@@ -430,8 +436,8 @@ scope_refresh() {
     [ -n "$nm" ] || continue
     printf '%s\n' "$packs" | grep -qxF -- "$nm" && continue
     d="$(pack_dir "$nm")"
-    if [ -z "$d" ]; then say_safe "new pack '$nm' named in the changelog is not available; not offered"; continue; fi
-    case "$d" in "$CLONE/custom/"*) say_safe "the custom pack in $d would be installed instead of the official one" ;; esac
+    if [ -z "$d" ]; then display_safe warning "new pack '$nm' named in the changelog is not available; not offered"; continue; fi
+    case "$d" in "$CLONE/custom/"*) display_safe warning "the custom pack in $d would be installed instead of the official one" ;; esac
     if ask "Install new pack $nm globally for $agentsall?" "new pack $nm"; then
       if ! bash "$CLONE/install.sh" --global --pack "$nm" --agent "$agentsall" </dev/null; then err "installing pack $nm failed"; FAILED=1; fi
     fi
@@ -483,18 +489,18 @@ projects() { # 017: registered projects older than the release; missing folders 
   for f in "${list[@]}"; do   # RF-5
     p="$(awk -F'\t' '$1=="path"{print $2; exit}' "$f")"
     [ -d "$p" ] && continue
-    say_safe "registered project $p no longer exists"
+    display_safe warning "registered project $p no longer exists"
     if ask "Remove the record of $p?" "record of $p"; then rm -f "$f" 2>/dev/null || { err "cannot remove the record of $p"; FAILED=1; }; fi
   done
   for f in "${list[@]}"; do   # RF-1, RF-4, RF-6
     [ -f "$f" ] || continue
     p="$(awk -F'\t' '$1=="path"{print $2; exit}' "$f")"
-    if [ -L "$p" ] || [ "$(cd "$p" 2>/dev/null && pwd -P)" != "$p" ]; then [ -d "$p" ] && say_safe "registered project $p is now reached through a link; skipped"; continue; fi
+    if [ -L "$p" ] || [ "$(cd "$p" 2>/dev/null && pwd -P)" != "$p" ]; then [ -d "$p" ] && display_safe warning "registered project $p is now reached through a link; skipped"; continue; fi
     ver="$(awk -F'\t' '$1=="version"{print $2; exit}' "$f")"
     dev="$(awk -F'\t' '$1=="dev"{print $2; exit}' "$f")"
     [ -d "$p" ] && { newer "$to" "$ver" || [ -n "$dev" ]; } || continue   # a development install is asked even at the release
     if [ -n "$dev" ]; then q="$p was installed from the development clone $dev. Update it from ~/.rigorkit?"; else q="Update project $p ($ver -> $to)?"; fi
-    ask "$q" "project $p" || continue
+    ask "$q" "project $p" heading || continue
     sNO=$NO; sUN=$UNANSWERED; sF=$FAILED; NO=0; UNANSWERED=0; FAILED=0
     REC="$f"; KIND=project; BASE="$p"
     scope_refresh "$ver" "$to"
@@ -534,9 +540,9 @@ phase2() {
   startup_blocks
   refresh "$from" "$to"
   projects "$to"
-  if [ "${#PENDING[@]}" -gt 0 ]; then echo "pending (answered no; asked again at the next update):"; for e in "${PENDING[@]}"; do say_safe "  $e"; done; fi
-  if [ "${#SKIPPED[@]}" -gt 0 ]; then echo "skipped (no terminal; run rigorkit update in a terminal to answer):"; for e in "${SKIPPED[@]}"; do say_safe "  $e"; done; fi
-  if [ "$DRY" -eq 1 ] && [ "$ASKED" -eq 0 ] && [ "$from" = "$to" ]; then echo "nothing to do"; fi
+  if [ "${#PENDING[@]}" -gt 0 ]; then echo "pending (answered no; asked again at the next update):" | rk_present warning; for e in "${PENDING[@]}"; do say_safe "  $e"; done; fi
+  if [ "${#SKIPPED[@]}" -gt 0 ]; then echo "skipped (no terminal; run rigorkit update in a terminal to answer):" | rk_present warning; for e in "${SKIPPED[@]}"; do say_safe "  $e"; done; fi
+  if [ "$DRY" -eq 1 ] && [ "$ASKED" -eq 0 ] && [ "$from" = "$to" ]; then echo "nothing to do" | rk_present success; fi
   [ "$FAILED" -eq 0 ]
 }
 
@@ -544,7 +550,7 @@ main() {
   while [ $# -gt 0 ]; do
     case "$1" in
       --dry-run) DRY=1; shift ;;
-      -h|--help) cat "$ROOT/help/update.txt"; return 0 ;;
+      -h|--help) rk_helpfile "$ROOT/help/update.txt"; return 0 ;;
       *) err "unknown option: $1 (see rigorkit help update)"; return 2 ;;
     esac
   done
