@@ -25,3 +25,9 @@ Approval: original spec approved on 2026-11-14; the sole scope amendment above e
 
 ## Design handoff — 2026-11-15
 - Owner approved the combined plan/tasks and starting B1 tests. The prior shared Design gate is satisfied; red evidence and frozen-test approval remain required before production implementation. No WHAT/scenario amendment was made during test preparation.
+
+## Clarification — 021-terminal-colors, round 4 (2026-11-16) · Verdict: ready for Verify evidence
+1. Ambiguities: none introduced; AMEND-1 is explicitly comment-only and owner-approved.
+2. Conflicting requirements: none introduced; original executable test bytes are recoverable by removing exactly the approved comments. All RFs and invariants stay unchanged.
+3. Missing test scenarios: no scenario or assertion edits; the prior 34/34 scoped and 620-pass regression evidence remains behaviorally applicable. Lexical branch trace still needs the owner rerun.
+4. Conflicts with the constitution: no new exception; separate approved cited test(amend) and updated pinned boundary preserve the existing test-change gate. This authoring metadata re-audit is not an independent reviewer verdict.

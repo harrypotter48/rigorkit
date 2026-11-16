@@ -160,3 +160,9 @@ Owner decisions, 2026-11-14:
 ## Design approval and test preparation — 2026-11-15
 - Owner approved Design and starting B1 tests: "si dale, apruebo Design, comencemos con los tests de B1".
 - Test sources prepared; commands, observed red, test commit and frozen-boundary approval are pending. No production code changed. Current branch/base and prepared paths are recorded in `test-preparation.md`.
+
+## Amendments
+- AMEND-1 (owner-approved 2026-11-16): add only two RF-reference comments to the frozen shared test fixture in a separate cited test(amend) commit. No RF, invariant, scenario, assertion, executable code or accepted product behavior changes. Commit: 77fe85573bb795cf8f2a63da0572acd5da1d339c; exact scope in amendment-proposal.md and freeze.md.
+
+## Owner acceptance — 2026-11-16
+- B1 accepted and test(green) explicitly authorized by the owner. Scope/RFs/invariants/scenarios are unchanged; current evidence and independent delivery recommendation are in validation.md and approval.md.

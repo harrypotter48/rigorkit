@@ -17,6 +17,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd -P)"
+. "$ROOT/lib/output.sh"   # 021: source only the running installer, including staged-data previews
 PACKS=""; AGENTS=""; SCOPE="project"; DEST="$PWD"; FORCE=0; DRY=0; UNINSTALL=0
 MODELS="${RIGORKIT_MODELS:-$HOME/.config/rigorkit/models}"
 CUSTOM="$HOME/.rigorkit/custom"
@@ -24,9 +25,10 @@ RENDER_ROOT="${RK_RENDER_ROOT:-$ROOT}"   # internal: rigorkit update stages an i
 RENDER="'$RENDER_ROOT/bin/rigorkit'"   # rules placeholder {{RIGORKIT}} -> this clone's rigorkit, single-quoted
 PACKS_ROOT="${RK_PACKS_ROOT:-$ROOT}"   # internal: rigorkit update --dry-run stages a release's packs with this code
 
-usage() { cat "$ROOT/help/install.txt"; exit "${1:-0}"; }
-die() { echo "error: $*" >&2; exit 1; }
+usage() { rk_helpfile "$ROOT/help/install.txt"; exit "${1:-0}"; }
+die() { echo "error: $*" | rk_present error >&2; exit 1; }
 say() { echo "$*"; }
+display() { local role=$1; shift; say "$*" | rk_present "$role"; }
 
 read_version() { if [ -f "$1" ]; then tr -d ' \t\r\n' < "$1"; fi; }
 version_or_none() { local v; v="$(read_version "$1")"; if [ -n "$v" ]; then printf '%s' "$v"; else printf 'none'; fi; }
@@ -47,7 +49,7 @@ scan_custom() {
     [ -d "$d" ] || continue
     n="$(basename "$d")"
     case "$n" in
-      all|*,*|*[[:space:]]*) echo "warning: custom pack '$n' ignored: a pack name cannot be all or contain a comma or space" >&2 ;;
+      all|*,*|*[[:space:]]*) echo "warning: custom pack '$n' ignored: a pack name cannot be all or contain a comma or space" | rk_present warning >&2 ;;
       *) CUSTOM_PACKS="$CUSTOM_PACKS $n" ;;
     esac
   done
@@ -75,9 +77,9 @@ while [ $# -gt 0 ]; do
     --uninstall-rules) UNINSTALL=1; SCOPE="global"; shift ;;
     --version) echo "$VERSION"; exit 0 ;;
     --list)
-      echo "rigorkit $VERSION (local)"
+      echo "rigorkit $VERSION (local)" | rk_present heading
       echo "installed  project: $(version_or_none "$PWD/.rigorkit-version")  global: $(version_or_none "$HOME/.rigorkit-version")"
-      echo "all  (every pack below)"
+      echo "all  (every pack below)" | rk_present heading
       scan_custom
       for p in $(all_packs); do
         d="$(pack_dir "$p")"
@@ -134,12 +136,12 @@ record_valid() { # file [header]: that header (default global) plus the lines it
     !proj && $1=="rules" && NF==5 { next }
     { bad=1 } END { exit (bad || NR == 0 || (proj && np != 1)) }' "$1" 2>/dev/null
 }
-rec_warn() { echo "warning: cannot write the $REC_KIND record ($REC); updates cannot manage the $([ "$REC_KIND" = global ] && echo 'global scope' || echo 'project')" >&2; REC_ON=0; }
+rec_warn() { echo "warning: cannot write the $REC_KIND record ($REC); updates cannot manage the $([ "$REC_KIND" = global ] && echo 'global scope' || echo 'project')" | rk_present warning >&2; REC_ON=0; }
 rec_line() { # fields... -> one tab-separated record line
   [ "$REC_ON" -eq 1 ] || return 0
   local IFS="$TAB"; printf '%s\n' "$*" >> "$REC_NEW"
 }
-rec_path_ok() { case "$1" in *[[:cntrl:]]*) echo "warning: a path with a control character (tab, newline, escape…) is not recorded" >&2; return 1 ;; esac; }
+rec_path_ok() { case "$1" in *[[:cntrl:]]*) echo "warning: a path with a control character (tab, newline, escape…) is not recorded" | rk_present warning >&2; return 1 ;; esac; }
 dir_agents() { # skill folder -> agents that read it
   case "$1" in */.claude/skills) echo claude ;; *) for a in codex cursor opencode; do has_agent "$a" && echo "$a"; done ;; esac
 }
@@ -189,7 +191,7 @@ rec_write() { # merge REC_NEW into the record: new copies replace old ones, "=" 
 }
 rec_drop_rules() { # agents...: --uninstall-rules removes their rules lines (RF-36)
   [ "$DRY" -eq 0 ] && [ "${RK_NO_RECORD-}" != 1 ] && [ -e "$REC" ] && [ ! -L "$REC_DIR" ] && rec_home_clone || return 0
-  if ! record_valid "$REC"; then echo "warning: the global record $REC is unreadable; it was left as it is" >&2; return 0; fi
+  if ! record_valid "$REC"; then echo "warning: the global record $REC is unreadable; it was left as it is" | rk_present warning >&2; return 0; fi
   local tmp
   tmp="$( ( umask 077; mktemp "$REC_DIR/global.XXXXXX" ) 2>/dev/null )" || { rec_warn; return 0; }
   if awk -F'\t' -v drop=",$AGENTS," '$1 == "rules" && index(drop, "," $3 ",") { next } { print }' "$REC" > "$tmp" && mv -f "$tmp" "$REC"; then return 0; fi
@@ -200,7 +202,7 @@ if [ "$SCOPE" = "global" ] && [ "$DRY" -eq 0 ] && [ "$UNINSTALL" -eq 0 ] && [ "$
   REC_ON=1
   if [ -L "$REC_DIR" ] || ! { command -v shasum >/dev/null 2>&1 || command -v sha256sum >/dev/null 2>&1; }; then rec_warn; fi
   if [ "$REC_ON" -eq 1 ] && [ -e "$REC" ] && ! record_valid "$REC"; then   # RF-35: moved aside, never printed
-    if mv -f "$REC" "$REC.corrupt" 2>/dev/null; then say "note: unreadable global record moved to $REC.corrupt; a new record starts with this install"
+    if mv -f "$REC" "$REC.corrupt" 2>/dev/null; then display warning "note: unreadable global record moved to $REC.corrupt; a new record starts with this install"
     else rec_warn; fi
   fi
 elif [ "$SCOPE" != "global" ] && [ "$DRY" -eq 0 ] && [ "$UNINSTALL" -eq 0 ] && [ "${RK_NO_RECORD-}" != 1 ]; then
@@ -212,12 +214,12 @@ elif [ "$SCOPE" != "global" ] && [ "$DRY" -eq 0 ] && [ "$UNINSTALL" -eq 0 ] && [
     if [ -n "$REC_DEV" ] && ! rec_path_ok "$REC_DEV"; then rec_warn; fi
     if [ -L "$HOME/.local/state/rigorkit" ] || [ -L "$REC_DIR" ] || [ -L "$REC" ]; then rec_warn; fi
     if [ "$REC_ON" -eq 1 ] && [ -e "$REC" ] && ! record_valid "$REC" "$REC_HDR"; then
-      if mv -f "$REC" "$REC.corrupt" 2>/dev/null; then say "note: unreadable project record moved to $REC.corrupt; a new record starts with this install"
+      if mv -f "$REC" "$REC.corrupt" 2>/dev/null; then display warning "note: unreadable project record moved to $REC.corrupt; a new record starts with this install"
       else rec_warn; fi
     fi
     # Same key, other project (hash collision or a copied file): never merge into it.
     if [ "$REC_ON" -eq 1 ] && [ -f "$REC" ] && [ "$(awk -F'\t' '$1 == "path" { print $2; exit }' "$REC")" != "$REC_PATH" ]; then
-      echo "warning: the project record $REC belongs to another path; this install is not recorded" >&2; REC_ON=0
+      echo "warning: the project record $REC belongs to another path; this install is not recorded" | rk_present warning >&2; REC_ON=0
     fi
   else
     rec_warn
@@ -276,7 +278,7 @@ report_version_difference() {
   local current; current="$(read_version "$MARKER")"
   [ -n "$current" ] || return 0
   [ "$current" = "$VERSION" ] && return 0
-  say "note: installed version $current differs from local $VERSION; reinstall with --force to update."
+  display warning "note: installed version $current differs from local $VERSION; reinstall with --force to update."
 }
 
 # --- global rules (between markers, never overwriting the rest of the file) -------
@@ -318,7 +320,7 @@ apply_rules() { # dst new-content-file: shows the diff on --dry-run, keeps a .ri
   say "  rules  $dst"
   if [ "$DRY" -eq 1 ]; then
     [ -f "$dst" ] && old="$dst"
-    diff -u "$old" "$tmp" | tail -n +3 | sed 's/^/    /' || true
+    diff -u "$old" "$tmp" | tail -n +3 | sed 's/^/    /' | rk_present_diff || true
     rm -f "$tmp"; return
   fi
   mkdir -p "$(dirname "$dst")"
@@ -362,13 +364,13 @@ if [ "$UNINSTALL" -eq 1 ]; then
   [ "$DRY" -eq 1 ] && say "(dry run: nothing is written)"
   for pack in $(all_packs); do
     [ -f "$(pack_dir "$pack")/rules.md" ] || [ -f "$PACKS_ROOT/packs/$pack/rules.md" ] || continue
-    say "rules $pack"
+    display heading "rules $pack"
     for a in $(echo "$AGENTS" | tr ',' ' '); do
       dst="$(rules_file "$a")"; [ -n "$dst" ] && remove_rules "$pack" "$dst"
     done
   done
   rec_drop_rules
-  say "done. Scripts stay in the clone ($ROOT)."
+  display success "done. Scripts stay in the clone ($ROOT)."
   exit 0
 fi
 
@@ -449,17 +451,17 @@ if [ "$SCOPE" = "global" ]; then
   done
 fi
 [ "$DRY" -eq 1 ] && say "(dry run: nothing is written)"
-say "scope: $SCOPE ($BASE) · agents: $AGENTS"
+display heading "scope: $SCOPE ($BASE) · agents: $AGENTS"
 [ "$FORCE" -eq 0 ] && report_version_difference
 for pack in $(echo "$PACKS" | tr ',' ' '); do
   P="$(pack_dir "$pack")"; [ -d "$P" ] || die "unknown pack: $pack (see --list)"
   CUR_PACK="$pack"
   for a in $(echo "$AGENTS" | tr ',' ' '); do rec_line pair "$pack" "$a"; done
-  say "pack $pack"
-  if is_custom "$pack" && [ -d "$PACKS_ROOT/packs/$pack" ]; then say "  shadow custom pack $pack replaces the official one"; fi
+  display heading "pack $pack"
+  if is_custom "$pack" && [ -d "$PACKS_ROOT/packs/$pack" ]; then display warning "  shadow custom pack $pack replaces the official one"; fi
   if ! is_custom "$pack"; then
     for x in "$P"/scripts/*; do
-      [ -f "$x" ] && [ -f "$CUSTOM/scripts/$(basename "$x")" ] && say "  shadow custom script $(basename "$x") replaces the official one"
+      [ -f "$x" ] && [ -f "$CUSTOM/scripts/$(basename "$x")" ] && display warning "  shadow custom script $(basename "$x") replaces the official one"
     done
   fi
   for s in "$P"/skills/*/; do
@@ -472,13 +474,13 @@ for pack in $(echo "$PACKS" | tr ',' ' '); do
   for a in "$P"/agents/*.md; do [ -f "$a" ] && install_agent "$a"; done
   if [ -f "$P/rules.md" ]; then
     if [ "$SCOPE" != "global" ]; then
-      say "  note   rules install only with --global (a repo's AGENTS.md may be shared)"
+      display warning "  note   rules install only with --global (a repo's AGENTS.md may be shared)"
     else
       for a in $(echo "$AGENTS" | tr ',' ' '); do
         dst="$(rules_file "$a")"
         if [ -n "$dst" ]; then merge_rules "$pack" "$P/rules.md" "$dst"; rec_rules "$pack" "$a" "$dst"
         else
-          say "  note   $a has no global rules file: paste this block into its user rules:"
+          display warning "  note   $a has no global rules file: paste this block into its user rules:"
           render "$P/rules.md"
           say "  end of block"
         fi
@@ -491,9 +493,9 @@ done
 rec_write
 
 if has_agent claude && { has_agent cursor || has_agent opencode; }; then
-  say "note: Cursor and OpenCode also read .claude/skills; with both folders present they may list each skill twice."
+  display warning "note: Cursor and OpenCode also read .claude/skills; with both folders present they may list each skill twice."
 fi
 case ",$PACKS," in
-  *",sdd,"*) say "done. Next, in your repo: ask your agent to run the sdd-init skill." ;;
-  *) say "done." ;;
+  *",sdd,"*) display success "done. Next, in your repo: ask your agent to run the sdd-init skill." ;;
+  *) display success "done." ;;
 esac

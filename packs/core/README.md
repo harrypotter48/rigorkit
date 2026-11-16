@@ -32,3 +32,6 @@ Rules: Claude ~/.claude/CLAUDE.md; Codex ~/.codex/AGENTS.md (or $CODEX_HOME/AGEN
 
 Only the block between `<!-- rigorkit:core:start -->` and `<!-- rigorkit:core:end -->` is replaced, or appended when absent; reinstall never duplicates it. Outside content stays intact. Existing files get `<file>.rigorkit.bak` (same mode as the original) before change; --dry-run shows diff without writes.
 Remove only rule blocks, with backups: `./install.sh --uninstall-rules --agent claude,codex,opencode`. Compare real-feature usage before/after using Claude Code /cost or OpenCode session usage.
+
+## Terminal output
+The Rigorkit CLI adds semantic colors only to terminal destinations, independently for stdout and stderr. Set a non-empty `NO_COLOR` or `TERM=dumb` to disable them; agents with pseudoterminals use `NO_COLOR=1`. `rigorkit script` leaves each helper's output and environment conventions to the helper itself. Core rules and generated or installed content contain no added styling.

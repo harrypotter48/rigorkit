@@ -130,6 +130,11 @@ rigorkit install --pack core,sdd --agent claude --global
 ```
 Your own packs and scripts go in `~/.rigorkit/custom/packs` and `~/.rigorkit/custom/scripts`; a custom pack or script replaces the official one with the same name. Helper scripts are no longer copied: global rules call them with `rigorkit script <name>`. An existing 0.1.0 install keeps working; its old copies in `~/.local/share/rigorkit/scripts` are left as they are. If `rigorkit` runs an older copy, check `command -v rigorkit`.
 
+### Terminal colors
+Rigorkit colors its own terminal output: additions and successes green, removals and errors red, questions and warnings yellow, headings cyan. Paths and ordinary text keep the terminal default. Each output channel decides independently; pipes and files stay plain. A non-empty `NO_COLOR` (including `NO_COLOR=1` or `NO_COLOR=0`) or `TERM=dumb` disables colors. An empty `NO_COLOR` does not disable them. Agents using a pseudoterminal must set `NO_COLOR=1`.
+
+`rigorkit script` preserves each script's own bytes and colors, even if that script ignores `NO_COLOR`. Typed answers use the terminal default. Shell-start notices, persisted agent notices and generated/installed content stay unchanged.
+
 ### Update
 Once a day, when you open a terminal or run `rigorkit`, rigorkit checks in the background for a newer release. In `prompt` mode (the default) the next terminal asks whether to update; `reminder` prints one line instead and `disabled` turns the check off (`update_mode` and `update_days` in `~/.config/rigorkit/config`). Agents that use an entry skill mention a new version once per session.
 ```bash

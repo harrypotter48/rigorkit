@@ -1,6 +1,8 @@
 # rigorkit shared helpers for lib/update.sh and lib/scan.sh (bash). Sourced, never run.
 # Fingerprints and the record format are twins of install.sh ("global record"); keep both equal.
 
+. "$CODE/lib/output.sh"   # 021: use executing CODE, never a staged release root
+
 RK_VERSION_RE='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
 TAB="$(printf '\t')"
 
@@ -18,6 +20,8 @@ print_safe() { # stdin -> stdout; C0 controls other than tab and newline, DEL an
   LC_ALL=C awk '{ gsub(/\302[\200-\237]/, "?"); gsub(/[\001-\010\013-\037\177]/, "?"); print }'
 }
 say_safe() { printf '%s\n' "$*" | print_safe; }
+# 021 RF-7: keep sanitization unchanged; style only explicit final display sites.
+display_safe() ( rk_role=$1; shift; say_safe "$*" | rk_present "$rk_role"; )
 
 sha256() { if command -v shasum >/dev/null 2>&1; then shasum -a 256 | cut -d' ' -f1; else sha256sum | cut -d' ' -f1; fi; }
 fp_text() { LC_ALL=C sed -e 's/[[:space:]]*$//' | sha256; }   # stdin; CR and trailing blanks ignored

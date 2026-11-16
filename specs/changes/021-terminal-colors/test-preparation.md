@@ -100,3 +100,7 @@ Current proposed boundary fingerprints (not an approved freeze):
 ## Owner red/freeze approval — 2026-11-15
 - Owner explicitly authorized the 021 test(red) commit, freezing the four current path/hash entries above and beginning B1 implementation autonomously. Base: a812f2eefce1765eca00f98e84fe2fa4e03aeec8. The red identity is this test(red) commit; its resolved hash will be recorded in the subsequent Build handoff.
 - The four paths are frozen from this commit. Production implementation may proceed; further commits, test amendments, and command execution remain subject to the existing explicit gates.
+
+## Resolved approved boundary — 2026-11-15
+- Approved test(red) commit: `8d29670e69b88ffbbb91f72ce4a85fa5c8c84b17`; confirmed base `a812f2eefce1765eca00f98e84fe2fa4e03aeec8`. The four approved files are frozen. See freeze.md for exact red/index/worktree equality and the separately approved integrity exception.
+- Implementation is authorized; current source work and pending green validation are tracked in implementation-validation.md.
