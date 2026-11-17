@@ -314,7 +314,7 @@ instr_file() { # tool -> its global instruction file
 
 rules_capable() { # file tests only: the release can install rules alone (nothing is executed)
   [ -f "$T/install.sh" ] && [ ! -L "$T/install.sh" ] && grep -qx 'RULES_ONLY_SUPPORTED=1' "$T/install.sh" &&
-    [ -f "$T/packs/core/rules.md" ] && [ ! -L "$T/packs/core/rules.md" ]
+    [ ! -L "$T/packs" ] && [ ! -L "$T/packs/core" ] && [ -f "$T/packs/core/rules.md" ] && [ ! -L "$T/packs/core/rules.md" ]
 }
 
 plain_file() { [ -f "$1" ] && [ ! -L "$1" ]; }   # before consent nothing is read through a link of the downloaded clone
