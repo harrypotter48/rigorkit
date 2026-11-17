@@ -1,6 +1,6 @@
 # Tasks — 022-global-rules-on-install
 ## Resume state
-Stage: B1 (`c540f96`), B2 (`61dcf93`), B3 (`5d42a8a`) and B4 (`e510f2b`) committed; B5 verification in progress; frozen reds `90e62cb`, `8622db9`, `9587876`, amendments AMEND-2..4 (`1f63c4e`, `23f4e86`, `3024d58`) · Approvals: spec, plan, tasks, AMEND-1..4 and every frozen boundary approved by the owner on 2026-11-17.
+Stage: ACCEPTED 2026-11-17 by the owner; archive pending on the next story branch · B1 (`c540f96`), B2 (`61dcf93`), B3 (`5d42a8a`) and B4 (`e510f2b`) committed; B5 verification in progress; frozen reds `90e62cb`, `8622db9`, `9587876`, amendments AMEND-2..4 (`1f63c4e`, `23f4e86`, `3024d58`) · Approvals: spec, plan, tasks, AMEND-1..4 and every frozen boundary approved by the owner on 2026-11-17.
 Authorized blocks: none · Current block: none · Current task: none.
 Pending/blockers: final review verdicts (SDD, architecture, security) and their corrections; `validation.md`, `dod-critical.md`, approver decision; owner live demo on a real terminal in a temporary home; owner acceptance; archive at the next story's branch · Next step: consolidate the final reviews, then ask the owner to accept.
 Review stations: B1, B2, B3 (sdd, architecture, security each) and B4 (sdd) reviewed with findings applied; final whole-change reviews run 2026-11-17 · Approval decision: pending the approver.

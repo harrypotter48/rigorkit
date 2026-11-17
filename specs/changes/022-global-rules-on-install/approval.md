@@ -10,3 +10,6 @@ Decision: **needs human**. No introduced blocking defect is evidenced; the chang
 
 ## Pending, not counted as passing
 Live demo; environments without a pseudo-terminal, root runs and macOS ACLs; `VERSION` bump to 0.6.3 and the release; archive and installer capability updates (tasks.md T11) on the next story's branch; follow-up 023 (HU-17: atomic write, backup that survives a rerun, record on failure, update write path); accepted residual risk of non-ASCII controls in paths (threat-model.md section 5).
+
+## Owner acceptance (2026-11-17)
+The owner ran the live demo of the acceptance flow on a real terminal in a temporary home (question, `y`, block written, `.rigorkit.bak` of the original, no skills or agents) and accepted the change. Accepted with it: the exact-comparison exception for frozen-test integrity, the B1 and B3 reds accepted on the owner's report, agent-run full `tools/test` as evidence, and the weak report assertions left as listed in validation.md. Still pending, owner-driven: `VERSION` 0.6.3 bump and release, push/merge, archive and installer capability updates (tasks.md T11) on the next story's branch, follow-up 023.
