@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.3
+## 0.7.0
 Global rules: unchanged
 New packs: none
 
