@@ -6,6 +6,7 @@
 #   ./install.sh --pack sdd --agent claude,codex,cursor,opencode [--project DIR | --global] [--force] [--dry-run]
 #   ./install.sh --pack all --agent claude --force    (every pack; --force overwrites what exists)
 #   ./install.sh --pack core --agent claude,codex,opencode --global   (rules: --global only)
+#   ./install.sh --pack core --agent claude,codex,opencode --global --rules-only   (rules only: no skills or agents)
 #   ./install.sh --uninstall-rules --agent claude,codex,opencode [--dry-run]
 #   ./install.sh --list
 #   ./install.sh --version
@@ -15,10 +16,12 @@
 # Markdown format in packs/<pack>/agents/ and converted here to each tool's format.
 # Agent tiers map to models per tool in ~/.config/rigorkit/models (optional, see README).
 set -euo pipefail
+# Capability marker: tools/install-remote.sh looks for the exact line below before offering --rules-only.
+RULES_ONLY_SUPPORTED=1
 
 ROOT="$(cd "$(dirname "$0")" && pwd -P)"
 . "$ROOT/lib/output.sh"   # 021: source only the running installer, including staged-data previews
-PACKS=""; AGENTS=""; SCOPE="project"; DEST="$PWD"; FORCE=0; DRY=0; UNINSTALL=0
+PACKS=""; AGENTS=""; SCOPE="project"; DEST="$PWD"; FORCE=0; DRY=0; UNINSTALL=0; RULES_ONLY=0; SCOPE_GIVEN=""
 MODELS="${RIGORKIT_MODELS:-$HOME/.config/rigorkit/models}"
 CUSTOM="$HOME/.rigorkit/custom"
 RENDER_ROOT="${RK_RENDER_ROOT:-$ROOT}"   # internal: rigorkit update stages an install that names the real clone
@@ -70,8 +73,9 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --pack) PACKS="${2:-}"; shift 2 ;;
     --agent) AGENTS="${2:-}"; shift 2 ;;
-    --project) SCOPE="project"; DEST="${2:-}"; shift 2 ;;
-    --global) SCOPE="global"; shift ;;
+    --project) SCOPE="project"; SCOPE_GIVEN="project"; DEST="${2:-}"; shift 2 ;;
+    --global) SCOPE="global"; SCOPE_GIVEN="global"; shift ;;
+    --rules-only) RULES_ONLY=1; shift ;;
     --force) FORCE=1; shift ;;
     --dry-run) DRY=1; shift ;;
     --uninstall-rules) UNINSTALL=1; SCOPE="global"; shift ;;
@@ -96,6 +100,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+[ "$RULES_ONLY" -eq 0 ] || [ "$SCOPE_GIVEN" = global ] || die "--rules-only needs --global (rules install only in the global scope)"
 [ -n "$PACKS" ] || [ "$UNINSTALL" -eq 1 ] || usage 1
 case ",$PACKS," in
   ",all,") scan_custom; PACKS="$(all_packs | paste -sd, -)" ;;
@@ -167,6 +172,7 @@ rec_rules() { # pack agent file: after merge_rules
 }
 rec_write() { # merge REC_NEW into the record: new copies replace old ones, "=" keeps the old value
   [ "$REC_ON" -eq 1 ] || return 0
+  [ -s "$REC_NEW" ] || return 0   # 022: a rules-only run that wrote nothing leaves no record
   local old=/dev/null tmp
   [ -f "$REC" ] && old="$REC"
   ( umask 077; mkdir -p "$REC_DIR" ) 2>/dev/null || true
@@ -316,6 +322,11 @@ render() { # rules-file -> stdout with every {{RIGORKIT}} replaced by $RENDER (n
 
 apply_rules() { # dst new-content-file: shows the diff on --dry-run, keeps a .rigorkit.bak otherwise
   local dst="$1" tmp="$2" old="/dev/null"
+  if [ -L "$dst" ] || [ -e "$dst" ]; then   # refuse before any write: a broken link, a folder, a device or a pipe
+    local rf; rf="$(real_file "$dst")"
+    [ -e "$rf" ] || die "$dst is a broken symbolic link; nothing written"
+    [ -f "$rf" ] || die "$dst is not a regular file; nothing written"
+  fi
   if [ -f "$dst" ] && cmp -s "$dst" "$tmp"; then say "  same   $dst"; rm -f "$tmp"; return; fi
   say "  rules  $dst"
   if [ "$DRY" -eq 1 ]; then
@@ -456,7 +467,9 @@ display heading "scope: $SCOPE ($BASE) · agents: $AGENTS"
 for pack in $(echo "$PACKS" | tr ',' ' '); do
   P="$(pack_dir "$pack")"; [ -d "$P" ] || die "unknown pack: $pack (see --list)"
   CUR_PACK="$pack"
-  for a in $(echo "$AGENTS" | tr ',' ' '); do rec_line pair "$pack" "$a"; done
+  if [ "$RULES_ONLY" -eq 0 ]; then   # a rules-only entry is not a pair: updates must never copy skills for it
+    for a in $(echo "$AGENTS" | tr ',' ' '); do rec_line pair "$pack" "$a"; done
+  fi
   display heading "pack $pack"
   if is_custom "$pack" && [ -d "$PACKS_ROOT/packs/$pack" ]; then display warning "  shadow custom pack $pack replaces the official one"; fi
   if ! is_custom "$pack"; then
@@ -464,14 +477,18 @@ for pack in $(echo "$PACKS" | tr ',' ' '); do
       [ -f "$x" ] && [ -f "$CUSTOM/scripts/$(basename "$x")" ] && display warning "  shadow custom script $(basename "$x") replaces the official one"
     done
   fi
-  for s in "$P"/skills/*/; do
-    [ -f "$s/SKILL.md" ] || continue
-    for d in "${SKILL_DIRS[@]}"; do
-      copy_dir "${s%/}" "$d/$(basename "$s")"
-      for a in $(dir_agents "$d"); do rec_copy skill "$pack" "$a" "$d/$(basename "$s")"; done
+  if [ "$RULES_ONLY" -eq 0 ]; then   # skills and agents; a rules-only run installs neither
+    for s in "$P"/skills/*/; do
+      [ -f "$s/SKILL.md" ] || continue
+      for d in "${SKILL_DIRS[@]}"; do
+        copy_dir "${s%/}" "$d/$(basename "$s")"
+        for a in $(dir_agents "$d"); do rec_copy skill "$pack" "$a" "$d/$(basename "$s")"; done
+      done
     done
-  done
-  for a in "$P"/agents/*.md; do [ -f "$a" ] && install_agent "$a"; done
+    for a in "$P"/agents/*.md; do [ -f "$a" ] && install_agent "$a"; done
+  elif [ ! -f "$P/rules.md" ]; then
+    display warning "  note   pack $pack has no rules; nothing installed"
+  fi
   if [ -f "$P/rules.md" ]; then
     if [ "$SCOPE" != "global" ]; then
       display warning "  note   rules install only with --global (a repo's AGENTS.md may be shared)"
@@ -487,15 +504,15 @@ for pack in $(echo "$PACKS" | tr ',' ' '); do
       done
     fi
   fi
-  if [ -d "$P/scripts" ] && [ "$SCOPE" = "global" ]; then say "  scripts run from $ROOT with rigorkit script <name>"; fi
+  if [ -d "$P/scripts" ] && [ "$SCOPE" = "global" ] && [ "$RULES_ONLY" -eq 0 ]; then say "  scripts run from $ROOT with rigorkit script <name>"; fi
 done
 
 rec_write
 
-if has_agent claude && { has_agent cursor || has_agent opencode; }; then
+if [ "$RULES_ONLY" -eq 0 ] && has_agent claude && { has_agent cursor || has_agent opencode; }; then
   display warning "note: Cursor and OpenCode also read .claude/skills; with both folders present they may list each skill twice."
 fi
 case ",$PACKS," in
-  *",sdd,"*) display success "done. Next, in your repo: ask your agent to run the sdd-init skill." ;;
+  *",sdd,"*) if [ "$RULES_ONLY" -eq 1 ]; then display success "done."; else display success "done. Next, in your repo: ask your agent to run the sdd-init skill."; fi ;;
   *) display success "done." ;;
 esac
