@@ -38,6 +38,10 @@ block_of() { # pack file -> the lines between the pack's markers (status 1 when 
   [ -f "$2" ] && grep -qxF "$s" "$2" && grep -qxF "$e" "$2" || return 1
   awk -v s="$s" -v e="$e" '$0==e{f=0} f{print} $0==s{f=1}' "$2"
 }
+rules_only_entries() { # record -> "pack<TAB>agent" lines of rules lines with no pair line (022): rules installed with --rules-only.
+  # The only place that infers it: a command that drops pair lines must not turn full installs into rules-only ones.
+  awk -F'\t' -v OFS='\t' '$1=="pair" { P[$2 FS $3]=1; next } $1=="rules" { if (!seen[$2 FS $3]++) { r[++n]=$2 OFS $3 } } END { for (i=1;i<=n;i++) { split(r[i], a, OFS); if (!((a[1] FS a[2]) in P)) print r[i] } }' "$1"
+}
 record_valid() { # file [header]: that header (default global) plus the lines its kind allows
   awk -F'\t' -v want="${2:-rigorkit-global-record 1}" 'NR==1 { if ($0 != want) bad=1; proj = ($0 == "rigorkit-project-record 1"); next }
     proj && $1=="path" && NF==2 && $2 ~ /^\// { np++; next }

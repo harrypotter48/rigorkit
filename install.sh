@@ -172,7 +172,7 @@ rec_rules() { # pack agent file: after merge_rules
 }
 rec_write() { # merge REC_NEW into the record: new copies replace old ones, "=" keeps the old value
   [ "$REC_ON" -eq 1 ] || return 0
-  [ -s "$REC_NEW" ] || return 0   # 022: a rules-only run that wrote nothing leaves no record
+  [ -s "$REC_NEW" ] || return 0   # 022: a rules-only run that wrote nothing leaves no record; rules lines without pair lines are the rules-only entries (rules_only_entries, lib/common.sh)
   local old=/dev/null tmp
   [ -f "$REC" ] && old="$REC"
   ( umask 077; mkdir -p "$REC_DIR" ) 2>/dev/null || true
