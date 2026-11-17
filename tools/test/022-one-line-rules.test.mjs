@@ -583,9 +583,12 @@ describe('022-global-rules-on-install', () => {
 
   test('Twin equality: the one-line installer and install.sh agree on the tool files, CODEX_HOME and the core markers', () => {
     const remote = read(INSTALLER), install = read(path.join(repo, 'install.sh'));
-    for (const piece of ['.claude/CLAUDE.md', '.config/opencode/AGENTS.md', 'AGENTS.md', 'CODEX_HOME', START, END]) {
+    for (const piece of ['.claude/CLAUDE.md', '.config/opencode/AGENTS.md', 'AGENTS.md', 'CODEX_HOME']) {
       assert.ok(install.includes(piece), `install.sh lacks ${piece}`);
       assert.ok(remote.includes(piece), `tools/install-remote.sh lacks ${piece}`);
     }
+    // 022 AMEND-3: install.sh builds the markers from the pack name; the one-line installer spells the core ones.
+    for (const piece of ['<!-- rigorkit:$1:start -->', '<!-- rigorkit:$1:end -->']) assert.ok(install.includes(piece), `install.sh lacks ${piece}`);
+    for (const piece of [START, END]) assert.ok(remote.includes(piece), `tools/install-remote.sh lacks ${piece}`);
   });
 });
