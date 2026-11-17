@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.3
+Global rules: unchanged
+New packs: none
+
+- The one-line installer offers, once and on a terminal, to install only the global rules of `core` (no skills or agents) for the tools it finds, with a backup next to each existing file. Say no, set `RIGORKIT_NO_RULES`, pipe the installer or redirect its output to skip it; it then prints the command to run later. It also writes `~/.rigorkit-version` and the global record, as any global install does. Nothing from the clone runs without your yes.
+- `rigorkit install --pack core --agent claude --global --rules-only` installs only the rules of a pack; `rigorkit update` keeps them current like any global rules and copies no skills for them.
+- A global rules install refuses a destination that is a broken link, a folder or another non-regular file before writing anything.
+
 ## 0.6.2
 Global rules: unchanged
 New packs: none
