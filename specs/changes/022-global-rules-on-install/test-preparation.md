@@ -81,3 +81,6 @@ Proposed AMEND-4 (needs owner approval): add exactly the line `  --rules-only   
 
 ### AMEND-4 — owner-approved 2026-11-17 ("Apruebo AMEND-4")
 Applied exactly as proposed: one line added to `help.install` of `tools/test/fixtures/021-terminal-colors/plain.json`. Commit `3024d584364032fbb68f03fafe423fbbb17794e5`. Agent-run `node --test tools/test/021-terminal-colors.test.mjs`: 34 tests, 34 pass.
+
+### AMEND-5 — owner-approved 2026-11-17 ("Apruebo AMEND-5")
+Cause: the CI runner has no zsh, the installer then writes no `.zshrc` (correct), and RF-3.F2 and RF-8.F1 read it. Applied: the scene appends a stub `zsh` folder to PATH, the same pattern as `008-install-remote.test.mjs`. Commit `e74d2d79d9a620bc1ab30481ef06d36fa4cd714d`. Agent-run `node --test tools/test/022-one-line-rules.test.mjs`: 58 tests, 58 pass (local machine has zsh; the no-zsh case is confirmed by the next CI run).
