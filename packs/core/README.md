@@ -23,7 +23,11 @@ Skills may be installed per project or globally. For a software project:
 ```
 Ask the agent for core-init; it proposes `.rigorkit/project.yaml` and an optional AGENTS diff before writes. Configuration-only never calls sdd-init. Full initialization offers software setup/adoption under their existing gates. No prompts lane/parser/workflow runtime or automatic installation is shipped. Missing context skill/config evidence is reported, not silently interpreted as approval.
 
-Rules and helpers remain global only: personal preferences must not enter shared repo instructions.
+Rules and helpers remain global only: personal preferences must not enter shared repo instructions. The one-line installer offers to install only the rules; the same is available later with `--rules-only` (global scope only, no skills or agents):
+```bash
+rigorkit install --pack core --agent claude,codex,opencode --global --rules-only --dry-run
+```
+(Preview with `--dry-run`, then run it again without it. `CODEX_HOME`, when set, must be an absolute path.) To skip the one-line installer's offer, answer `n` or set `RIGORKIT_NO_RULES` to any non-empty value.
 ```bash
 ./install.sh --pack core --agent claude,codex,opencode --global --dry-run
 ./install.sh --pack core --agent claude,codex,opencode --global

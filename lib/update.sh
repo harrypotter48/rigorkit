@@ -291,12 +291,31 @@ refresh() {
 
 # Shared by the global scope and registered projects (017): stage the recorded pairs with install.sh,
 # then classify and write every copy against $REC, mapping staged paths under $SBASE to real ones under $BASE.
+# Stage one pack into the staging home with install.sh (the one writer of copy content). Reads scope_refresh's
+# variables (dynamic scope): scope, stage, models, KIND, CLONE, ROOT. $4 = what stays as it is when the pack
+# is gone; $5 = an extra install.sh flag (--rules-only stages the rules and nothing else).
+stage_pack() { # pack agents what-is-left [flag]
+  local p="$1" agents="$2" left="$3" flag="${4:-}" d
+  d="$(pack_dir "$p")"
+  if [ -z "$d" ]; then display_safe warning "pack $p is no longer shipped; $left are left as they are"; [ "$KIND" = project ] && FAILED=1; return 0; fi
+  if ! HOME="$stage/h" CODEX_HOME="$stage/h/.codex-home" RIGORKIT_MODELS="$models" RK_RENDER_ROOT="$CLONE" RK_PACKS_ROOT="$ROOT" RK_STAGE=1 \
+      bash "$CODE/install.sh" "${scope[@]}" --force ${flag:+"$flag"} --pack "$p" --agent "$agents" > "$stage/log" 2>&1 </dev/null; then
+    err "cannot prepare ${flag:+the rules of }pack $p:"; sed 's/^/  /' "$stage/log" | print_safe >&2
+    echo "$p" >> "$stage/failed"; FAILED=1
+  fi
+}
+# Exact match (no pattern) of a pack and agent against the pairs or the rules-only entries of scope_refresh.
+managed_pair() { # pack agent
+  printf '%s\n%s\n' "$pairs" "$ronly" | RK_P="$1" RK_A="$2" awk -F'\t' '$1==ENVIRON["RK_P"] && $2==ENVIRON["RK_A"] { f=1 } END { exit !f }'
+}
 scope_refresh() {
   local from="$1" to="$2"
-  local recver pairs packs p agents stage models d path rel staged kind fp scope srec
+  local recver pairs packs p stage models d path rel staged kind fp scope srec ronly ronlypacks
   recver="$(awk -F'\t' '$1=="version"{print $2; exit}' "$REC")"
   pairs="$(awk -F'\t' '$1=="pair"{print $2 "\t" $3}' "$REC")"
   packs="$(printf '%s\n' "$pairs" | cut -f1 | awk 'NF && !s[$0]++')"
+  ronly="$(rules_only_entries "$REC")"   # 022: rules installed with --rules-only; never staged with skills or agents
+  ronlypacks="$(printf '%s\n' "$ronly" | cut -f1 | awk 'NF && !s[$0]++')"
   stage="$(mktemp -d)"; [ -n "$STAGE" ] && rm -rf "$STAGE"; STAGE="$stage"; EDITS="$stage/edits"; : > "$EDITS"; : > "$stage/failed"
   mkdir -p "$stage/h/.rigorkit" "$stage/p"
   if [ "$KIND" = global ]; then scope=(--global); SBASE="$stage/h"; srec="$stage/h/.local/state/rigorkit/global"
@@ -306,15 +325,13 @@ scope_refresh() {
   # install.sh is the one writer of copy content: each recorded pack is installed into a staging HOME,
   # and the staging record lists every copy it ships with its fingerprint.
   while IFS= read -r p <&3; do
-    agents="$(printf '%s\n' "$pairs" | awk -F'\t' -v p="$p" '$1==p{print $2}' | paste -sd, -)"
-    d="$(pack_dir "$p")"
-    if [ -z "$d" ]; then display_safe warning "pack $p is no longer shipped; its copies are left as they are"; [ "$KIND" = project ] && FAILED=1; continue; fi
-    if ! HOME="$stage/h" CODEX_HOME="$stage/h/.codex-home" RIGORKIT_MODELS="$models" RK_RENDER_ROOT="$CLONE" RK_PACKS_ROOT="$ROOT" RK_STAGE=1 \
-        bash "$CODE/install.sh" "${scope[@]}" --force --pack "$p" --agent "$agents" > "$stage/log" 2>&1 </dev/null; then
-      err "cannot prepare pack $p:"; sed 's/^/  /' "$stage/log" | print_safe >&2
-      echo "$p" >> "$stage/failed"; FAILED=1
-    fi
+    [ -n "$p" ] || continue   # a record with no pair line has an empty pack list
+    stage_pack "$p" "$(printf '%s\n' "$pairs" | awk -F'\t' -v p="$p" '$1==p{print $2}' | paste -sd, -)" "its copies"
   done 3<<< "$packs"
+  while IFS= read -r p <&3; do   # 022: the rules of rules-only entries are staged with --rules-only
+    [ -n "$p" ] || continue
+    stage_pack "$p" "$(printf '%s\n' "$ronly" | awk -F'\t' -v p="$p" '$1==p{print $2}' | paste -sd, -)" "its rules" --rules-only
+  done 3<<< "$ronlypacks"
   : > "$stage/items"   # kind <tab> pack <tab> agent <tab> real path <tab> new fingerprint
   [ -n "$srec" ] || for srec in "$stage/h/.local/state/rigorkit/projects/"*; do break; done
   if [ "$KIND" = project ] && [ ! -f "$srec" ]; then err "nothing could be staged for $BASE"; FAILED=1; return 0; fi
@@ -379,7 +396,7 @@ scope_refresh() {
   # Rules blocks (RF-21).
   local file pack agent stagedfile old new tmp s e
   while IFS="$TAB" read -r pack agent file <&3; do
-    grep -q "^$pack	$agent\$" <<< "$pairs" || continue
+    managed_pair "$pack" "$agent" || continue
     stagedfile="$(rules_file "$stage/h" "$stage/h/.codex-home" "$agent")"
     new="$stage/new.block"; block_of "$pack" "$stagedfile" > "$new" || continue
     s="<!-- rigorkit:$pack:start -->"; e="<!-- rigorkit:$pack:end -->"
@@ -428,10 +445,13 @@ scope_refresh() {
   # New packs named in the changelog since the recorded version (RF-23).
   local v names nm agentsall
   agentsall="$(printf '%s\n' "$pairs" | cut -f2 | awk 'NF && !s[$0]++' | paste -sd, -)"
-  names="$(git -C "$CLONE" tag -l 'v*' | sed 's/^v//' | sort_versions | while IFS= read -r v; do
-      newer "$v" "$recver" || continue; newer "$v" "$to" && continue
-      awk -v h="## $v" '$0==h{f=1; next} f && /^## /{exit} f && index($0, "New packs: ")==1 { print substr($0, 12) }' "$ROOT/CHANGELOG.md"
-    done | tr ',' '\n' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | awk 'NF && $0 != "none" && !s[$0]++')"
+  names=""
+  if [ -n "$agentsall" ]; then   # 022: only rules-only entries means no global skills were chosen: no new pack is offered
+    names="$(git -C "$CLONE" tag -l 'v*' | sed 's/^v//' | sort_versions | while IFS= read -r v; do
+        newer "$v" "$recver" || continue; newer "$v" "$to" && continue
+        awk -v h="## $v" '$0==h{f=1; next} f && /^## /{exit} f && index($0, "New packs: ")==1 { print substr($0, 12) }' "$ROOT/CHANGELOG.md"
+      done | tr ',' '\n' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | awk 'NF && $0 != "none" && !s[$0]++')"
+  fi
   while IFS= read -r nm <&3; do
     [ -n "$nm" ] || continue
     printf '%s\n' "$packs" | grep -qxF -- "$nm" && continue

@@ -4,8 +4,10 @@
 # It clones rigorkit into ~/.rigorkit at the newest vX.Y.Z tag (or RIGORKIT_REF) from RIGORKIT_REMOTE
 # (default https://github.com/harrypotter48/rigorkit.git), creates ~/.rigorkit/custom/{packs,scripts}
 # and adds a marked startup block to .zshrc / .bashrc / .bash_profile so new shells find `rigorkit`
-# and `man rigorkit`. It installs no pack and never runs anything from the clone.
-# With an existing ~/.rigorkit clone it only adds missing startup blocks (no git call).
+# and `man rigorkit`. It installs no pack. Nothing from the clone runs unless, on a terminal, you answer yes to the
+# one question offering to install only the global rules of `core` (a rules-only install, see offer_rules); then
+# the clone's install.sh runs once per tool with a cleared environment. RIGORKIT_NO_RULES (non-empty) skips the offer.
+# With an existing ~/.rigorkit clone it adds missing startup blocks (no git call) and makes the same offer.
 # Everything runs from main(), called on the last line: a truncated download runs nothing.
 
 say() { printf '%s\n' "$*"; }
@@ -285,9 +287,178 @@ existing_clone() { # RF-2, RF-44, RF-53, RF-58: leaves ~/.rigorkit as it is (no 
   elif [ "$RK_WROTE" -eq 1 ]; then
     say "added the missing startup blocks; open a new shell to use rigorkit"
   fi
+  offer_rules
+}
+
+# --- global rules offer (022) ---------------------------------------------------------------------------------
+# After the clone and the startup blocks: one question, then the clone's `install.sh --rules-only` per tool.
+# The tool files, CODEX_HOME rule and markers below are twins of install.sh (rules_file, merge_rules); a test keeps them equal.
+rules_consts() { # constants of the offer, set inside a function: the file's top level holds only functions (PC-1)
+  RK_START='<!-- rigorkit:core:start -->'
+  RK_END='<!-- rigorkit:core:end -->'
+  RK_TOOLS='claude codex opencode'
+  RK_LATER="rigorkit install --pack core --agent $(printf '%s' "$RK_TOOLS" | tr ' ' ',') --global --rules-only"
+}
+
+clean() { printf '%s' "$1" | LC_ALL=C tr -cd '[:print:]'; }   # names printed to the terminal: printable ASCII only (no C0, C1 or bidi controls)
+has_ctrl() { [ "$(printf '%s' "$1" | LC_ALL=C tr -d '[:cntrl:]')" != "$1" ]; }
+print_later() { say "to install only the global rules later, open a new shell and run:"; say "  $RK_LATER"; }
+
+instr_file() { # tool -> its global instruction file
+  case $1 in
+    claude) printf '%s\n' "$HOME/.claude/CLAUDE.md" ;;
+    codex) printf '%s\n' "${CODEX_HOME:-$HOME/.codex}/AGENTS.md" ;;
+    opencode) printf '%s\n' "$HOME/.config/opencode/AGENTS.md" ;;
+  esac
+}
+
+rules_capable() { # file tests only: the release can install rules alone (nothing is executed)
+  [ -f "$T/install.sh" ] && [ ! -L "$T/install.sh" ] && grep -qx 'RULES_ONLY_SUPPORTED=1' "$T/install.sh" &&
+    [ ! -L "$T/packs" ] && [ ! -L "$T/packs/core" ] && [ -f "$T/packs/core/rules.md" ] && [ ! -L "$T/packs/core/rules.md" ]
+}
+
+plain_file() { [ -f "$1" ] && [ ! -L "$1" ]; }   # before consent nothing is read through a link of the downloaded clone
+
+rules_state() { # file -> RS_STATE: has | incomplete | offered
+  RS_STATE=offered
+  rs_r=$(resolve_link "$1") || return 0
+  [ -f "$rs_r" ] && [ -r "$rs_r" ] || return 0
+  if grep -qxF "$RK_START" "$rs_r"; then
+    if grep -qxF "$RK_END" "$rs_r"; then RS_STATE=has; else RS_STATE=incomplete; fi
+  fi
+  return 0
+}
+
+foreign_or_loose() { # path -> status 0 when it is not owned by the user or is writable by group or others (links followed)
+  [ -O "$1" ] || return 0
+  fl_out=$(find -H "$1" -prune \( -perm -020 -o -perm -002 \) -print 2>/dev/null) || return 0   # a find error counts as unsafe
+  [ -n "$fl_out" ]
+}
+
+safe_clone() { # V2: the code that will run is the user's own and nobody else can write it; sets RK_WHY
+  if ! { [ -d "$T" ] && [ ! -L "$T" ] && [ -O "$T" ]; }; then RK_WHY="$T is not a real folder owned by you"; return 1; fi
+  if foreign_or_loose "$T"; then RK_WHY="$T is writable by others"; return 1; fi
+  if foreign_or_loose "$HOME"; then RK_WHY="$HOME is not owned by you or is writable by others"; return 1; fi
+  for sc_d in "$T/bin" "$T/packs" "$T/custom" "$T/custom/packs"; do   # parents of what install.sh reads: nobody may swap a child
+    [ -e "$sc_d" ] || [ -L "$sc_d" ] || continue
+    if [ -L "$sc_d" ] || foreign_or_loose "$sc_d"; then RK_WHY="$sc_d is a link, not yours, or writable by others"; return 1; fi
+  done
+  sc_uid=$(id -u)
+  sc_bad=$(find "$T/install.sh" "$T/bin/rigorkit" "$T/VERSION" "$T/lib" "$T/packs/core" \
+    \( -type l -o ! -user "$sc_uid" -o -perm -020 -o -perm -002 \) -print 2>/dev/null | head -n 1)
+  if [ -z "$sc_bad" ] && { [ -e "$T/custom/packs/core" ] || [ -L "$T/custom/packs/core" ]; }; then
+    sc_bad=$(find "$T/custom/packs/core" \( -type l -o ! -user "$sc_uid" -o -perm -020 -o -perm -002 \) -print 2>/dev/null | head -n 1)
+  fi
+  if [ -n "$sc_bad" ]; then RK_WHY="$sc_bad is a link, not yours, or writable by others"; return 1; fi
+  return 0
+}
+
+safe_target() { # tool file -> status 1 (RK_WHY set) when writing the instruction file is not safe (V6, V10)
+  st_f=$2
+  if has_ctrl "$st_f"; then RK_WHY="the path holds a control character"; return 1; fi
+  if [ "$1" = codex ] && [ -n "${CODEX_HOME:-}" ]; then
+    case $CODEX_HOME in /*) ;; *) RK_WHY="CODEX_HOME is not an absolute path"; return 1 ;; esac
+  fi
+  st_r=$(resolve_link "$st_f") || { RK_WHY="too many symbolic links"; return 1; }
+  if has_ctrl "$st_r"; then RK_WHY="the link target holds a control character"; return 1; fi
+  for st_p in "$(dirname "$st_f")" "$(dirname "$st_r")"; do   # the folder and, inside $HOME, every folder above it
+    while :; do
+      [ -d "$st_p" ] || break
+      if foreign_or_loose "$st_p"; then RK_WHY="the folder $st_p is not yours or is writable by others"; return 1; fi
+      case $st_p in "$HOME"/*) st_p=$(dirname "$st_p") ;; *) break ;; esac
+    done
+  done
+  if [ -f "$st_r" ] && foreign_or_loose "$st_r"; then RK_WHY="the file is not yours or is writable by others"; return 1; fi
+  return 0
+}
+
+run_rules_install() { # tool: the clone's installer, rules only, under a cleared environment (V3)
+  rr_t=$1
+  set -- HOME="$HOME" PATH=/usr/bin:/bin:/usr/sbin:/sbin
+  [ -z "${TERM:-}" ] || set -- "$@" TERM="$TERM"
+  [ -z "${LANG:-}" ] || set -- "$@" LANG="$LANG"
+  [ -z "${LC_ALL:-}" ] || set -- "$@" LC_ALL="$LC_ALL"
+  [ -z "${NO_COLOR:-}" ] || set -- "$@" NO_COLOR="$NO_COLOR"
+  if [ "$rr_t" = codex ]; then case ${CODEX_HOME:-} in /*) set -- "$@" CODEX_HOME="$CODEX_HOME" ;; esac; fi
+  env -i "$@" bash "$T/install.sh" --global --rules-only --pack core --agent "$rr_t"
+}
+
+offer_rules() { # RF-1…RF-8, RF-12…RF-15 in the order of RF-14: unavailable, opt-out, no tool, all have it, no terminal
+  rules_consts
+  if ! rules_capable; then
+    say "global rules: not offered, this release cannot install them alone (unavailable)"
+    [ "$RK_NEW" -eq 1 ] || say "  run: rigorkit update"
+    return 0
+  fi
+  if [ -n "${RIGORKIT_NO_RULES:-}" ]; then print_later; return 0; fi
+  of_offered=''; of_found=0; of_damaged=0
+  for of_t in $RK_TOOLS; do
+    of_f=$(instr_file "$of_t")
+    [ -d "$(dirname "$of_f")" ] || continue
+    of_found=$((of_found + 1))
+    rules_state "$of_f"
+    case $RS_STATE in
+      has) ;;
+      incomplete)
+        err "$(clean "$of_f") has '$RK_START' without '$RK_END'; fix the markers by hand and run the installer again"
+        RK_FAILED=1; of_damaged=$((of_damaged + 1)) ;;
+      *) of_offered="$of_offered $of_t" ;;
+    esac
+  done
+  if [ "$of_found" -eq 0 ]; then print_later; return 0; fi
+  if [ -z "$of_offered" ]; then
+    [ "$of_damaged" -gt 0 ] || say "the global rules are already installed"
+    return 0
+  fi
+  if ! { [ -t 0 ] && [ -t 1 ]; }; then print_later; return 0; fi
+  of_csv=''
+  printf '\n'
+  say "rigorkit can install its global rules (core) in:"
+  for of_t in $of_offered; do
+    of_f=$(instr_file "$of_t")
+    printf '  %s\n' "$(clean "$of_f")"
+    [ ! -L "$of_f" ] || printf '    (symbolic link to %s)\n' "$(clean "$(resolve_link "$of_f" 2>/dev/null)")"
+    of_csv="${of_csv:+$of_csv,}$of_t"
+  done
+  if plain_file "$T/VERSION"; then of_ver=$(cat "$T/VERSION" 2>/dev/null); else of_ver='unknown'; fi
+  printf 'Release: %s\n' "$(clean "$of_ver")"
+  if [ "$RK_NEW" -eq 1 ]; then printf 'The installer of this new clone (%s) will run, once per file above.\n' "$(clean "$T/install.sh")"
+  else printf 'The installer of the clone already in %s (not downloaded now) will run, once per file above.\n' "$(clean "$T")"; fi
+  if [ "$RK_NEW" -eq 1 ]; then
+    [ -z "${RIGORKIT_REMOTE+x}" ] || printf 'Source: %s\n' "$(clean "$RK_REMOTE_NAME")"
+    [ -z "${RIGORKIT_REF+x}" ] || printf 'Ref: %s\n' "$(clean "$RK_REF")"
+  fi
+  of_rules="$T/packs/core/rules.md"
+  if [ -e "$T/custom/packs/core" ] || [ -L "$T/custom/packs/core" ]; then
+    printf 'Rules from: your custom core pack\n'; of_rules="$T/custom/packs/core/rules.md"
+  else
+    printf 'Rules from: the official core pack\n'
+  fi
+  if plain_file "$of_rules"; then of_n=$(wc -l < "$of_rules" 2>/dev/null | tr -d ' '); else of_n='unknown number of'; fi
+  printf 'Block size: %s lines\n' "$of_n"
+  printf 'It also writes: a .rigorkit.bak next to each existing file, ~/.rigorkit-version and ~/.local/state/rigorkit/global\n'
+  printf 'Preview first: %s install --pack core --agent %s --global --rules-only --dry-run\n' "$(clean "$T/bin/rigorkit")" "$of_csv"
+  printf 'Install only the global rules? [y/N] '
+  IFS= read -r of_ans || of_ans=''
+  case $of_ans in
+    [yY]|[yY][eE][sS]) ;;
+    *) printf '\n'; print_later; return 0 ;;
+  esac
+  for of_t in $of_offered; do
+    of_f=$(instr_file "$of_t")
+    if ! safe_clone; then err "global rules not installed: $(clean "$RK_WHY")"; RK_FAILED=1; return 0; fi
+    if ! safe_target "$of_t" "$of_f"; then
+      err "global rules not installed in $(clean "$of_f"): $(clean "$RK_WHY")"; RK_FAILED=1; continue
+    fi
+    if ! run_rules_install "$of_t"; then
+      err "global rules not installed in $(clean "$of_f") (see above)"; RK_FAILED=1
+    fi
+  done
+  return 0
 }
 
 new_clone() { # RF-1, RF-48, RF-51, RF-53, RF-56, RF-60, RF-63, RF-64, RF-65
+  RK_NEW=1
   validate_remote
   command -v git >/dev/null 2>&1 || die "git is required: install git and run the installer again"
   resolve_ref
@@ -305,14 +476,13 @@ new_clone() { # RF-1, RF-48, RF-51, RF-53, RF-56, RF-60, RF-63, RF-64, RF-65
   create_custom
   write_blocks
   say "rigorkit $RK_REF is installed in $T"
-  say "next: open a new shell, then run: rigorkit install --pack core --agent <agent> --global"
-  say "agents: claude, codex, cursor, opencode"
+  offer_rules
 }
 
 main() {
   set -u
   GIT_ALLOW_PROTOCOL=https:ssh:file; export GIT_ALLOW_PROTOCOL
-  RK_TMP=''; RK_FAILED=0; RK_WROTE=0
+  RK_TMP=''; RK_FAILED=0; RK_WROTE=0; RK_NEW=0
   trap cleanup_tmp EXIT
   trap 'exit 130' INT TERM HUP
   [ -n "${HOME:-}" ] || die "HOME is not set"

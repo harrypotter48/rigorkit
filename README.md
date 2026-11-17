@@ -94,13 +94,11 @@ New to rigorkit:
 ```bash
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/harrypotter48/rigorkit/main/tools/install-remote.sh)"
 ```
-Open a new shell, then install the packs for your tools (globally, or into one repository):
+On a terminal the installer asks one question: whether to also install the global rules of `core` (no skills) for the tools it finds (`~/.claude`, `$CODEX_HOME` or `~/.codex`, `~/.config/opencode`). Answer `n`, or set `RIGORKIT_NO_RULES=1`, to skip it. Open a new shell, then install the packs you need into a repository:
 ```bash
-rigorkit install --pack core,sdd --agent claude --global
+rigorkit install --pack core,sdd --agent claude --project ~/code/my-repo
 ```
-```bash
-rigorkit install --pack sdd --agent claude --project ~/code/my-repo
-```
+Install more globally only if you want it (`rigorkit install --pack core,sdd --agent claude --global`); to add just the rules later: `rigorkit install --pack core --agent claude --global --rules-only`.
 In that repository ask your agent for `sdd-init` (or `sdd-adopt` for existing code), then for a feature start with `sdd-slice`.
 
 Already using rigorkit (any version from 0.3.0): update, register the projects you installed before, update them, and check everything:
@@ -119,7 +117,7 @@ rigorkit doctor
 `scan` lists the projects it found and asks once whether to register them with the suggested tools (`e` lets you choose per project; `--tools claude` answers without asking); project updates are never committed, so review them with git in each repository. On 0.2.0, first follow "Update from 0.2.0" below.
 
 ### Details
-One line clones the newest release into `~/.rigorkit` and enables the `rigorkit` command and `man rigorkit` in new zsh and bash shells. It installs no pack:
+One line clones the newest release into `~/.rigorkit` and enables the `rigorkit` command and `man rigorkit` in new zsh and bash shells. It installs no pack. On a terminal it also asks once whether to install only the global rules of `core` (a rules block with a `.rigorkit.bak` backup next to each existing file; never skills or agents); only after your yes does it run the clone's installer, once per tool, after checking that the clone and the instruction files are yours and not writable by others. A tool whose file already has the block is skipped (nothing to do); a block with a start marker but no end marker is reported, left untouched, and the run ends with a failure status; a relative `CODEX_HOME` is refused. The installer also writes `~/.rigorkit-version` and `~/.local/state/rigorkit/global`; preview any of it with `--dry-run`. Without a terminal on input and output (`curl … | sh`, a redirected output), with `RIGORKIT_NO_RULES` set to any non-empty value, or with no tool found, it prints the command to run later instead; a release too old to install rules alone says so and points to `rigorkit update`:
 ```bash
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/harrypotter48/rigorkit/main/tools/install-remote.sh)"
 ```
