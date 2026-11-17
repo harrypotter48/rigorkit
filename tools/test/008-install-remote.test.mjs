@@ -141,7 +141,7 @@ const blockCount = f => readFileSync(f, 'utf8').split('\n').filter(l => l === ST
 const userZshrc = s => put(s.zshrc, 'export TOKEN_DIR=/x\nalias ll="ls -l"\n');
 
 // --- RF-1: one-line installation ------------------------------------------------------------
-test('RF-1.H1: clones the newest vX.Y.Z tag, creates empty custom folders, installs no pack and names the next step', t => {
+test('RF-1.H1: clones the newest vX.Y.Z tag, creates empty custom folders, installs no pack and names the later command', t => {
   const s = setup(t, { versions: [...DEFAULT_VERSIONS.slice(0, 2), { tag: 'v0.2.0', extraTags: ['v9.9', 'latest'] }] });
   const r = s.install();
   assert.equal(r.status, 0, r.out);
@@ -152,7 +152,7 @@ test('RF-1.H1: clones the newest vX.Y.Z tag, creates empty custom folders, insta
   assert.match(r.out, /new shell/i);
   assert.match(r.out, /rigorkit install --pack core --agent \S+ --global/);
   assert.ok(AGENTS.length >= 4, 'agent list parsed from install.sh');
-  for (const a of AGENTS) assert.match(r.out, new RegExp(`\\b${a}\\b`), `names agent ${a}`);
+  for (const a of ['claude', 'codex', 'opencode']) assert.match(r.out, new RegExp(`\\b${a}\\b`), `names agent ${a}`);   // 022 AMEND-2: the later command names the tools with a global instruction file
   assert.deepEqual(s.leftovers(), []);
 });
 
