@@ -44,7 +44,11 @@ function scene(t, { mutate, existing = false } = {}) {
   mkdirSync(project, { recursive: true });
   const s = { h, r, project, f: rel => path.join(h.HOME, rel), existing };
   if (existing) s.clone = cloneAt(h.HOME, r.bare, 'v0.9.0');
-  s.env = (extra = {}) => ({ ...envFor(h, { RIGORKIT_REMOTE: r.bare, SHELL: '/bin/zsh' }), ...extra });
+  // AMEND-5: a runner without zsh gets a stub so the installer still writes the .zshrc startup block.
+  const zdir = path.join(h.root, 'zshstub');
+  mkdirSync(zdir, { recursive: true });
+  writeFileSync(path.join(zdir, 'zsh'), '#!/bin/sh\nexit 0\n', { mode: 0o755 });
+  s.env = (extra = {}) => ({ ...envFor(h, { RIGORKIT_REMOTE: r.bare, SHELL: '/bin/zsh' }), PATH: `${process.env.PATH}:${zdir}`, ...extra });
   return s;
 }
 const tool = (s, rel, content = null) => {
