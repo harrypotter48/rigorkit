@@ -314,8 +314,10 @@ instr_file() { # tool -> its global instruction file
 
 rules_capable() { # file tests only: the release can install rules alone (nothing is executed)
   [ -f "$T/install.sh" ] && [ ! -L "$T/install.sh" ] && grep -qx 'RULES_ONLY_SUPPORTED=1' "$T/install.sh" &&
-    [ -f "$T/packs/core/rules.md" ]
+    [ -f "$T/packs/core/rules.md" ] && [ ! -L "$T/packs/core/rules.md" ]
 }
+
+plain_file() { [ -f "$1" ] && [ ! -L "$1" ]; }   # before consent nothing is read through a link of the downloaded clone
 
 rules_state() { # file -> RS_STATE: has | incomplete | offered
   RS_STATE=offered
@@ -418,7 +420,8 @@ offer_rules() { # RF-1…RF-8, RF-12…RF-15 in the order of RF-14: unavailable,
     [ ! -L "$of_f" ] || printf '    (symbolic link to %s)\n' "$(clean "$(resolve_link "$of_f" 2>/dev/null)")"
     of_csv="${of_csv:+$of_csv,}$of_t"
   done
-  printf 'Release: %s\n' "$(clean "$(cat "$T/VERSION" 2>/dev/null)")"
+  if plain_file "$T/VERSION"; then of_ver=$(cat "$T/VERSION" 2>/dev/null); else of_ver='unknown'; fi
+  printf 'Release: %s\n' "$(clean "$of_ver")"
   if [ "$RK_NEW" -eq 1 ]; then printf 'The installer of this new clone (%s) will run, once per file above.\n' "$(clean "$T/install.sh")"
   else printf 'The installer of the clone already in %s (not downloaded now) will run, once per file above.\n' "$(clean "$T")"; fi
   if [ "$RK_NEW" -eq 1 ]; then
@@ -431,7 +434,8 @@ offer_rules() { # RF-1…RF-8, RF-12…RF-15 in the order of RF-14: unavailable,
   else
     printf 'Rules from: the official core pack\n'
   fi
-  printf 'Block size: %s lines\n' "$(wc -l < "$of_rules" 2>/dev/null | tr -d ' ')"
+  if plain_file "$of_rules"; then of_n=$(wc -l < "$of_rules" 2>/dev/null | tr -d ' '); else of_n='unknown number of'; fi
+  printf 'Block size: %s lines\n' "$of_n"
   printf 'It also writes: a .rigorkit.bak next to each existing file, ~/.rigorkit-version and ~/.local/state/rigorkit/global\n'
   printf 'Preview first: %s install --pack core --agent %s --global --rules-only --dry-run\n' "$(clean "$T/bin/rigorkit")" "$of_csv"
   printf 'Install only the global rules? [y/N] '
