@@ -27,7 +27,7 @@ Rules and helpers remain global only: personal preferences must not enter shared
 ```bash
 rigorkit install --pack core --agent claude,codex,opencode --global --rules-only --dry-run
 ```
-(Preview with `--dry-run`, then run it again without it. `CODEX_HOME`, when set, must be an absolute path.)
+(Preview with `--dry-run`, then run it again without it. `CODEX_HOME`, when set, must be an absolute path.) To skip the one-line installer's offer, answer `n` or set `RIGORKIT_NO_RULES` to any non-empty value.
 ```bash
 ./install.sh --pack core --agent claude,codex,opencode --global --dry-run
 ./install.sh --pack core --agent claude,codex,opencode --global

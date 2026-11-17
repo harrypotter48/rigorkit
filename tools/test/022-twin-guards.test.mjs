@@ -29,9 +29,9 @@ describe('022-global-rules-on-install', () => {
         const b = run('bash', ['-c', `${update}\nrules_file "$HOME" "\${CODEX_HOME:-$HOME/.codex}" ${tool}`], { env: e }).stdout.trim();
         const c = run('sh', ['-c', `${remote}\ninstr_file ${tool}`], { env: e }).stdout.trim();
         if (tool === 'cursor') { assert.equal(a, ''); assert.equal(b, ''); assert.equal(c, ''); continue; }
-        assert.ok(a.endsWith('.md') && a.startsWith(h.HOME) || a.startsWith(codexHome), `${tool}: ${a}`);
-        assert.equal(c, a, `${tool}: tools/install-remote.sh differs from install.sh (${JSON.stringify(env)})`);
-        assert.equal(b, a, `${tool}: lib/update.sh differs from install.sh (${JSON.stringify(env)})`);
+        assert.ok(a.endsWith('.md') && a.startsWith(h.HOME) || a.startsWith(codexHome), `${tool}: ${a}`);   // RF-9.H1, RF-5.E2
+        assert.equal(c, a, `${tool}: tools/install-remote.sh differs from install.sh (${JSON.stringify(env)})`);   // RF-1.H1, RF-5.E2, INV-2
+        assert.equal(b, a, `${tool}: lib/update.sh differs from install.sh (${JSON.stringify(env)})`);   // RF-11.H1, INV-2
       }
     }
   });
