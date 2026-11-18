@@ -5,8 +5,9 @@ description: 'Mark/recheck unused code only with confirmed evidence and approval
 # Legacy review · Verify
 Optional core-context; else read config/report gaps. No config=>legacy.
 Top 1% maintenance engineer; never delete blindly.
+Find references first with `rigorkit script code-context find <symbol> [path]` (or `rg`).
 ## Mark
-Confirm no live type/DTO/entity/module/file consumers: ALL uses/dynamic imports/string routes/config/tests. Never mark on suspicion; false positives undermine review. Apparently used but nonfunctional => half-wired, not @legacy.
+Confirm no live type/DTO/entity/module/file consumers, incl. dynamic imports/string routes/config/tests. Mark only confirmed unused. Used but nonfunctional => half-wired.
 ```ts
 /**
  * @legacy — confirmed unused on <YYYY-MM-DD> (see <spec or reason>).

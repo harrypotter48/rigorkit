@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# code-context find <symbol> [path] — one path:line[,line...] per matching file.
+set -o pipefail
+
+usage() {
+  printf 'usage: code-context find <symbol> [path]\n' >&2
+  exit 2
+}
+
+[[ $# -ge 2 && $# -le 3 && $1 == find && -n $2 ]] || usage
+case $2 in
+  *$'\r'*|*$'\n'*) usage ;;
+esac
+path=.
+[[ $# -eq 2 ]] || path=$3
+
+group_matches() {
+  local file line previous='' separator=':'
+  # rg NUL-terminates filenames, so colons and whitespace in paths are safe.
+  while IFS= read -r -d '' file && IFS=: read -r line _; do
+    if [[ $file != "$previous" ]]; then
+      [[ -z $previous ]] || printf '\n'
+      if [[ $file == *[[:cntrl:]]* ]]; then
+        printf '%q' "$file"
+      else
+        printf '%s' "$file"
+      fi
+      previous=$file
+      separator=:
+    fi
+    printf '%s%s' "$separator" "$line"
+    separator=,
+  done
+  [[ -z $previous ]] || printf '\n'
+}
+
+rg --no-config --color never --sort path --no-heading --null --with-filename \
+  --line-number --fixed-strings --word-regexp -e "$2" -- "$path" </dev/null |
+  group_matches

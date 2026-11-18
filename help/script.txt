@@ -12,6 +12,7 @@ Options:
 Examples:
   rigorkit script test-summary npm test
   rigorkit script json-peek package.json 2
+  rigorkit script code-context find createOrder src
 
 Writes:
   Nothing; the script itself may write.
