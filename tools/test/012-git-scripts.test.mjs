@@ -11,6 +11,8 @@ const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const COMPACT = path.join(repo, 'packs/core/scripts/git-compact');
 const ACTIVITY = path.join(repo, 'packs/core/scripts/git-activity');
 const STATUS = path.join(repo, 'packs/core/scripts/spec-status');
+const CONTEXT = path.join(repo, 'packs/core/scripts/code-context');
+const NEED_RG = spawnSync('rg', ['--version'], { stdio: 'ignore' }).status !== 0 && 'ripgrep unavailable';
 
 function temp(t, name = 'rigorkit-012-') {
   const dir = realpathSync(mkdtempSync(path.join(tmpdir(), name)));
@@ -303,6 +305,40 @@ test('RF-9.S1: option-like values never reach git', t => {
   assert.equal(existsSync(path.join(cwd, 'x')), false);
 });
 
+// ---------- code-context ----------
+test('code-context groups literal whole-word matches by file without source text', { skip: NEED_RG }, t => {
+  const root = init(t);
+  put(root, '.gitignore', 'src/ignored.ts\n');
+  put(root, 'src/a file:42.ts', 'get.value() twice get.value()\ngetXvalue()\npre_get.value()\nget.value()\n');
+  put(root, 'src/z.ts', 'other\nget.value()\n');
+  put(root, 'src/ignored.ts', 'get.value()\n');
+  put(root, 'outside.ts', 'get.value()\n');
+
+  const result = run(CONTEXT, ['find', 'get.value', 'src'], { cwd: root });
+  assert.equal(result.status, 0, result.err);
+  assert.deepEqual(result.lines, ['src/a file:42.ts:1,4', 'src/z.ts:2']);
+
+  const fromRoot = run(CONTEXT, ['find', 'get.value'], { cwd: root });
+  assert.equal(fromRoot.status, 0, fromRoot.err);
+  assert.deepEqual(fromRoot.lines.map(line => line.replace(/^\.\//, '')),
+    ['outside.ts:1', 'src/a file:42.ts:1,4', 'src/z.ts:2']);
+});
+
+test('code-context preserves the distinction between no match and search error', { skip: NEED_RG }, t => {
+  const root = temp(t);
+  put(root, 'present.ts', 'present()\n');
+
+  const noMatch = run(CONTEXT, ['find', 'absent', 'present.ts'], { cwd: root });
+  assert.equal(noMatch.status, 1, noMatch.err);
+  assert.equal(noMatch.out, '');
+  assert.equal(noMatch.err, '');
+
+  const error = run(CONTEXT, ['find', 'present', 'missing.ts'], { cwd: root });
+  assert.equal(error.status, 2);
+  assert.equal(error.out, '');
+  assert.match(error.err, /missing\.ts/);
+});
+
 // ---------- spec-status ----------
 function specRepo(t) {
   const r0 = init(t);
@@ -333,6 +369,27 @@ test('RF-10.H1: active changes get defined, in-progress, implemented, validated'
   assert.equal(s['002-b'], 'in-progress 1/3');
   assert.equal(s['003-c'], 'implemented 3/3');
   assert.equal(s['004-d'], 'validated 3/3');
+});
+
+test('spec-status only validates a two-file story with completed tasks and exact markers', t => {
+  const root = specRepo(t);
+  const cases = [
+    { id: '008-story-done', profile: 'Artifacts: spec+tasks', marker: 'Validation: done', task: 'x', state: 'validated 1/1' },
+    { id: '009-story-pending', profile: 'Artifacts: spec+tasks', marker: 'Validation: pending', task: 'x', state: 'implemented 1/1' },
+    { id: '010-story-open', profile: 'Artifacts: spec+tasks', marker: 'Validation: done', task: ' ', state: 'defined 0/1' },
+    { id: '011-story-expanded', profile: '', marker: 'Validation: done', task: 'x', state: 'implemented 1/1' },
+    { id: '012-story-marker-in-prose', profile: 'Artifacts: spec+tasks', marker: '> Validation: done', task: 'x', state: 'implemented 1/1' },
+  ];
+  for (const { id, profile, marker, task } of cases) {
+    put(root, `specs/changes/${id}/spec.md`, `# Spec\n${profile}\n`);
+    put(root, `specs/changes/${id}/tasks.md`, `# Tasks\n- [${task}] T1. task\n${marker}\n`);
+  }
+
+  const result = run(STATUS, [root]);
+  assert.equal(result.status, 0, result.err);
+  const status = states(result);
+  for (const { id, state } of cases) assert.equal(status[id], state, id);
+  assert.equal(status['004-d'], 'validated 3/3');
 });
 
 test('RF-10.E1: a code commit for the ID makes a change in-progress', t => {

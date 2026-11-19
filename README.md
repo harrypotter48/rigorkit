@@ -128,7 +128,7 @@ rigorkit install --pack core,sdd --agent claude --global
 ```
 Your own packs and scripts go in `~/.rigorkit/custom/packs` and `~/.rigorkit/custom/scripts`; a custom pack or script replaces the official one with the same name. Helper scripts are no longer copied: global rules call them with `rigorkit script <name>`. An existing 0.1.0 install keeps working; its old copies in `~/.local/share/rigorkit/scripts` are left as they are. If `rigorkit` runs an older copy, check `command -v rigorkit`.
 
-Use `rigorkit script code-context find <symbol> [path]` to locate textual references as one `path:line[,line...]` row per file. It uses an available `rg` and defaults to the current directory.
+Use `rigorkit script code-context find <symbol> [path]` to locate textual references as one `path:line[,line...]` row per file. It uses an available `rg` and defaults to the current directory. See [helper examples](help/helper-scripts.md).
 
 ### Terminal colors
 Rigorkit colors its own terminal output: additions and successes green, removals and errors red, questions and warnings yellow, headings cyan. Paths and ordinary text keep the terminal default. Each output channel decides independently; pipes and files stay plain. A non-empty `NO_COLOR` (including `NO_COLOR=1` or `NO_COLOR=0`) or `TERM=dumb` disables colors. An empty `NO_COLOR` does not disable them. Agents using a pseudoterminal must set `NO_COLOR=1`.
