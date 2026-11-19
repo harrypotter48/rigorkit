@@ -58,7 +58,14 @@ for kind in changes archive; do
       [ "$close" != none ] && g -C "$root" show -s --format=%b "$close" | grep -qE '^Validation:[[:space:]]*pending' \
         && state=archived-unvalidated
     elif [ "$total" -gt 0 ] && [ "$done_" = "$total" ]; then
-      [ -f "$dir/validation.md" ] && state=validated || state=implemented
+      if [ -f "$dir/validation.md" ] || {
+        [ -f "$dir/spec.md" ] && grep -qFx "Artifacts: spec+tasks" "$dir/spec.md" \
+          && grep -qFx "Validation: done" "$dir/tasks.md"
+      }; then
+        state=validated
+      else
+        state=implemented
+      fi
     elif [ "$done_" -gt 0 ] || [ "$code" = code ]; then
       state=in-progress
     else

@@ -1,5 +1,5 @@
 # rigorkit
-A factory for rigorous, tool-neutral work: common departments, specialized processes and human approval gates. The software lane is available today. Supports Claude Code, Codex, Cursor and OpenCode. Install only the packs you need. Current version: 0.2.0 (`VERSION`, `./install.sh --version`).
+A factory for rigorous, tool-neutral work: common departments, specialized processes and human approval gates. The software lane is available today. Supports Claude Code, Codex, Cursor and OpenCode. Install only the packs you need.
 
 ## From a feature to an accepted slice
 
@@ -224,15 +224,17 @@ Change flow (the entry stage is being added in the Factory v2 work):
 
 1. `sdd-slice` → owner-selected roadmap entry → `sdd-triage` / `sdd-context`
 2. `sdd-spec` → `sdd-clarify` automatically; user approves the clarified spec
-3. `sdd-plan` → `sdd-tasks` automatically; user approves the plan and functional blocks
+3. `sdd-plan` → `sdd-tasks` automatically; user approves HOW and the functional blocks
 4. `sdd-tests` for the selected slice/block; run permitted tests and record intended-red evidence
 5. `sdd-implement` (the approved slice/block; internal tasks, minimum implementation, scoped unit/integration tests)
 6. `sdd-verify` (spec/architecture/integration evidence; requested live checks, otherwise pending)
 7. `sdd-archive`
 
+For a normal single-repo story approved with `Artifacts: spec+tasks`, Understand records the behavior in `spec.md`, Design records HOW and one B1 in `tasks.md`, and Verify reviews one combined diff and records its evidence in `tasks.md`. `rigorkit script spec-status` reads the final validation there. Architecture, data-model, critical and larger changes retain their applicable artifacts and reviews.
+
 After the builder, the enabled reviewers run together, each with the same references and no other reviewer's report. `sdd-approver` aggregates their verdicts into approved, needs human or failed, and you close the change. Interface improvements never block; an interface defect blocks only when the same change does not correct it.
 
-You approve WHAT after the spec has been clarified, then HOW after the plan and block tasks are ready. Unresolved decisions come back to you before proceeding. Internal tasks are a checklist: implementation and review cover the approved functional block, with scoped unit/integration checks and explicit approval for every commit. Tests outside that boundary remain on request; every slice is accepted separately.
+You approve WHAT after the spec has been clarified, then HOW after the design and block tasks are ready. Unresolved decisions come back to you before proceeding. Internal tasks are a checklist: implementation and review cover the approved functional block, with scoped unit/integration checks and explicit approval for every commit. Tests outside that boundary remain on request; every slice is accepted separately.
 
 Reuse verified context while its source is unchanged; read referenced sections and expand when evidence is missing, dependencies change or risk grows. Whole-change integration and critical-path checks remain required; required live verification stays pending until explicitly requested and evidenced. See [functional blocks](packs/sdd/README.md#functional-blocks), [review stations](packs/sdd/README.md#review-stations) and [selective context](packs/sdd/README.md#selective-context-global-verification).
 

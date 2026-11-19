@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0
+Global rules: unchanged
+New packs: none
+
+- The Factory's software lane can deliver an approved normal, single-repo story with only `spec.md` and `tasks.md`, one functional block and one combined diff review in Verify. Design and validation evidence live in `tasks.md`. Larger and critical changes keep their existing workflow.
+- `spec-status` recognizes validation recorded in `tasks.md` for these stories. Existing `validation.md` records still work.
+- `rigorkit script code-context find <symbol> [path]` groups textual references by file with `rg`. `sdd-context`, `sdd-explorer` and `sdd-legacy-review` use it to find reference candidates.
+
 ## 0.7.0
 Global rules: unchanged
 New packs: none
