@@ -25,7 +25,7 @@ Flat owner-ordered index: one HU/story/ticket per useful vertical slice, never a
 | HU-13 | One version rule | The remote installer and the global record reject leading zeros like the update does | release | S | — | done | 019-version-rule |
 | HU-14 | One question for a scan | `rigorkit scan` finds every project first, shows them with their suggested tools and asks once (all, each or none), skips work for tools not chosen and shows progress, so a first scan of many projects is quick and never looks stuck | updater | S | HU-11 | done | 020-scan-batch |
 | HU-15 | Terminal colors across the CLI | Semantic terminal colors make questions, diffs and outcomes readable while preserving plain captures and script-owned output | cli | S | — | done | 021-terminal-colors |
-| HU-16 | Global rules from the one-line install | The one-line installer offers to install only the global rules for the tools it detects, and `rigorkit install` gets a rules-only option, so everything global is in place without copying skills globally | installer | S | HU-1 | wip | 022-global-rules-on-install |
+| HU-16 | Global rules from the one-line install | The one-line installer offers to install only the global rules for the tools it detects, and `rigorkit install` gets a rules-only option, so everything global is in place without copying skills globally | installer | S | HU-1 | done | 022-global-rules-on-install |
 | HU-17 | Atomic rules write that keeps your original | A global rules install never leaves an instruction file half written and never replaces the first backup of the user's original, so a failed or repeated install cannot lose their instructions | installer | S | HU-16 | proposed | 023-atomic-rules-write |
 
 ## Open questions
